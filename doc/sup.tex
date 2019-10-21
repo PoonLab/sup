@@ -1,0 +1,55 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}                
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+
+\title{Sequencing Uncertainty Propagation}
+\author{David Champredon}
+\date{\today}                                           % Activate to display a given date or no date
+
+\newcommand{\comment}[1]{\textsl{\textcolor{cyan}{#1}}}
+\newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+
+Identifying the sequence of nucleotides from a biological sample is a complex process which is fraught with noise. 
+
+Assuming the biological sample of interest has been properly isolated (that is it is complete, has no damages or contamination), the ``Next-Generation Sequencing'' (NGS) usually involves:
+\begin{itemize}
+\item fragment DNA in small pieces (length $<$ 400bp)
+\item making numerous copies of the small DNA fragments (amplification)
+\item sequencing, i.e., identifying the nucleotides from a fluorescent tag attached
+\item putting back the small pieces together (using a sequence template library, or not)
+\end{itemize}
+
+For Sanger sequencing, we have"
+\begin{itemize}
+\item a
+\item b
+\end{itemize}
+
+
+Errors can be introduced at each of these steps for various reasons \cite{Beerenwinkel:2011}. It is probably not feasible to determine what is the source of the noise, nor to try to eliminate it completely.
+The goal here is to acknowledge there is uncertainty in the output sequence given from any sequencing method and to propose a method to propagate this uncertainty in any downstream analysis.
+Currently, this uncertainty is recognized and even quantified with sequencing quality scores (FASTQ files), but it does not seem those scores are used to inform a probabilistic model to represent the sequence. 
+Simply put, we shouldn't treat the result of sequencing as a \emph{certainty}.
+
+\section{Probabilistic representation}
+ 
+We can represent probabilistically a nucleotide sequence in a matrix form. 
+
+
+ 
+
+%\subsection{}
+
+
+
+\end{document}  
