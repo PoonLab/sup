@@ -40,4 +40,13 @@ doc/*.aux
 doc/*.log
 doc/*.gz
 doc/*.pdf
+doc/*.bbl
+doc/*.blg
+
+# Reads sequencing error simulations:
+reads-seq-err/plot*.pdf
+reads-seq-err/*.fastq
+reads-seq-err/*_abundance.txt
+
+
 
