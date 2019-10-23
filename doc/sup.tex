@@ -1,11 +1,11 @@
 \documentclass[12pt]{article}
 \usepackage{geometry}                
 \geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
-\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage[parfill]{parskip}    
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{amsmath}
-\usepackage{xcolor}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 
 
 \title{Sequencing Uncertainty Propagation}
@@ -110,7 +110,44 @@ $$
 Like above, there is still a 0.449 probability that the sequence is \sq{ACATG}, but with probability 0.064, the sequence could be shorter when position 4 is empty and be \sq{ACAG}.
 
 
+
 \section{Quantifying probabilities}
+
+The difficulty of estimating the probabilities that populate the probabilistic sequence lies in quantifying errors at each steps (fragmentation, amplification, sequencing, alignment). And how to integrate these error types in a coherent fashion?
+
+
+\subsection{Sequencing errors}
+
+Maybe the easiest error type to quantify is the fragment sequencing error because a quality (or ``Phred'') score is attributed to each base call. The quality score $Q$ is directly related to the error probability: $p = 10^{-Q/10}$. 
+
+\begin{figure}[ht]
+% https://tex.stackexchange.com/questions/511138/miktex-graphics-version-1-3b-bug-on-windows-10-setcurrfile-undefined
+
+%\begin{center}
+% \includegraphics{figs/Phred.jpg}
+%\caption{default}
+%\label{default}
+%\end{center}
+\end{figure}
+
+As I don't have FASTQ files from actual biological samples, I use the software  \textsf{inSilicoSeq} that simulates the sequencing of short reads from Illumina instruments. 
+As shown in Figure \comment{TODO: include figure, but fix Miktex graphics version first}, the sequencing error probability ranges between $10^{-3.5}$ an $10^{-1.5}$ .  
+
+After alignment, taking an optimistic view, we can assume a unique global sequencing error of $\epsilon=10^{-3.5}=0.0003$.
+So each base call is right with probability $1-\epsilon$. Assume the other bases and missing position \sq{x} are all equally likely with probability $(1-\epsilon)/4$. 
+
+For example, if the output sequence after fragment sequencing and alignment is \sq{ACGT} the probabilistic sequence is:
+
+$$
+S = 
+\begin{pmatrix}
+1-\epsilon & \epsilon/4    & \epsilon/4  & \epsilon/4  \\
+\epsilon/4 & 1-\epsilon & \epsilon/4  & \epsilon/4  \\
+\epsilon/4 & \epsilon/4  & 1-\epsilon  & \epsilon/4 \\
+\epsilon/4 & \epsilon/4  & \epsilon/4  & 1-\epsilon \\
+\epsilon/4 & \epsilon/4  & \epsilon/4  & \epsilon/4 \\
+\end{pmatrix}
+$$
 
 
 
