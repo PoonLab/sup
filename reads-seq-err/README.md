@@ -2,6 +2,8 @@
 The goal is to simulate sequencing reads with `InSilicoSeq` and visualize the error probabilities of the base calls.
 The simulations mimic *Illumina* instruments: HiSeq, MiSeq and NovaSeq. 
 
+To install `InSilicoSeq`, run the script `install-iss.sh`. 
+
 Run `go.sh` for the full execution:
 
  1. simulate reads from a "true" source sequence
