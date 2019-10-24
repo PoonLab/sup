@@ -1,0 +1,7 @@
+name, value, comment
+phylosim.root.seq.length, 60, Length of the 'true' root sequence
+phylosim.n.invar, 5, Number of invariant positions in the root sequence
+phylosim.n.tips, 10, Number of tips in the 'true' simulated phylogeny
+err.proba, 1e-2, Error probability of base call
+sample.tips.n.mc, 30, Monte Carlo iterations for sampling tip probabilistic sequences
+
