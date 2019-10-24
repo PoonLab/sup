@@ -48,5 +48,10 @@ reads-seq-err/plot*.pdf
 reads-seq-err/*.fastq
 reads-seq-err/*_abundance.txt
 
+# Sampling:
+src/seqs/*mc*.fasta
+src/trees/*mc*.out
+
+
 
 
