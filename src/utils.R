@@ -1,5 +1,9 @@
 
 
+get_prm <- function(prm, prm.name) {
+    return(prm$value[prm$name == prm.name])
+}
+
 #' Define a probabilistic sequence, randomly assigning probabilities.
 #' Four rows for each nucleotide: A,C,G,T
 #' Column = nucleotide position
