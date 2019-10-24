@@ -21,23 +21,29 @@ for(i in 1:n){
 # ---- Rerooting ----
 
 # Reroot the trees 
-#(a rooted tree is needed  for summary stats)
+# (a rooted tree is needed for summary stats)
 
 # TODO: 
 # Check if that makes sense. I'm not sure at all this is correct!
+# https://phylobotanist.blogspot.com/2015/01/how-to-root-phylogenetic-tree-outgroup.html
+# https://cabbagesofdoom.blogspot.com/2012/06/how-to-root-phylogenetic-tree.html
 
 # Generate random dummy dates for tips:
-dummy.tip.dates <- runif(n = length(x[[1]]$tip.label), 
+n.tips <- length(x[[1]]$tip.label)
+dummy.tip.dates <- runif(n = n.tips, 
                          min = 0, 
-                         max = 100)
+                         max = 1)
+# dummy.tip.dates <- rnorm(n.tips, mean = 100, sd = 11)
 
 for(i in 1:n){
   if(i%%10==0) print(paste('Re-rooting tree #',i,'/',n))
   x[[i]] <- ape::rtt(t = x[[i]], 
-                     tip.dates = dummy.tip.dates)
+                     tip.dates = dummy.tip.dates,
+                     objective = 'rms') #correlation rms rsquared
 }
 
-
+plot(z, type = 'phyl')
+plot(x[[1]], type = 'phyl')
 
 # ---- Summary stats ----
 

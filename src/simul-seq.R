@@ -38,8 +38,8 @@ setRateMultipliers(root.seq,ev.proc,0,invar.pos)
 
 # Define the evolution tree
 # and how spreaded it is:
-n.tips   <-  get_prm(prm,'phylosim.n.tips')
-tree.sim <- rcoal(n.tips)
+n.tips   <- get_prm(prm,'phylosim.n.tips')
+tree.sim <- ape::rcoal(n.tips)
 message(paste('Tree with',n.tips,'tips built.'))
 
 # Simulate evolution of 
@@ -48,21 +48,23 @@ sim <- PhyloSim(phy  = tree.sim,
                 root = root.seq )
 Simulate(sim)
 
+
 # Save
-fname <- 'seqs/sim.fasta'
+fname.seqs <- 'seqs/sim.fasta'
+fname.tree <- 'trees/sim.nwk'
+ape::write.tree(tree.sim, file = fname.tree)
 phylosim::saveAlignment(this = sim, 
-                        file = fname, 
+                        file = fname.seqs, 
                         skip.internal = TRUE, 
                         paranoid = TRUE)
-# print(sim$alignment)
 
 message(paste("Simulated phylogeny saved in:",
-              fname))
+              fname.seqs, fname.tree))
 
 pdf('plot-sim-phylo.pdf', 
     width=15, height = 10)
 plot(ev.proc)
-plot(tree.sim, type = 'clado')
+plot(tree.sim, type = 'clad')
 plot(sim, num.pages = 1)
 dev.off()
 
