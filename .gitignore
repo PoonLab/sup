@@ -39,9 +39,9 @@ rsconnect/
 doc/*.aux
 doc/*.log
 doc/*.gz
-doc/*.pdf
 doc/*.bbl
 doc/*.blg
+doc/*.out
 
 # Reads sequencing error simulations:
 reads-seq-err/plot*.pdf
