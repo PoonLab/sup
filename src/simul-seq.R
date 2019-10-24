@@ -5,10 +5,13 @@
 
 library(phylosim, quietly = TRUE, warn.conflicts = F)
 library(dplyr,quietly = TRUE, warn.conflicts = F)
+source('utils.R')
 
 set.seed(1234)
 
 message("\nStarting phylogeny simulation...")
+
+prm <- read.csv('prm.csv')
 
 # Define the evolution process:
 ev.proc    <- phylosim::JC69()  
@@ -16,7 +19,7 @@ summary(ev.proc)
 
 # Define the "root" sequence from
 # which evolution occurs:
-root.seq.length <- 60
+root.seq.length <- get_prm(prm,'phylosim.root.seq.length')
 root.seq <- NucleotideSequence(length = root.seq.length, 
                                processes = list(list(ev.proc)) ) %>%
     sampleStates()
@@ -25,7 +28,7 @@ print(root.seq)
 print(paste("Root sequence length:", root.seq.length))
 
 # Draw invariable positions 
-invar.n   <- 5
+invar.n   <- get_prm(prm,'phylosim.n.invar')
 invar.pos <- sample(1:root.seq.length, invar.n)
 print("Invariant positions:")
 print(sort(invar.pos))
@@ -35,7 +38,7 @@ setRateMultipliers(root.seq,ev.proc,0,invar.pos)
 
 # Define the evolution tree
 # and how spreaded it is:
-n.tips   <- 10
+n.tips   <-  get_prm(prm,'phylosim.n.tips')
 tree.sim <- rcoal(n.tips)
 message(paste('Tree with',n.tips,'tips built.'))
 
