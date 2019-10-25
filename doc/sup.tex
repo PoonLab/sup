@@ -9,6 +9,7 @@
 
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 
+\hyphenpenalty=10000
 
 \title{Sequencing Uncertainty Propagation}
 \author{David Champredon}
@@ -156,6 +157,18 @@ S =
 \epsilon/4 & \epsilon/4  & \epsilon/4  & \epsilon/4 \\
 \end{pmatrix}
 $$
+
+\subsection{Polymorphism, in-host diversity}
+
+The probabilistic sequence can also be interpreted as a representation of polymorphism abundance in a biological sample from one single host (in-host diversity).
+
+There may be one problem: the data will give abundances of several sequences -- say 10 -- found in one host. 
+When sampling from the probabilistic sequence, it is not constraint to a given number of specific sequences. For a sequence of length $n$ the number of  unique sequences is $5^n$. Even if we do not observe perfectly, it is almost sure that the real diversity is a minute fraction of the $5^n$ possible sequences.
+ 
+Maybe this can be overcome by thinking in terms of diversity \emph{and} sequencing error.
+In that case the probabilities would be defined primarily for the diversity and another smaller layer for sequencing error. 
+
+Not too sure about all that... 
 
 
 
