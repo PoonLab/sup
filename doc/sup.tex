@@ -171,7 +171,33 @@ In that case the probabilities would be defined primarily for the diversity and 
 Not too sure about all that... 
 
 
+\section{Sequence logo and entropy}
 
+Are sequence logos along with their entropy calculation a better start than the probabilistic sequence? 
 
+Schneider \cite{Schneider:1986,schneider1990sequence,Schneider:2002} used information theory, Shannon entropy, to quantify the uncertainty in ``bits''. Is that better? 
+
+The bits are the number of binary digits, i.e., 0 or 1, needed to translate the possibilities of a ``message''. Here the message is a base call, or rather bases associated with their probabilities. 
+The larger the number of bits required to translate the message, the more uncertain. 
+In my mind, uncertainty and entropy are similar, the only important difference is that entropy is quantified in bits. 
+
+The entropy (i.e., uncertainty) at a given position $j$ is given by Shannon's standard expression:
+
+\begin{equation}
+H = -\sum_{n\in\{\sq{A,C,G,T}\}} S_{n,j}\log_2(S_{n,j})
+\end{equation}
+with, as before, $S_{n,j}$ being the probability that nucleotide $n$ is at position $j$.
+
+For example, if we know for sure that the nucleotide at a given position is \sq{C}, that is $S_{\sq{C},j}=1$, then entropy (uncertainty) is $H=0$: we don't need any bit to translate that \sq{C} is at this position, it's sure, we know that. 
+
+Another example, is when any of the four bases are equally likely. All probabilities are 1/4, and the entropy is maximum with a value $H = 2$ bits ($=-4\times \frac{1}{4}\times \log_2(\frac{1}{4})$). 
+  
+I'm not sure how useful Schneider's $R_{sequence}$ metric is in my case (propagating uncertainty in tree reconstruction).
+The entropy $H$ may be more useful as a principled measure of uncertainty at a given position. 
+ 
+\newpage
+
+\bibliographystyle{plain}
+\bibliography{papers}
 
 \end{document}  
