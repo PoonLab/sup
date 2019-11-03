@@ -86,6 +86,37 @@ digest <- function(dat) {
     return(list(df=df, dfp=dfp, dfpb=dfpb))
 }
 
+
+proba_by_base <- function(dat) {
+    x <- digest(dat)
+    dfpb <- x$dfpb
+    
+    y <- dfpb %>%
+        filter(base=='A')
+    
+    pr <- y$p
+    mean(pr)
+    pr[pr==0] <- 1e-10
+    pr[pr==1] <- 1-1e-10
+    
+    
+    nllk <- function(x, pr) {
+        return(sum(dbeta(x = pr, 
+                  shape1 = x[1], 
+                  shape2 = x[2], 
+                  log = TRUE)))
+    }
+    a <- optim(par = c(0.5,0.5), fn = nllk, pr=pr)
+    a.fit <- a$par
+    a.fit
+    a.fit[1]/sum(a.fit)
+    
+    xx <- seq(0,1,length.out = 100)
+    yy <- dbeta(xx, a.fit[1], a.fit[2])
+    plot(xx,yy,typ='l')
+    
+}
+
 plots <- function(dat) {
     z    <- digest(dat)
     df   <- z$df
@@ -180,8 +211,8 @@ plots <- function(dat) {
 
 # --- RUN ----
 
-patient.vec   <- c(1,3,9,11)
-timepoint.vec <- c(1,3,5,0)
+patient.vec   <- 1 # c(1,3,9,11)
+timepoint.vec <- 0 # c(1,3,5,0)
 
 for(patient in patient.vec){
     for(timepoint in timepoint.vec){
