@@ -1,5 +1,16 @@
 
 
+xlogx <- function(x) {
+    x <- x[x>0]
+    return(x * log2(x))
+}
+
+
+entropy <- function(p){
+    return(-sum(xlogx(p)))
+}
+
+
 get_prm <- function(prm, prm.name) {
     return(prm$value[prm$name == prm.name])
 }
@@ -42,8 +53,8 @@ build_random_seq <- function(seq.length, p = NULL) {
 #' Four rows for each nucleotide: A,C,G,T
 #' Column = nucleotide position
 #' @param seq String. Sequence nucleotides.
-#' @param p Numerical. Fixed probability for the nucleotide given as input. 
-#' For example, if p=0.9 a randomly chosen nucleotide among A,C,G,T will
+#' @param p Numerical vector. Fixed probability for each position for the nucleotide given as input. 
+#' For example, if p=0.9, the nucleotide given at any position will
 #' be assigned probability = 0.9. The three other will be assign
 #' random numbers (such that sum=1).
 #' @return Matrix (nrow=4, ncol=seq.length). Sequence probabilities. 
@@ -54,6 +65,10 @@ build_from_seq <- function(seq, p) {
     if(length(seq) > 1) 
         seq = paste(seq,collapse = '')
     
+    # If only one value is given, 
+    # then same proba for all positions:
+    if(length(p)==1) p <- rep(p, length(seq))
+    
     seq.length <- nchar(seq)
     M <- matrix(ncol = seq.length, 
                 nrow = 4)
@@ -61,16 +76,23 @@ build_from_seq <- function(seq, p) {
     v <- strsplit(x = seq, split = '')[[1]]
     idx <- sapply(v, tr_idx)
     
-    for(j in 1:seq.length){
+    for(j in 1:seq.length){   # j=1
         y <- runif(3)
-        y <- y / sum(y) * (1-p) # proba must sum to 1.0
+        y <- y / sum(y) * (1-p[j]) # proba must sum to 1.0
         x <- numeric(4)
-        x[idx[j]] <- p
+        x[idx[j]] <- p[j]
         x[-idx[j]] <- y
         M[,j] <- x
     }  
     return(M)
 }
+
+
+build_from_zanini <- function(pos.start, pos.end, df) {
+    
+}
+
+
 
 #' Translate index to nucleotide character.
 tr_nucl <- function(i){
