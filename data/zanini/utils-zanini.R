@@ -4,9 +4,6 @@ library(ggplot2) ; theme_set(theme_bw())
 
 # Download data at: https://hiv.biozentrum.unibas.ch/data/
 
-
-
-
 read_data <- function(patient, timepoint) {
     flist <- system(paste0('ls act_p', patient), intern = TRUE) 
     flist <- flist[!grepl('README', flist)]
@@ -43,15 +40,13 @@ read_data <- function(patient, timepoint) {
     return(dat)
 }
 
-
-
 calc_entropy_one <- function(p){
     res <- NA
+    if(is.na(p)) return(NA)
     if(p==0) res <- 0
     if(p>0) res <- -sum(p * log(p,base = 2))
     return(res)
 }
-
 
 calc_entropy <- function(dfp) {
     # Calculate "p*log(p)" for 
@@ -66,7 +61,6 @@ calc_entropy <- function(dfp) {
     dfp$entropy <- apply(m, MARGIN = 1, FUN=sum)    
     return(dfp)
 }
-
 
 digest <- function(dat) {
     
@@ -86,7 +80,6 @@ digest <- function(dat) {
     return(list(df=df, dfp=dfp, dfpb=dfpb))
 }
 
-
 proba_by_base <- function(dat) {
     x <- digest(dat)
     dfpb <- x$dfpb
@@ -102,9 +95,9 @@ proba_by_base <- function(dat) {
     
     nllk <- function(x, pr) {
         return(sum(dbeta(x = pr, 
-                  shape1 = x[1], 
-                  shape2 = x[2], 
-                  log = TRUE)))
+                         shape1 = x[1], 
+                         shape2 = x[2], 
+                         log = TRUE)))
     }
     a <- optim(par = c(0.5,0.5), fn = nllk, pr=pr)
     a.fit <- a$par
@@ -172,7 +165,7 @@ plots <- function(dat) {
         geom_line(aes(y=m.entropy), size=0.3) + 
         geom_ribbon(aes(ymin=min.entropy, 
                         ymax=max.entropy),
-                        alpha=0.4)+
+                    alpha=0.4)+
         ggtitle(fname2, 
                 paste('Bucket size =',bucket, 
                       '; Total entropy =', round(sum(dfp$entropy),3)))
@@ -209,17 +202,7 @@ plots <- function(dat) {
     dev.off()
 }
 
-# --- RUN ----
 
-patient.vec   <- 1 # c(1,3,9,11)
-timepoint.vec <- 0 # c(1,3,5,0)
 
-for(patient in patient.vec){
-    for(timepoint in timepoint.vec){
-        print(paste('patient:',patient,'timepoint:',timepoint))
-        dat <- read_data(patient, timepoint)
-        plots(dat)        
-    }
-}
 
 
