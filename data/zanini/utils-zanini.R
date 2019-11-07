@@ -195,6 +195,7 @@ plots <- function(dat) {
     fplot <- paste0('plot-',fname2,'.pdf')
     pdf(file = fplot, width=12, height = 10)
     plot(g.pose2)
+    plot(g.histe)
     plot(g.cvgent)
     plot(g.histp)
     plot(g.cvg)
