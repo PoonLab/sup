@@ -5,9 +5,12 @@
 
 library(phylosim, quietly = TRUE, warn.conflicts = F)
 library(dplyr,quietly = TRUE, warn.conflicts = F)
+library(seqinr,quietly = TRUE, warn.conflicts = F)
+
 source('utils.R')
 
 set.seed(1234)
+t1 <- as.numeric(Sys.time())
 
 message("\nStarting phylogeny simulation...")
 
@@ -18,20 +21,42 @@ ev.proc    <- phylosim::JC69()
 summary(ev.proc)
 
 # Define the "root" sequence from
-# which evolution occurs:
-root.seq.length <- get_prm(prm,'phylosim.root.seq.length')
-root.seq <- NucleotideSequence(length = root.seq.length, 
-                               processes = list(list(ev.proc)) ) %>%
-    sampleStates()
-print("The root sequence is:")
-print(root.seq)
-print(paste("Root sequence length:", root.seq.length))
+# which evolution occurs. 
+# Either generate randomly or
+# read from an existing sequence.
+
+random.root <- get_prm(prm,'phylosim.root.random')
+
+message(paste("Random root sequence:",random.root))
+message('Building root sequence... ')
+
+if(random.root){
+    root.seq.length <- get_prm(prm,'phylosim.root.seq.length')
+    root.seq <- NucleotideSequence(length = root.seq.length, 
+                                   processes = list(list(ev.proc)) ) %>%
+        sampleStates()
+}
+
+if(!random.root){
+    rs <- read.fasta(file = 'seqs/patient_1_TP_3_consensus.fasta',
+                     as.string = TRUE, 
+                     forceDNAtolower = FALSE) %>% 
+        as.character()
+    root.seq <- NucleotideSequence(string = rs, 
+                                   processes = list(list(ev.proc)) )
+    root.seq.length <- nchar(rs)
+}
+
+message("\nThe root sequence is (first 200 nucleotides):")
+message(substr(root.seq,1,200))
+message(paste("Root sequence length:", root.seq.length))
+
 
 # Draw invariable positions 
-invar.n   <- get_prm(prm,'phylosim.n.invar')
-invar.pos <- sample(1:root.seq.length, invar.n)
-print("Invariant positions:")
-print(sort(invar.pos))
+invar.p   <- get_prm(prm,'phylosim.prop.invar')
+invar.pos <- sample(1:root.seq.length, round(invar.p*root.seq.length))
+message("Invariant positions (first 20):")
+message(paste(sort(invar.pos)[1:20],collapse = ' '))
 setRateMultipliers(root.seq,ev.proc,0,invar.pos)
 # getRateMultipliers(root.seq,ev.proc)
 
@@ -44,12 +69,14 @@ message(paste('Tree with',n.tips,'tips built.'))
 
 # Simulate evolution of 
 # the root seq on the tree:
+message('Simulating phylogeny...')
 sim <- PhyloSim(phy  = tree.sim,
                 root = root.seq )
 Simulate(sim)
-
+message('Simulation done.')
 
 # Save
+message('Saving...', appendLF = FALSE)
 fname.seqs <- 'seqs/sim.fasta'
 fname.tree <- 'trees/sim.nwk'
 ape::write.tree(tree.sim, file = fname.tree)
@@ -58,7 +85,7 @@ phylosim::saveAlignment(this = sim,
                         skip.internal = TRUE, 
                         paranoid = TRUE)
 
-message(paste("Simulated phylogeny saved in:",
+message(paste(" done.\nSimulated phylogeny saved in:",
               fname.seqs, fname.tree))
 
 pdf('plot-sim-phylo.pdf', 
@@ -68,4 +95,7 @@ plot(tree.sim, type = 'clad')
 plot(sim, num.pages = 1)
 dev.off()
 
-message("Phylogeny simulation done.")
+t2 <- as.numeric(Sys.time())
+dt <- round((t2-t1)/60, 1)
+
+message(paste("Phylogeny simulation done in",dt,"minutes."))
