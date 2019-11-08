@@ -145,7 +145,7 @@ save.image(file = 'fit-entropy-beta.RData')
 # - - - Plots 
 
 pdf('plot-fit-entropy-beta-zanini.pdf', 
-    width=12, height = 12)
+    width=20, height = 20)
 
 par(mfrow=c(1,2))
 hist(beta_1, col='grey')
