@@ -14,23 +14,39 @@ entropy <- function(p){
 #' proba of observation to a probabilistic sequence
 #' filling the probas for the other nucleotides
 #' using a uniform distribution.
-pmaxseq_to_probseq <- function(df) {
+#' @param test.mode Boolean. Use for testing only!
+#' 
+pmaxseq_to_probseq <- function(df, test.mode = FALSE) {
     # Create empty structure:
     N = nrow(df)
     m <- data.frame(matrix(ncol=4, nrow = N))
     names(m) <- c('A','C','G','T')
     
     # Fill the input probabilities:
-    for(i in 1:N){ # i=1
-        m[i,df$base[i]] <- df$p[i]
+    if(!test.mode){
+        for(i in 1:N){ # i=1
+            m[i,df$base[i]] <- df$p[i]
+        }
+    }
+    if(test.mode){
+        m[,1] <- df$p
     }
     
     # Fill the 3 other probas using uniform distribution:
-    for(i in 1:N){ # i=1
-        y  <- runif(n=3)
-        yy <- y/sum(y) * (1 - df$p[i])
-        m[i,is.na(m[i,])] <- yy
+    if(!test.mode){
+        for(i in 1:N){ # i=1
+            y  <- runif(n=3)
+            yy <- y/sum(y) * (1 - df$p[i])
+            m[i, is.na(m[i,])] <- yy
+        }
     }
+    if(test.mode){
+        mu <- matrix(data = runif(n = N*3), ncol=3)
+        smu <- apply(mu, 1, sum)
+        mu2 <- mu / smu * (1-df$p)
+        m[,2:4] <- mu2
+    }
+    
     return(m)
 }
 
