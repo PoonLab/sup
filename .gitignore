@@ -59,5 +59,8 @@ src/trees/*mc*.out
 src/plot*.pdf
 data/zanini/plot*.pdf
 
+# Trees generated:
+src/trees/*.nwk
+
 
 
