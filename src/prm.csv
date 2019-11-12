@@ -1,8 +1,8 @@
 name, value, comment
-phylosim.root.seq.length, 2000, Length of the 'true' root sequence
+phylosim.root.seq.length, 200, Length of the 'true' root sequence
 phylosim.prop.invar, 0.9, Number of invariant positions in the root sequence
 phylosim.root.random, 1, Generate the root sequence randomly?
-phylosim.n.tips, 10, Number of tips in the 'true' simulated phylogeny
+phylosim.n.tips, 9, Number of tips in the 'true' simulated phylogeny
 err.proba, 0.01, Error probability of base call
-sample.tips.n.mc, 10, Monte Carlo iterations for sampling tip probabilistic sequences
+sample.tips.n.mc, 22, Monte Carlo iterations for sampling tip probabilistic sequences
 
