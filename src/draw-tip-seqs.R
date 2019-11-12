@@ -9,40 +9,12 @@
 library(seqinr)
 
 source('utils.R')
-
+source('add-uncertainty.R')
 set.seed(1234)
-prm <- read.csv('prm.csv')
 
-# Read the simulated phylogeny:
-M.list <- list()
-a <- read.fasta(file = 'seqs/sim.fasta', 
-                forceDNAtolower = FALSE)
+# Load the probabilistic sequences object: `prob_seqs`
+load('prob_seqs.RData')
 
-n <- get_prm(prm, 'phylosim.root.seq.length')
-
-# Error probability of base call.
-err.prob <- get_prm(prm, 'err.proba')
-s1 = 0.1  # shape parameter for beta distribution. 
-s2 = s1/err.prob - s1  # s2 such that mean = err.prob
-err.prob <- rbeta(n=n, shape1 = s1, shape2 = s2)
-hist(err.prob, breaks = 30)
-p <- 1 - err.prob
-
-
-# Add uncertainty by transforming the 
-# (certain) sequence string into a 
-# probabilistic sequence. 
-# Also calculate entropy.
-seq.entropy <- list()
-for(i in 1:length(a)){  #i=1
-    seq <- a[[i]]
-    seq <- seq[seq!=' '] 
-    M.list[[i]]      <- build_from_seq(seq, p)
-    seq.entropy[[i]] <- apply(M.list[[i]] , MARGIN=2, FUN=entropy)
-}
-sum.entropy <- sapply(seq.entropy, sum, na.rm=T)
-sum.entropy
-hist(seq.entropy[[1]], breaks = 20)
 
 # Number of times we sample
 # from the probabilistic sequences
@@ -52,7 +24,7 @@ hist(seq.entropy[[1]], breaks = 20)
 n.mc      <- get_prm(prm, 'sample.tips.n.mc')
 path.seqs <- 'seqs/seqs-mc-'
 for(i in 1:n.mc){
-    draw_multiple_seq(M.list,
+    draw_multiple_seq(prob_seqs,
                       filename = paste0(path.seqs,i,'.fasta')) 
     message(paste('Tip seqs sampling:',i,'/',n.mc))
 }

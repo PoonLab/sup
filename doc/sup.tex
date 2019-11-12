@@ -6,6 +6,7 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{hyperref}
+\usepackage{xspace}
 \usepackage{float} % Place figures exactly "here" (option "H")
 
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
@@ -20,7 +21,7 @@
 \newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
 \newcommand{\pr}[1]{\mathrm{Pr}(#1)}
 \newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
-
+\newcommand{\eg}{\textit{e.g.,}\xspace}
 
 \begin{document}
 \maketitle
@@ -229,6 +230,35 @@ S_{n,j} \sim \betadist{\alpha, \beta}
 where $E$ is the distribution of position-wise entropy.
 
 A fit on Zanini's data gives approximately $\hat{\alpha} = 29.7$ and $\hat{\beta} = 0.06$. Hence, using $\hat{\alpha}$ and $\hat{\beta}$ in simulations of probabilistic sequences should give an ``uncertainty profile'' that is similar to the one observed in Zanini's data. 
+
+
+
+\section{Assessing the impact of sequencing uncertainty}
+
+
+What is the impact of uncertainty on phylogeny reconstruction? 
+To answer this question, we can run the following pipeline:
+
+\begin{enumerate}
+\setcounter{enumi}{-1} 
+\item Choose a root sequence of interest (\eg a HIV genome)
+\item Generate a phylogeny from this root sequence, using \textsf{phyloSim}. The resulting tree $T^*$ has $n$ tips that represent the sequenced samples $seq_1, seq_2,\ldots, seq_n$. The tree $T^*$ with its sequences $seq_i$ is the ``true'' phylogeny.
+\item Add a simulated layer of uncertainty by transforming the ``true'' sequences $seq_i$ into probabilistic sequences $S^i$ (for $i=1,2,\ldots,n$).
+\item Draw a sequence $\widetilde{seq_i}$ from $S^i$.
+\item Use \textsf{FastTree} to reconstruct the phylogeny, $T$, from the $(\widetilde{seq_i})_{i=1\ldots n}$. 
+\item Assess the reconstructed phylogeny $T$ against the true one $T^*$ by looking at various distance metrics.
+\end{enumerate}
+
+Steps 3,4,5 are repeated several times (Monte Carlo simulation).
+
+\begin{figure}[H]
+\begin{center}
+ \includegraphics[width = 0.99\textwidth]{figs/pipeline.png}
+\caption{Pipeline to assess the impact of uncertainty on phylogeny reconstruction.}
+\label{fig:pipeline}
+\end{center}
+\end{figure}
+
 
 
 
