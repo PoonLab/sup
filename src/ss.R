@@ -9,14 +9,26 @@ message("\n\nReconstruction analysis started...")
 
 # ---- Data ----
 
+# Retrieve the "true" benchmark tree:
+tstar <- ape::read.tree('trees/sim.nwk')
+
+
 # Retrieve all trees calculated upstream:
-treename <- system('ls trees/tree-mc-*.out', intern = TRUE)
+treename <- system('ls trees/tree-mc-*.nwk', intern = TRUE)
 n = length(treename)
 x <- list()
 for(i in 1:n){
     x[[i]] <- ape::read.tree(file = treename[i])
     if(i%%10==0) message(paste('Read tree',i,'/',n))
 }
+
+par(mfrow=c(2,2))
+plot(tstar, main='True Phylogeny')
+for(j in 1:3) plot(x[[j]], main=paste('FastTree',j))
+
+
+stop()
+# Wed Nov 13 12:27:48 2019 ------------------------------
 
 # ---- Rerooting ----
 

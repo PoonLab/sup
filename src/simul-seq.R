@@ -17,7 +17,7 @@ message("\nStarting phylogeny simulation...")
 prm <- read.csv('prm.csv')
 
 # Define the evolution process:
-ev.proc    <- phylosim::JC69()  
+ev.proc    <- phylosim::JC69(rate.params=2)  
 summary(ev.proc)
 
 # Define the "root" sequence from
@@ -54,9 +54,9 @@ message(paste("Root sequence length:", root.seq.length))
 
 # Draw invariable positions 
 invar.p   <- get_prm(prm,'phylosim.prop.invar')
-invar.pos <- sample(1:root.seq.length, round(invar.p*root.seq.length))
-message("Invariant positions (first 20):")
-message(paste(sort(invar.pos)[1:20],collapse = ' '))
+invar.n   <- round(invar.p*root.seq.length)
+invar.pos <- sample(1:root.seq.length, invar.n)
+message(paste("Number of invariant positions:",invar.n, '(',root.seq.length,')'))
 setRateMultipliers(root.seq,ev.proc,0,invar.pos)
 # getRateMultipliers(root.seq,ev.proc)
 
@@ -65,7 +65,9 @@ setRateMultipliers(root.seq,ev.proc,0,invar.pos)
 # and how spreaded it is:
 n.tips   <- get_prm(prm,'phylosim.n.tips')
 tree.sim <- ape::rcoal(n.tips)
+tree.sim$tip.label <- paste('seq', 1:n.tips, sep='_')
 message(paste('Tree with',n.tips,'tips built.'))
+
 
 # Simulate evolution of 
 # the root seq on the tree:

@@ -4,7 +4,7 @@
 
 library(seqinr)
 source('utils.R')
-set.seed(1234)
+
 
 add_uncertainty <- function(prm, fasta.file,
                             beta.shape.p,
@@ -59,9 +59,10 @@ add_uncertainty <- function(prm, fasta.file,
 }
 
 prm <- read.csv('prm.csv')
+bsh <- c(get_prm(prm, 'beta.shape.p1'), get_prm(prm, 'beta.shape.p2'))
 prob_seqs <- add_uncertainty(prm = prm, 
                              fasta.file = 'seqs/sim.fasta', 
-                             beta.shape.p = c(29, 0.1), 
+                             beta.shape.p = bsh,
                              do.plot = TRUE)
 
 save(list = 'prob_seqs', file = 'prob_seqs.RData')
