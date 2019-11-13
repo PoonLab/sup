@@ -18,5 +18,5 @@ Rscript draw-tip-seqs.R
 
 # Compare the reconstruction
 # to the true phylogeny:
-# Rscript ss.R
+Rscript ss.R
 
