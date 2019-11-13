@@ -15,20 +15,17 @@ tstar <- ape::read.tree('trees/sim.nwk')
 
 # Retrieve all trees calculated upstream:
 treename <- system('ls trees/tree-mc-*.nwk', intern = TRUE)
-n = length(treename)
+n.mc = length(treename)
 x <- list()
-for(i in 1:n){
+for(i in 1:n.mc){
     x[[i]] <- ape::read.tree(file = treename[i])
-    if(i%%10==0) message(paste('Read tree',i,'/',n))
+    if(i%%10==0) message(paste('Read tree',i,'/',n.mc))
 }
 
 par(mfrow=c(2,2))
 plot(tstar, main='True Phylogeny')
 for(j in 1:3) plot(x[[j]], main=paste('FastTree',j))
 
-
-stop()
-# Wed Nov 13 12:27:48 2019 ------------------------------
 
 # ---- Rerooting ----
 
@@ -45,23 +42,20 @@ n.tips <- length(x[[1]]$tip.label)
 dummy.tip.dates <- runif(n = n.tips, 
                          min = 0, 
                          max = 1)
-# dummy.tip.dates <- rnorm(n.tips, mean = 100, sd = 11)
 
-for(i in 1:n){
-  if(i%%10==0) print(paste('Re-rooting tree #',i,'/',n))
+for(i in 1:n.mc){
+  if(i%%10==0 || i==1) print(paste('Re-rooting tree #',i,'/',n.mc))
   x[[i]] <- ape::rtt(t = x[[i]], 
                      tip.dates = dummy.tip.dates,
                      objective = 'rms') #correlation rms rsquared
 }
 
-plot(z, type = 'phyl')
-plot(x[[1]], type = 'phyl')
 
 # ---- Summary stats ----
 
 # Calculate statistics for each MC tree:
 ss.list <- list()
-for(i in 1:n){
+for(i in 1:n.mc){
   ss.list[[i]]  <- c(
     treeCentrality::computeBasicStats(x[[i]]),
     treeCentrality::computeSpectralStats(x[[i]]),
@@ -69,6 +63,25 @@ for(i in 1:n){
   )
   
 }
+
+
+#' Return the coefficient of variation (cv)
+#' of all summary statistics calculated, 
+#' across all MC iterations.
+cv_ss <- function(ss.list, varname) {
+  y <- sapply(ss.list, '[[', varname)
+  m <- mean(y)
+  stdv <- sd(y)
+  cv <- stdv / m
+  if(m==0) cv <- NA
+  return(cv)
+}
+
+
+plot(tstar, type = 'phylo')
+ape::cherry(tstar)
+ape::cherry(x[[1]])
+
     # treeCentrality::computeLMStats(x[[1]])
     # treeCentrality::computeNetworkStats(x[[1]])
     # 
@@ -90,45 +103,42 @@ for(i in 1:n){
 
 # plot a random selection of 9 trees:
 pdf('plot-trees.pdf', width = 8, height = 8)
+n.plot <- min(n.mc, 9)
 par(mfrow=c(3,3))
-for(i in sort(sample(1:n, 9)))
-    plot.phylo(x[[i]], 
-               main = paste0('tree-',i), 
-               type = 'phylo')
+for(i in seq_along(x))
+  plot.phylo(x[[i]], type = 'phyl', 
+       main=paste('Rerooted FastTree',i))
 dev.off()
 
 
-# plot summary stats:
-
-extract_ss <- function(ss.list, varname) {
-  y <- sapply(ss.list, '[[', varname)
-  m <- mean(y)
-  stdv <- sd(y)
-  cv <- stdv / m
-  if(m==0) cv <- NA
-  return(cv)
-}
-
+# Plot CV of summary statistics
 nm  <- names(ss.list[[1]])
 nm2 <- ceiling(sqrt(length(nm)))
 
-par(mfrow=c(nm2,nm2))
 cv <- numeric(length(nm))
 for(i in 1:length(nm)){
-  cv[i] <- extract_ss(ss.list, nm[i])
+  cv[i] <- cv_ss(ss.list, nm[i])
 }
 df <- data.frame(nm = nm, cv=cv)
 
 
 
-y <- sapply(ss.list, '[[', 'cherries')
-hist(y, col='grey')
-plot(x=1:length(y), y)
 
 pdf('plot-ss.pdf', width = 12, height = 10)
+
 g <- ggplot(df, aes(x=nm,y=cv))+
   geom_bar(stat='identity')+
   coord_flip()+
   ggtitle('coeff. of variation')
 plot(g)
+
+par(mfrow=c(nm2,nm2))
+for(i in seq_along(nm)){
+  y <- sapply(ss.list, '[[', nm[i])
+  hist(y, breaks = 20,
+       col='grey',
+       main =nm[i],
+       yaxt='n', xlab='', ylab='')  
+}
+
 dev.off()
