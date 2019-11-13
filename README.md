@@ -9,6 +9,8 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 
 ## Directories
 
+`data`: Data related to sequencing uncertainty
+
 `doc`: Documentation of the methods
 
 `src`: source code for uncertainty propagation analysis
