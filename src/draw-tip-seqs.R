@@ -26,7 +26,7 @@ path.seqs <- 'seqs/seqs-mc-'
 for(i in 1:n.mc){
     draw_multiple_seq(prob_seqs,
                       filename = paste0(path.seqs,i,'.fasta')) 
-    message(paste('Tip seqs sampling:',i,'/',n.mc))
+    if(i%%10==0) message(paste('Tip seqs sampling:',i,'/',n.mc))
 }
 
 message("Sampled tips sequences completed.")
