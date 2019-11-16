@@ -207,3 +207,6 @@ draw_multiple_seq <- function(M.list,
     
     return(s.list)
 }
+
+
+

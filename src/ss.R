@@ -22,10 +22,17 @@ for(i in 1:n.mc){
   if(i%%10==0) message(paste('Read tree',i,'/',n.mc))
 }
 
+ape::dist.topo(x[[1]], x[[2]] , method='PH85')
+ape::dist.topo(tstar, x[[2]] , method='PH85')
+
+for(i in seq_along(x)){
+  print(ape::dist.topo(tstar, x[[i]], method='PH85'))
+}
+
 # ---- Rerooting ----
 
 # Reroot the trees 
-# (a rooted tree is needed for summary stats)
+# (a rooted tree is needed for treeCentrality summary stats)
 # TODO: 
 # Check if that makes sense. I'm not sure at all this is correct!
 # https://phylobotanist.blogspot.com/2015/01/how-to-root-phylogenetic-tree-outgroup.html
