@@ -17,7 +17,7 @@ message("\nStarting phylogeny simulation...")
 prm <- read.csv('prm.csv')
 
 # Define the evolution process:
-ev.proc    <- phylosim::JC69(rate.params=2)  
+ev.proc    <- phylosim::JC69()  
 summary(ev.proc)
 
 # Define the "root" sequence from
