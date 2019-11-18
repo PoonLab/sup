@@ -14,7 +14,16 @@ tstar <- ape::read.tree('trees/sim.nwk')
 
 
 # Retrieve all trees calculated upstream:
-treename <- system('ls trees/tree-mc-*.nwk', intern = TRUE)
+
+software <- 'raxml'   # raxml  fasttree
+
+if(software=='fasttree') fname <- 'tree-mc-'
+if(software=='raxml')    fname <- 'RAxML_bestTree.tree-raxml-mc-'
+
+treename <- system(paste0('ls trees/',
+                          fname,
+                          '*.out'), 
+                   intern = TRUE)
 n.mc = length(treename)
 x <- list()
 for(i in 1:n.mc){
@@ -22,10 +31,23 @@ for(i in 1:n.mc){
   if(i%%10==0) message(paste('Read tree',i,'/',n.mc))
 }
 
+
 ape::dist.topo(x[[1]], x[[2]] , method='PH85')
 ape::dist.topo(tstar, x[[2]] , method='PH85')
 
+
+plot.phylo(tstar, use.edge.length = T, main = 'True')
+edgelabels(round(tstar$edge.length,3), 
+           cex=0.6)
+is.rooted(x[[1]])
+plot.phylo(x[[1]], use.edge.length = T)
+edgelabels(round(x[[1]]$edge.length,3), 
+           cex=0.6)
+
+
+
 for(i in seq_along(x)){
+  print(i)
   print(ape::dist.topo(tstar, x[[i]], method='PH85'))
 }
 

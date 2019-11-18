@@ -14,9 +14,13 @@ Rscript add-uncertainty.R
 Rscript draw-tip-seqs.R
 
 # Reconstruct phylogeny using FastTree:
-./calc-tree.sh
+#./calc-tree.sh
+
+# Reconstruct phylogeny using RAxML:
+./infr-tree-raxml.sh > raxml.out
+
 
 # Compare the reconstruction
 # to the true phylogeny:
-Rscript ss.R
+#Rscript ss.R
 
