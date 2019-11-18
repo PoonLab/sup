@@ -53,6 +53,7 @@ reads-seq-err/*_abundance.txt
 src/seqs/*mc*.fasta
 src/seqs/sim*.fasta
 src/trees/*mc*.out
+src/*.out
 
 
 # Plots:
