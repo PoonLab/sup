@@ -1,21 +1,18 @@
 library(ggplot2)
 library(ape)
-tc <- require(treeCentrality)
-if(!tc){
-  devtools::install_github('Leonardini/treeCentrality')  
-}
 
-message("\n\nReconstruction analysis started...")
+
+message('Inference assessment...')
 
 # ---- Data ----
 
 # Retrieve the "true" benchmark tree:
-tstar <- ape::read.tree('trees/sim.nwk')
-
+tstar  <- ape::read.tree('trees/sim.nwk')
+tstaru <- ape::unroot(tstar)
 
 # Retrieve all trees calculated upstream:
 
-software <- 'raxml'   # raxml  fasttree
+software <- 'raxml'   # 'raxml' or 'fasttree'
 
 if(software=='fasttree') fname <- 'tree-mc-'
 if(software=='raxml')    fname <- 'RAxML_bestTree.tree-raxml-mc-'
@@ -32,119 +29,63 @@ for(i in 1:n.mc){
 }
 
 
-ape::dist.topo(x[[1]], x[[2]] , method='PH85')
-ape::dist.topo(tstar, x[[2]] , method='PH85')
+# ---- Distances ----
 
-
-plot.phylo(tstar, use.edge.length = T, main = 'True')
-edgelabels(round(tstar$edge.length,3), 
-           cex=0.6)
-is.rooted(x[[1]])
-plot.phylo(x[[1]], use.edge.length = T)
-edgelabels(round(x[[1]]$edge.length,3), 
-           cex=0.6)
-
-
-
+# Robinson-Foulds ("edit") distance:
+d.star <- numeric(length = n.mc)
+d <- numeric(n.mc*(n.mc-1)/2) ; k=1
 for(i in seq_along(x)){
-  print(i)
-  print(ape::dist.topo(tstar, x[[i]], method='PH85'))
+  # Distance b/w `x` and `tstar`:
+  d.star[i] <- ape::dist.topo(tstaru, x[[i]], 
+                              method='PH85')
+  # Distance b/w the `x`s:
+  for(j in 1:i){
+    if(j != i) {
+      d[k] <- ape::dist.topo(x[[i]], x[[j]], 
+                             method='PH85')
+      k <- k+1
+    }
+  }
 }
 
-# ---- Rerooting ----
-
-# Reroot the trees 
-# (a rooted tree is needed for treeCentrality summary stats)
-# TODO: 
-# Check if that makes sense. I'm not sure at all this is correct!
-# https://phylobotanist.blogspot.com/2015/01/how-to-root-phylogenetic-tree-outgroup.html
-# https://cabbagesofdoom.blogspot.com/2012/06/how-to-root-phylogenetic-tree.html
-
-# Generate random dummy dates for tips:
-n.tips <- length(x[[1]]$tip.label)
-dummy.tip.dates <- runif(n = n.tips, 
-                         min = 0, 
-                         max = 1)
-
-xrr <- list()
-for(i in 1:n.mc){
-  if(i%%10==0 || i==1) print(paste('Re-rooting tree #',i,'/',n.mc))
-  xrr[[i]] <- ape::rtt(t = x[[i]], 
-                       tip.dates = dummy.tip.dates,
-                       objective = 'rms') #correlation rms rsquared
-}
-
-
-# ---- Summary stats ----
-
-# Calculate statistics for each MC tree:
-ss.list <- list()
-for(i in 1:n.mc){
-  ss.list[[i]]  <- c(
-    treeCentrality::computeBasicStats(xrr[[i]]),
-    treeCentrality::computeSpectralStats(xrr[[i]]),
-    'diameter' = treeCentrality::computeDiameter(xrr[[i]])
-  )
-  
-}
-
-
-#' Return the coefficient of variation (cv)
-#' of all summary statistics calculated, 
-#' across all MC iterations.
-cv_ss <- function(ss.list, varname) {
-  y <- sapply(ss.list, '[[', varname)
-  m <- mean(y)
-  stdv <- sd(y)
-  cv <- stdv / m
-  if(m==0) cv <- NA
-  return(cv)
-}
 
 # ---- Plots ----
 
+message('Plotting assessment...')
+
+plot_tree <- function(p, title='') {
+  plot(p, main=title)
+  edgelabels(round(p$edge.length,3), cex=0.65)
+}
+
 # plot some trees:
-pdf('plot-trees.pdf', width = 12, height = 12)
+pdf('plot-trees.pdf', width = 12, height = 10)
 n.plot <- min(n.mc, 8)
 par(mfrow=c(3,3))
-plot(tstar, main='True Phylogeny')
+
+plot_tree(tstaru, 'True Tree')
 for(i in 1:n.plot){
-  plot(x[[i]], main=paste('Raw FastTree',i))
-  plot.phylo(xrr[[i]], type = 'phyl', 
-             main=paste('Rerooted FastTree',i))
+  plot_tree(x[[i]], paste(software,i))
 }
 dev.off()
 
-
-# Plot CV and histogram of summary statistics:
-nm  <- names(ss.list[[1]])
-nm2 <- ceiling(sqrt(length(nm)))
-
-cv <- numeric(length(nm))
-for(i in 1:length(nm)){
-  cv[i] <- cv_ss(ss.list, nm[i])
-}
-df <- data.frame(nm = nm, cv=cv)
-
-pdf('plot-ss.pdf', width = 12, height = 10)
-g <- ggplot(df, aes(x=nm,y=cv))+
-  geom_bar(stat='identity')+
-  coord_flip()+
-  ggtitle('coeff. of variation')
-plot(g)
-
-par(mfrow=c(nm2,nm2))
-for(i in seq_along(nm)){
-  y <- sapply(ss.list, '[[', nm[i])
-  hist(y, breaks = 20,
-       col='grey',
-       main =nm[i],
-       yaxt='n', xlab='', ylab='')  
-}
+pdf('plot-ss.pdf')
+par(mfrow=c(1,2))
+hist(d.star)
+hist(d)
 dev.off()
 
+message('Assessment done.')
 
-# ----- OLD STUFF
+# ----- OLD STUFF -----
+
+# tc <- require(treeCentrality)
+# if(!tc){
+#   devtools::install_github('Leonardini/treeCentrality')  
+# }
+# 
+# message("\n\nReconstruction analysis started...")
+
 # treeCentrality::computeLMStats(x[[1]])
 # treeCentrality::computeNetworkStats(x[[1]])
 # 
@@ -161,3 +102,57 @@ dev.off()
 #                                           basic = TRUE, 
 #                                           network = F, 
 #                                           spectral = F)  
+
+if(0){
+  # Calculate statistics for each MC tree:
+  ss.list <- list()
+  for(i in 1:n.mc){
+    ss.list[[i]]  <- c(
+      treeCentrality::computeBasicStats(xrr[[i]]),
+      treeCentrality::computeSpectralStats(xrr[[i]]),
+      'diameter' = treeCentrality::computeDiameter(xrr[[i]])
+    )
+    
+  }
+  
+  
+  #' Return the coefficient of variation (cv)
+  #' of all summary statistics calculated, 
+  #' across all MC iterations.
+  cv_ss <- function(ss.list, varname) {
+    y <- sapply(ss.list, '[[', varname)
+    m <- mean(y)
+    stdv <- sd(y)
+    cv <- stdv / m
+    if(m==0) cv <- NA
+    return(cv)
+  }
+  
+  # Plot CV and histogram of summary statistics:
+  nm  <- names(ss.list[[1]])
+  nm2 <- ceiling(sqrt(length(nm)))
+  
+  cv <- numeric(length(nm))
+  for(i in 1:length(nm)){
+    cv[i] <- cv_ss(ss.list, nm[i])
+  }
+  df <- data.frame(nm = nm, cv=cv)
+  
+  pdf('plot-ss.pdf', width = 12, height = 10)
+  g <- ggplot(df, aes(x=nm,y=cv))+
+    geom_bar(stat='identity')+
+    coord_flip()+
+    ggtitle('coeff. of variation')
+  plot(g)
+  
+  par(mfrow=c(nm2,nm2))
+  for(i in seq_along(nm)){
+    y <- sapply(ss.list, '[[', nm[i])
+    hist(y, breaks = 20,
+         col='grey',
+         main =nm[i],
+         yaxt='n', xlab='', ylab='')  
+  }
+  dev.off()
+  
+}
