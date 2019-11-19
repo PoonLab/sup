@@ -4,6 +4,8 @@ library(ape)
 
 message('Inference assessment...')
 
+args <- commandArgs(trailingOnly = TRUE)
+
 # ---- Data ----
 
 # Retrieve the "true" benchmark tree:
@@ -15,7 +17,8 @@ tstaru <- ape::unroot(tstar)
 software <- 'raxml'   # 'raxml' or 'fasttree'
 
 if(software=='fasttree') fname <- 'tree-mc-'
-if(software=='raxml')    fname <- 'RAxML_bestTree.tree-raxml-mc-'
+if(software=='raxml')    fname <- paste0('RAxML_bestTree.tree-raxml-prm-',
+                                         args[1],'-mc-')
 
 treename <- system(paste0('ls trees/',
                           fname,
@@ -59,7 +62,9 @@ plot_tree <- function(p, title='') {
 }
 
 # plot some trees:
-pdf('plot-trees.pdf', width = 12, height = 10)
+
+pdf(paste0('plot-trees-prm-',args[1],'.pdf'), 
+    width = 12, height = 10)
 n.plot <- min(n.mc, 8)
 par(mfrow=c(3,3))
 
@@ -69,7 +74,7 @@ for(i in 1:n.plot){
 }
 dev.off()
 
-pdf('plot-ss.pdf')
+pdf(paste0('plot-ss-prm-',args[1],'.pdf'))
 par(mfrow=c(1,2))
 hist(d.star)
 hist(d)

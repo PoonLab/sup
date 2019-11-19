@@ -5,7 +5,9 @@
 library(seqinr)
 source('utils.R')
 
+args <- commandArgs(trailingOnly = TRUE)
 
+# ---- Func ----
 add_uncertainty <- function(prm, fasta.file,
                             beta.shape.p,
                             do.plot = FALSE) {
@@ -35,9 +37,13 @@ add_uncertainty <- function(prm, fasta.file,
     }
     
     if(do.plot){
-        pdf('plot-add-uncertainty.pdf', width = 10)
+        plotname <- paste0('plot-add-uncertainty-',args[1],'.pdf')
+        pdf(plotname, 
+            width = 10)
         par(mfrow = c(2,2))
-        hist(p, breaks = 30, col='grey')
+        hist(p, breaks = 30, col='grey',
+             main = paste('Base call probability\nbeta shape =',
+                          paste(beta.shape.p,collapse = ' ; ')))
         sum.entropy <- sapply(seq.entropy, sum, na.rm=T)
         boxplot(sum.entropy, 
                 las=1,
@@ -58,11 +64,27 @@ add_uncertainty <- function(prm, fasta.file,
     return(PS.list)
 }
 
+# ---- RUN ----
+
 prm <- read.csv('prm.csv')
-bsh <- c(get_prm(prm, 'beta.shape.p1'), get_prm(prm, 'beta.shape.p2'))
+
+if(length(args) == 0){
+    btshp <- c(get_prm(prm, 'beta.shape.p1'), 
+               get_prm(prm, 'beta.shape.p2'))
+}
+
+if(length(args) == 1){
+    idx <- args[1]
+    btshp.file <- read.csv('prm-btshp.csv', header = F)
+    btshp <- as.numeric(btshp.file[idx,])
+}
+
+print(paste('beta shape =',btshp, collapse = ' ; '))
+
 prob_seqs <- add_uncertainty(prm = prm, 
                              fasta.file = 'seqs/sim.fasta', 
-                             beta.shape.p = bsh,
+                             beta.shape.p = btshp,
                              do.plot = TRUE)
 
-save(list = 'prob_seqs', file = 'prob_seqs.RData')
+fname <- paste0('prob_seqs_',args[1],'.RData')
+save(list = 'prob_seqs', file = fname)
