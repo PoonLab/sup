@@ -19,8 +19,7 @@ Rscript draw-tip-seqs.R
 # Reconstruct phylogeny using RAxML:
 ./infr-tree-raxml.sh > raxml.out
 
-
 # Compare the reconstruction
 # to the true phylogeny:
-#Rscript ss.R
+Rscript ss.R
 

@@ -13,17 +13,17 @@ echo Calculating phylogeny for $N trees...
 # For each set of sampled tips, 
 # reconstruct the phylogeny:
 
-RAXML_OPT="-m GTRGAMMA -p 12345 --JC69"
+RAXML_OPT="-m GTRGAMMA -p 12345 --JC69 --silent"
 
 TREE_NAME="tree-raxml-mc"
 
 for i in $(seq 1 $N) 
 do
   # Phylogeny inference:
-  raxmlHPC $RAXML_OPT -s seqs/seqs-mc-$i.fasta -n $TREE_NAME-$i.out
+  raxmlHPC $RAXML_OPT -s seqs/seqs-mc-$i.fasta -n $TREE_NAME-$i.out > trees/RAxML-$i.out
 done
 
-echo "-------- Unrooting ..."
+echo "Unrooting ..."
 # Remove the `:0.0` string that 
 # symbolizes rooting in RAxML tree:
 for i in $(seq 1 $N) 
