@@ -6,8 +6,11 @@
 # RAxML documentation:
 # https://cme.h-its.org/exelixis/web/software/raxml/index.html
 
+
+PRMSET=$1
+
 # How many Monte Carlo samples:
-N=$(ls -l seqs/seqs-mc*.fasta | wc -l)
+N=$(ls -l seqs/seqs-prm-$PRMSET*.fasta | wc -l)
 echo Calculating phylogeny for $N trees...
 
 # For each set of sampled tips, 
@@ -15,12 +18,12 @@ echo Calculating phylogeny for $N trees...
 
 RAXML_OPT="-m GTRGAMMA -p 12345 --JC69 --silent"
 
-TREE_NAME="tree-raxml-mc"
+TREE_NAME=tree-raxml-prm-$PRMSET-mc
 
 for i in $(seq 1 $N) 
 do
   # Phylogeny inference:
-  raxmlHPC $RAXML_OPT -s seqs/seqs-mc-$i.fasta -n $TREE_NAME-$i.out > trees/RAxML-$i.out
+  raxmlHPC $RAXML_OPT -s seqs/seqs-prm-$PRMSET-mc-$i.fasta -n $TREE_NAME-$i.out > trees/RAxML-prm-$PRMSET-$i.out
 done
 
 echo "Unrooting ..."
