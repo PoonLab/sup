@@ -85,7 +85,7 @@ hist(d.star)
 hist(d)
 dev.off()
 
-message('Assessment done.')
+message(paste('Assessment done for parameter set', args[1]))
 
 # ----- OLD STUFF -----
 
