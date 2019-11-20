@@ -8,7 +8,9 @@
 # Tree saved in "trees/sim.nwk"
 Rscript simul-seq.R
 
-for i in {1..3}
+N=$(wc -l < prm-btshp.csv)
+
+for i in $(seq 1 $N)  #TO DO: dont hardcode!
 do
   # Add uncertainty to the true sequences:
   Rscript add-uncertainty.R $i
