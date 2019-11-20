@@ -51,6 +51,11 @@ for(i in seq_along(x)){
   }
 }
 
+# ---- Save ----
+
+dist.list <- list(d.star = d.star, d=d, prmset = args[1])
+save(list = 'dist.list', 
+     file = paste0('treedist-',args[1],'.RData'))
 
 # ---- Plots ----
 
