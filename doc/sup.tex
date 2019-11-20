@@ -1,6 +1,6 @@
 \documentclass[12pt]{article}
-\usepackage{geometry}                
-\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\usepackage[left=3cm, top=1cm]{geometry}                
+\geometry{letterpaper}        
 \usepackage[parfill]{parskip}    
 \usepackage{graphicx}
 \usepackage{amssymb}
@@ -13,15 +13,21 @@
 
 \hyphenpenalty=10000
 
-\title{Sequencing Uncertainty Propagation}
-\author{David Champredon}
-\date{\today}                                           % Activate to display a given date or no date
+
 
 \newcommand{\comment}[1]{\textsl{\textcolor{cyan}{#1}}}
 \newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
 \newcommand{\pr}[1]{\mathrm{Pr}(#1)}
 \newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
 \newcommand{\eg}{\textit{e.g.,}\xspace}
+
+
+
+\title{Notes on Sequencing Uncertainty Propagation}
+\author{David Champredon}
+\date{\today}                                           % 
+
+
 
 \begin{document}
 \maketitle
@@ -241,12 +247,12 @@ To answer this question, we can run the following pipeline:
 
 \begin{enumerate}
 \setcounter{enumi}{-1} 
-\item Choose a root sequence of interest (\eg a HIV genome)
+\item Choose a root sequence of interest (\eg a HIV genome, a random sequence)
 \item Generate a phylogeny from this root sequence, using \textsf{phyloSim}. The resulting tree $T^*$ has $n$ tips that represent the sequenced samples $seq_1, seq_2,\ldots, seq_n$. The tree $T^*$ with its sequences $seq_i$ is the ``true'' phylogeny.
 \item Add a simulated layer of uncertainty by transforming the ``true'' sequences $seq_i$ into probabilistic sequences $S^i$ (for $i=1,2,\ldots,n$).
 \item Draw a sequence $\widetilde{seq_i}$ from $S^i$.
-\item Use \textsf{FastTree} to reconstruct the phylogeny, $T$, from the $(\widetilde{seq_i})_{i=1\ldots n}$. 
-\item Assess the reconstructed phylogeny $T$ against the true one $T^*$ by looking at various distance metrics.
+\item Use \textsf{FastTree} or  \textsf{RAxML} to reconstruct the phylogeny, $T$, from the $(\widetilde{seq_i})_{i=1\ldots n}$. 
+\item Assess the reconstructed phylogeny $T$ against the true one $T^*$ by looking at various distance metrics (\eg Robinson-Foulds metric).
 \end{enumerate}
 
 Steps 3,4,5 are repeated several times (Monte Carlo simulation).
