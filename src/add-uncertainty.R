@@ -3,6 +3,11 @@
 ###
 
 library(seqinr)
+library(tidyr)
+library(dplyr)
+library(ggplot2) ; theme_set(theme_bw())
+
+
 source('utils.R')
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -64,6 +69,32 @@ add_uncertainty <- function(prm, fasta.file,
     return(PS.list)
 }
 
+plot_prmset_distrib <- function(fname) { #fname='prm-btshp.csv'
+    
+    b <- read.csv('prm-btshp.csv', header = F)
+    
+    dfl <- list()
+    for(i in 1:nrow(b)){
+        x <- seq(0,1,length=1e3)
+        y <- dbeta(x, shape1 = b[i,1], shape2 = b[i,2])
+        dfl[[i]] <- data.frame(x=x, y=y, 
+                               prmset=paste('s1 =',b[i,1],
+                                            '; s2 =',b[i,2]))
+    }
+    df <- do.call('rbind',dfl) %>%
+        mutate(prmset = factor(prmset))
+    
+    g <- df %>%
+        ggplot(aes(x=x, y=y))+
+        geom_line(aes(colour=prmset), size=2, alpha=0.8)+
+        scale_y_log10(limits = c(1e-12, 1e3))+
+        coord_cartesian(xlim = c(0.5,1))+
+        ggtitle('Beta Density of Base Call Probability')+
+        xlab('Base call probability') + ylab('density')
+    plot(g)
+ }
+
+
 # ---- RUN ----
 
 prm <- read.csv('prm.csv')
@@ -74,9 +105,13 @@ if(length(args) == 0){
 }
 
 if(length(args) == 1){
+    fname = 'prm-btshp.csv'
     idx <- args[1]
-    btshp.file <- read.csv('prm-btshp.csv', header = F)
+    btshp.file <- read.csv(fname, header = F)
     btshp <- as.numeric(btshp.file[idx,])
+    pdf('plot-proba-basecall-beta.pdf')
+    plot_prmset_distrib(fname)
+    dev.off()
 }
 
 print(paste('beta shape =',btshp, collapse = ' ; '))
