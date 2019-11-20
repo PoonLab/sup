@@ -50,7 +50,7 @@ reads-seq-err/*.fastq
 reads-seq-err/*_abundance.txt
 
 # Sampling:
-src/seqs/*mc*.fasta
+src/seqs/*mc*.fasta*
 src/seqs/sim*.fasta
 src/trees/*mc*.out*
 src/trees/RAxML*.out*
