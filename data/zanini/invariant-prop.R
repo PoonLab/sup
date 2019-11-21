@@ -12,11 +12,13 @@ source('utils-zanini.R')
 #' @param pat Integer. Patient number
 #' @param tpt Integer vector. Time points of the sampled sequences to include.
 #' @param thresh Numeric. Threshold frequency of a nucleotide to consider a position invariant.
-estim_prop_invariant <- function(pat, tpt, thresh) { #pat=2
+estim_prop_invariant <- function(pat, tpt, thresh,
+                                 pos.min = 1, 
+                                 pos.max = 1e6) { #pat=2
     
     print(paste('Patient',pat,'...'))
     
-    nt <- length(tpt)
+    nt  <- length(tpt)
     dfl <- list()
     
     for (i in seq_along(tpt)) {
@@ -30,10 +32,12 @@ estim_prop_invariant <- function(pat, tpt, thresh) { #pat=2
     # Convert to probabilities:
     df <- do.call('rbind', dfl) %>%
         select(-d, -N) %>%
-        mutate(n = A+C+G+T)
+        mutate(n = A+C+G+T) %>%
+        filter(pos >= pos.min) %>%
+        filter(pos <= pos.max)
+        
     df[,1:4] <- df[,1:4] / df$n
-    
-    df <- select(df, -n)
+    df       <- select(df, -n)
     
     # ---- Estimation
     
@@ -56,11 +60,15 @@ estim_prop_invariant <- function(pat, tpt, thresh) { #pat=2
     return(res)
 }
 
-pat.vec <- c(1:11)
+pat.vec <- c(1:5)
 tpt <- c(1:2,0)
 thresh <- 0.99
 
 
-x <- sapply(pat.vec, estim_prop_invariant, tpt=tpt,thresh=thresh)
+x <- sapply(pat.vec, estim_prop_invariant, 
+            tpt=tpt,
+            thresh=thresh,
+            pos.min = 7000,
+            pos.max = 10000)
 
-hist(x)
+hist(x, col='grey')
