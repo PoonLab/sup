@@ -16,6 +16,10 @@ source('utils.R')
 set.seed(1234)
 
 # ---- Function ----
+
+#' simulate entropy for all position of a sequence
+#' assuming the base call probability has a 
+#' Beta distribution.
 simul_entropy <- function(beta_shapes, sq) {
     n <- length(sq)
     p <- rbeta(n = n, 
@@ -66,6 +70,8 @@ error_fct <- function(x, zan.entropy, sq,
     return( sqrt(sum((log(ds/dz))^2)) / min(nz,ns) )
 }
 
+#' Extract the entropy from Zanini's data, 
+#' for given a patient and time point.
 extract_pat_tp_e <- function(pat, tpt, zanini.entropy) {
     tmp <- zanini.entropy %>%
         filter(patient==pat & tp == tpt)
@@ -84,8 +90,6 @@ fit_beta_entropy <- function(pat, tp, sq, zan.entropy) {
                                    reltol = 1e-4))
     return(exp(thefit$par))
 }
-
-
 
 fit_one <- function(pat, tpt, zanini.entropy) {
     # Extract entropy associated 
@@ -109,6 +113,8 @@ fit_one <- function(pat, tpt, zanini.entropy) {
                 betashape = pf))
 }
 
+#' Fit shape parameters of the base call probability 
+#' which is Beta distributed for several patients and timepoints.
 fit_all <- function(pat.vec, tpt.vec, zanini.entropy) {
     res <- list() ; k=1
     for(pat in pat.vec){
