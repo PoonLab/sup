@@ -31,15 +31,14 @@ df.ds.ms <- df.ds %>%
     group_by(prmset) %>%
     summarise(m = mean(d.star), s = sd(d.star)) 
 
+
 # ---- Plots ----
-
-
 
 # Between inferred trees
 
 g.d.ms <- df.d.ms %>%
     ggplot()+
-    geom_pointrange(aes(x=prmset, y=m, ymin=m-2, ymax=m+s,
+    geom_pointrange(aes(x=prmset, y=m, ymin=m-s, ymax=m+s,
                         colour=prmset),
                     size=1)+
     ggtitle('RF distance between inferred trees (mean +/- sd)')+
@@ -47,10 +46,18 @@ g.d.ms <- df.d.ms %>%
     guides(colour=FALSE)+
     theme(panel.grid.major.x = element_blank())
 
+g.d.v <- df.d.ms %>%
+    ggplot()+
+    geom_point(aes(x=prmset, y=s), size=3)+
+    geom_line(aes(x=as.numeric(prmset), y=s))+
+    ggtitle('Variance (sd) RF distance between inferred trees') +
+    ylab('RF distance SD') +
+    theme(panel.grid.major.x = element_blank())
+
 g.d <- df.d %>%
     ggplot()+
     geom_histogram(aes(x=d, fill=prmset), 
-                  binwidth = 2)+
+                  bins = 20)+
     facet_wrap(~prmset, ncol=1, scales = 'free_y')+
     ggtitle('RF distance between inferred tree ')+
     xlab('RF distance')+
@@ -61,7 +68,7 @@ g.d <- df.d %>%
 gs <- df.ds %>%
     ggplot()+
     geom_histogram(aes(x=d.star, fill=prmset), 
-                 binwidth = 2)+
+                 bins = 20)+
     facet_wrap(~prmset, ncol=1, scales = 'free_y')+
     ggtitle('RF distance from true tree T*')+
     theme(panel.grid = element_blank())
@@ -84,8 +91,32 @@ gs.ms <- df.ds.ms %>%
     guides(colour=FALSE)+
     ylab('RF distance')
 
+g.ds.v <- df.ds.ms %>%
+    ggplot()+
+    geom_point(aes(x=prmset, y=s), size=3)+
+    geom_line(aes(x=as.numeric(prmset), y=s))+
+    ggtitle('Variance (sd) RF distance from true tree T*') +
+    ylab('RF distance SD') +
+    theme(panel.grid.major.x = element_blank())
+
+
+dfj <- left_join(df.d.ms, df.ds.ms, by='prmset')
+g2 <- ggplot(dfj)+
+    geom_point(aes(x=m.x, y=m.y, colour = prmset), size=2)+
+    geom_segment(aes(x=m.x, xend=m.x, y=m.y-s.y, yend=m.y+s.y, colour=prmset))+
+    geom_segment(aes(x=m.x-s.x, xend=m.x+s.x, y=m.y, yend=m.y, colour=prmset))+
+    geom_smooth(method = 'lm', aes(x=m.x, y=m.y), alpha = 0.2) +
+    xlab('RF distance between Ts')+
+    ylab("RF distance from T*")+
+    ggtitle("RF distances (mean +/- sd)")+
+    geom_vline(xintercept = 0)+
+    geom_hline(yintercept = 0)
+g2
+
 pdf('plot-analysis.pdf', width = 8 , height = 6)
 grid.arrange(g.d.ms, gs.ms, ncol=1)
+grid.arrange(g.d.v, g.ds.v, ncol=1)
+plot(g2)
 plot(g.d)
 plot(gs)
 plot(gs2)
