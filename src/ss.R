@@ -6,6 +6,8 @@ message('Inference assessment...')
 
 args <- commandArgs(trailingOnly = TRUE)
 
+# args <- 1
+
 # ---- Data ----
 
 # Retrieve the "true" benchmark tree:
@@ -35,17 +37,31 @@ for(i in 1:n.mc){
 # ---- Distances ----
 
 # Robinson-Foulds ("edit") distance:
+
 d.star <- numeric(length = n.mc)
-d <- numeric(n.mc*(n.mc-1)/2) ; k=1
+d.star <- numeric(length = n.mc)
+d      <- numeric(n.mc*(n.mc-1)/2) ; k=1
+
+rf.normalize <- TRUE # if the RF distance is normalized.
+
 for(i in seq_along(x)){
+  
+  if(i%%10==0) message(paste('Distances',i,'/',n.mc))
+  
+  # Distance normalization:
+  n.tips <- length(x[[i]]$tip.label)
+  tmp <- 2 * (n.tips - 3)
+  rf.norm <- ifelse(rf.normalize, tmp, 1.0)
+  
   # Distance b/w `x` and `tstar`:
   d.star[i] <- ape::dist.topo(tstaru, x[[i]], 
-                              method='PH85')
+                              method='PH85') / rf.norm
+  
   # Distance b/w the `x`s:
   for(j in 1:i){
     if(j != i) {
       d[k] <- ape::dist.topo(x[[i]], x[[j]], 
-                             method='PH85')
+                             method='PH85') / rf.norm
       k <- k+1
     }
   }
@@ -81,8 +97,8 @@ dev.off()
 
 pdf(paste0('plot-ss-prm-',args[1],'.pdf'))
 par(mfrow=c(1,2))
-hist(d.star)
-hist(d)
+hist(d.star, col = 'lightgrey')
+hist(d, col = 'lightgrey')
 dev.off()
 
 message(paste('Assessment done for parameter set', args[1]))
