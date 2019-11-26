@@ -11,9 +11,12 @@
 
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 
-\hyphenpenalty=10000
+%\hyphenpenalty=10000
 
-
+\hypersetup{
+colorlinks=true,
+linkcolor = blue,
+citecolor = blue} 
 
 \newcommand{\comment}[1]{\textsl{\textcolor{cyan}{#1}}}
 \newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
@@ -228,6 +231,7 @@ The entropy is a measure of uncertainty. So we can consider the distribution of 
 The data from Zanini shows that $S_{n,j}$, the probability of nucleotide $n$ to be at position $j$ is highly concentrated close to (and below!) 1. 
 So, if we want to simulate the those probabilities, we can draw them from a Beta distribution where the shape parameters $\alpha$ and $\beta$ were fitted on the observed entropy distribution:
 \begin{equation}
+\label{eq:beta_sampling}
 S_{n,j} \sim \betadist{\alpha, \beta}
 \end{equation}
 \begin{equation}
@@ -248,14 +252,19 @@ To answer this question, we can run the following pipeline:
 \begin{enumerate}
 \setcounter{enumi}{-1} 
 \item Choose a root sequence of interest (\eg a HIV genome, a random sequence)
-\item Generate a phylogeny from this root sequence, using \textsf{phyloSim}. The resulting tree $T^*$ has $n$ tips that represent the sequenced samples $seq_1, seq_2,\ldots, seq_n$. The tree $T^*$ with its sequences $seq_i$ is the ``true'' phylogeny.
+\item Generate a phylogeny from this root sequence, using \textsf{phyloSim}. The resulting tree $T^*$ has $n$ tips that represent the sequenced samples $seq_1, seq_2,\ldots, seq_n$. The tree $T^*$ with its sequences $seq_i$ is the ``base'' phylogeny.
 \item Add a simulated layer of uncertainty by transforming the ``true'' sequences $seq_i$ into probabilistic sequences $S^i$ (for $i=1,2,\ldots,n$).
-\item Draw a sequence $\widetilde{seq_i}$ from $S^i$.
-\item Use \textsf{FastTree} or  \textsf{RAxML} to reconstruct the phylogeny, $T$, from the $(\widetilde{seq_i})_{i=1\ldots n}$. 
-\item Assess the reconstructed phylogeny $T$ against the true one $T^*$ by looking at various distance metrics (\eg Robinson-Foulds metric).
+\item Do $M$ times\footnote{Monte-Carlo iterations}: 
+Draw a sequence $\widetilde{seq_i}$ for each $S^i$ (for $i=1,\ldots, n$).
+\item Do $M$ times: Reconstruct (with \textsf{FastTree}, \textsf{RAxML}, etc.) the phylogeny $T_m$ from the $(\widetilde{seq_i})_{i=1\ldots n}$. 
+\item Assess the uncertainty by considering the variance among the phylogenies $(T_m)_{m=1:M}$ using various distance metrics (\eg Robinson-Foulds, kernel, etc.).
 \end{enumerate}
 
-Steps 3,4,5 are repeated several times (Monte Carlo simulation).
+Note that the distance between the $(T_m)_{m=1:M}$ and $T^*$ is not the main goal. We are principally interested in \emph{uncertainty propagation}, not assessing the correctness of the reconstruction (which likely depends on the software used). 
+
+We start the analysis with whatever the reconstruction error of the software is when the uncertainty is inexistent/minimal (i.e., the base call probability is 1.0). Then, the sequencing uncertainty is increased by lowering the base call probability. This is done by sampling the probability from multiple parameter sets of a Beta distribution (see \autoref{eq:beta_sampling}) whose mean decreases away from 1.0. 
+
+
 
 \begin{figure}[H]
 \begin{center}
@@ -265,8 +274,24 @@ Steps 3,4,5 are repeated several times (Monte Carlo simulation).
 \end{center}
 \end{figure}
 
+\subsection{Uncertainty metrics}
 
 
+\subsubsection*{Tree distances}
+
+We can consider the pairwise distances between trees. 
+Define the set $$D = \{d(T_i,T_j);\,\, i=1,\ldots, M \text{ and } j<i \}$$ with $d$ a tree distance like the Robinson-Foulds or kernel one. The set $D$ has ${M(M-1)/2}$ data points. 
+We expect the mean (and variance) of $D$ to increase as the sequencing uncertainty increases. 
+
+\subsubsection*{Ancestry focus}
+
+Tree distances are relatively ``generic''. 
+Given our phylogenic framework, more ``practical'' measure could be useful (?). 
+For example, for a given terminal node (tip, leaf) A, how does the probability that it shares a direct common ancestor with B evolve as we increase uncertainty?
+
+\subsubsection*{Clustering}
+
+We look at clustering variation like the change of the cluster size histogram... (?)
 
 
 % ======================================================================
