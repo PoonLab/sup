@@ -67,8 +67,6 @@ n.mc     <- n / n.prmset
 prmset   <- rep(1:n.prmset, each=n.mc)
 df       <- data.frame(prmset, sh.dsc)
 
-g <- ggplot(df) +
-    geom_violin(aes(x=factor(prmset), y=sh.dsc))
 
 
 dfs <- df %>%
@@ -79,6 +77,10 @@ dfs <- df %>%
               qlo = quantile(sh.dsc, probs = 0.05),
               qhi = quantile(sh.dsc, probs = 0.95))
 dfs
+
+g <- ggplot(df) +
+    geom_violin(aes(x=factor(prmset), y=sh.dsc))
+
 
 gs <- dfs %>%
     ggplot(aes(x=prmset, y=m))+
@@ -94,6 +96,8 @@ gsv <- dfs %>%
     geom_point()+
     geom_line()
 
+pdf('plot-analysis-ancestry.pdf')
 grid.arrange(gs, gsv, ncol=1)
+dev.of()
 
 
