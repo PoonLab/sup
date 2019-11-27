@@ -15,9 +15,10 @@ echo Calculating phylogeny for $N trees...
 
 # For each set of sampled tips, 
 # reconstruct the phylogeny:
-
 RAXML_OPT="-m GTRGAMMA -p 12345 --JC69 --silent"
 
+# Trees infered from drawing
+# probabilistic sequences:
 TREE_NAME=tree-raxml-prm-$PRMSET-mc
 
 for i in $(seq 1 $N) 
@@ -37,6 +38,7 @@ done
 # RAxML can only output in the local directory,
 # so move outfiles manually:
 mv RAxML_*$TREE_NAME*.out* trees/
+rm trees/*.out-e #TODO: fix that
 
 echo "Reconstruction of all MC trees with RAxML done."
 echo "RAxML outputs saved in trees/tree-mc-raxmli.out."
