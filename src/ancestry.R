@@ -11,16 +11,18 @@ n <- length(nwks)
 
 
 
-
+#' Get all internal nodes and their descendants labels.
+#' @param t phylo tree.
+#' @param do.root Boolean. Root the tree if TRUE. Default = TRUE.
+#' @param do.plot Boolean. Plot trees. Default = TRUE.
 descendants_list <- function(t, do.root=F, do.plot = F) {
     
     if(do.plot) plot(t)
-    
-    phy <- phylo4(t)
+    phy <- phylobase::phylo4(t)
     
     if(do.root){
         tr <- phytools::midpoint.root(t) %>%
-            phylo4()
+            phylobase::phylo4()
         if(do.plot) plot(tr)
         phy <- tr
     }
@@ -28,15 +30,23 @@ descendants_list <- function(t, do.root=F, do.plot = F) {
     #print(phy)
     internal.nodes <- nodeId(phy, 'internal')
     
-    a <- list() ; k=1
+    res <- list() ; k=1
     for (i in internal.nodes) {  # i=12
         tmp <- phylobase::descendants(phy, i)
-        a[[k]] <- sort(names(tmp))
+        res[[k]] <- sort(names(tmp))
         k <- k+1
     }
-    return(a)
+    return(res)
 }
 
+
+tree.ref <- ape::read.tree(nwks[1])
+tree     <- ape::read.tree(nwks[66])
+
+
+shared_descendance <- function(tree, tree.ref, ) {
+    
+}
 
 # Proportion shared against the first sim (mc=1, prmset=1)
 i = 1
