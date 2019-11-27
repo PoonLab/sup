@@ -8,16 +8,20 @@ args <- commandArgs(trailingOnly = TRUE)
 
 # args <- 1
 
+software <- 'raxml'   # 'raxml' or 'fasttree'
+
 # ---- Data ----
 
 # Retrieve the "true" benchmark tree:
 tstar  <- ape::read.tree('trees/sim.nwk')
 tstaru <- ape::unroot(tstar)
 
+# Retrieve tree infered from "certain" sequence:
+if(software=='raxml')    
+  t.certn <- ape::read.tree('trees/RAxML_bestTree.tree-raxml-certain.out')
+
+
 # Retrieve all trees calculated upstream:
-
-software <- 'raxml'   # 'raxml' or 'fasttree'
-
 if(software=='fasttree') fname <- 'tree-mc-'
 if(software=='raxml')    fname <- paste0('RAxML_bestTree.tree-raxml-prm-',
                                          args[1],'-mc-')
@@ -86,10 +90,11 @@ plot_tree <- function(p, title='') {
 
 pdf(paste0('plot-trees-prm-',args[1],'.pdf'), 
     width = 12, height = 10)
-n.plot <- min(n.mc, 8)
+n.plot <- min(n.mc, 7)
 par(mfrow=c(3,3))
 
 plot_tree(tstaru, 'True Tree')
+plot_tree(t.certn, 'Tree from certain seq.')
 for(i in 1:n.plot){
   plot_tree(x[[i]], paste(software,i))
 }
