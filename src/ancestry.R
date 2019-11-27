@@ -1,15 +1,13 @@
 library(tidyr)
 library(dplyr)
 library(ggplot2) ; theme_set(theme_bw())
+library(gridExtra)
 
 library(ape)
 library(phytools)
 library(phylobase)
 
-nwks <- system('ls ./trees/RAxML_bestTree*.out', intern = TRUE)
-n <- length(nwks)
-
-
+# ---- FUNCTIONS ----
 
 #' Get all internal nodes and their descendants labels.
 #' @param t phylo tree.
@@ -40,52 +38,46 @@ descendants_list <- function(t, do.root=F, do.plot = F) {
 }
 
 
-tree.ref <- ape::read.tree(nwks[1])
-tree     <- ape::read.tree(nwks[66])
+# tree     <- ape::read.tree(nwks[149])
 
-
-shared_descendance <- function(tree, tree.ref, ) {
-    
+shared_descendance <- function(tree, tree.ref ) {
+    d.ref <- descendants_list(tree.ref)
+    d     <- descendants_list(tree)
+    b     <- d %in% d.ref
+    return(mean(b))
 }
 
-# Proportion shared against the first sim (mc=1, prmset=1)
-i = 1
 
-mb <- numeric(length = n)
-for(j in 1:n){
-    
-    ti <- ape::read.tree(nwks[i])
-    tj <- ape::read.tree(nwks[j])
-    
-    xi <- descendants_list(ti)
-    xj <- descendants_list(tj)
-    
-    b <- vector(length = length(xi))
-    for(k in seq_along(xi)){
-        b[k] <- xi[k] %in% xj
-    }
-    mb[j] <- mean(b)
-}
+# ---- RUN ----
+
+nwk.ref <- system('ls ./trees/RAxML_bestTree*certain*.out', intern = TRUE)
+nwks    <- system('ls ./trees/RAxML_bestTree*prm*mc*.out', intern = TRUE)
+n       <- length(nwks)
+
+
+trees    <- lapply(nwks, ape::read.tree)
+tree.ref <- ape::read.tree(nwk.ref)
+sh.dsc   <- sapply(trees, shared_descendance, tree.ref = tree.ref)
+
 
 # Need to merge them by prmset
 # quick and dirty:
-n.mc = 30 # TODO: read from file
-n.prmset <- n / n.mc
-prmset <- rep(1:n.prmset, each=n.mc)
-
-df <- data.frame(prmset, mb)
+n.prmset <- as.numeric(system('wc -l < prm-btshp.csv', intern=TRUE))
+n.mc     <- n / n.prmset
+prmset   <- rep(1:n.prmset, each=n.mc)
+df       <- data.frame(prmset, sh.dsc)
 
 g <- ggplot(df) +
-    geom_violin(aes(x=factor(prmset), y=mb))
-plot(g)
+    geom_violin(aes(x=factor(prmset), y=sh.dsc))
+
 
 dfs <- df %>%
     group_by(prmset) %>%
-    summarize(m = mean(mb), 
-              md = median(mb),
-              s = sd(mb),
-              qlo = quantile(mb, probs = 0.05),
-              qhi = quantile(mb, probs = 0.95))
+    summarize(m = mean(sh.dsc), 
+              md = median(sh.dsc),
+              s = sd(sh.dsc),
+              qlo = quantile(sh.dsc, probs = 0.05),
+              qhi = quantile(sh.dsc, probs = 0.95))
 dfs
 
 gs <- dfs %>%
@@ -102,31 +94,6 @@ gsv <- dfs %>%
     geom_point()+
     geom_line()
 
-plot(gsv)
-plot(gs)
-
-
-# Against each other:
-M <- matrix(nrow = n, ncol=n)
-for(i in 1:n){
-    print(paste(i,'/',n))
-    for(j in 1:i){
-        ti <- ape::read.tree(nwks[i])
-        tj <- ape::read.tree(nwks[j])
-        
-        xi <- descendants_list(ti)
-        xj <- descendants_list(tj)
-        
-        b <- vector(length = length(xi))
-        for(k in seq_along(xi)){
-            b[k] <- xi[k] %in% xj
-        }
-        M[i,j] <- mean(b)
-    }
-}
-image(M, axes=T, col = terrain.colors(12))
-
-
-
+grid.arrange(gs, gsv, ncol=1)
 
 
