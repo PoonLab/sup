@@ -195,13 +195,13 @@ build_multiple_seqproba <- function(n.seq,
 draw_multiple_seq <- function(M.list,
                               filename) {
     
+    PS <- M.list$PS
     # Draw the sequences:
-    s.list <- lapply(M.list, draw_seq, vect.format = T)
+    s.list <- lapply(PS, draw_seq, vect.format = T)
     
     # Save in FASTA file:
-    nm <- paste('seq',1:length(s.list), sep = '_')
     write.fasta(s.list, 
-                names = nm, 
+                names = M.list$seqs.names, 
                 nbchar = 50,
                 file.out = filename)
     

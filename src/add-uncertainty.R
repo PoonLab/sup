@@ -6,6 +6,7 @@ library(seqinr)
 library(tidyr)
 library(dplyr)
 library(ggplot2) ; theme_set(theme_bw())
+library(stringr)
 
 
 source('utils.R')
@@ -20,6 +21,10 @@ add_uncertainty <- function(prm, fasta.file,
     # Read the simulated phylogeny:
     seqs.sim <- read.fasta(file = fasta.file, #'seqs/sim.fasta', 
                            forceDNAtolower = FALSE)
+    
+    # Retrieve the sequences names:
+    seqs.names <- sapply(seqs.sim, attr, which='Annot') %>%
+        sapply(stringr::str_extract, pattern='\\w+_\\w+')
     
     n <- get_prm(prm, 'phylosim.root.seq.length')
     
@@ -66,7 +71,8 @@ add_uncertainty <- function(prm, fasta.file,
         dev.off()
         
     }
-    return(PS.list)
+    return(list(PS = PS.list, 
+                seqs.names = seqs.names))
 }
 
 plot_prmset_distrib <- function(fname) { #fname='prm-btshp.csv'
