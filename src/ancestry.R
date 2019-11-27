@@ -98,6 +98,6 @@ gsv <- dfs %>%
 
 pdf('plot-analysis-ancestry.pdf')
 grid.arrange(gs, gsv, ncol=1)
-dev.of()
+dev.off()
 
 
