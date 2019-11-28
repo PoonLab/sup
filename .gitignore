@@ -50,14 +50,19 @@ reads-seq-err/*.fastq
 reads-seq-err/*_abundance.txt
 
 # Sampling:
-src/seqs/*mc*.fasta*
+src/seqs/*.fasta*
+src/seqs/*reduced
 src/seqs/sim*.fasta
-src/trees/*mc*.out*
+src/seqs/seqs*
+
+src/trees/*.out
+src/trees/*.nwk
 src/trees/RAxML*.out*
 src/*.out
 
 
 # Plots:
+src/Rplots.pdf
 src/plot*.pdf
 data/zanini/plot*.pdf
 
@@ -66,5 +71,3 @@ src/trees/*.nwk
 
 
 
-src/Rplots.pdf
-src/trees/sim.nwk
