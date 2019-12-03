@@ -43,6 +43,13 @@ doc/*.gz
 doc/*.bbl
 doc/*.blg
 doc/*.out
+ms/*.aux
+ms/*.log
+ms/*.gz
+ms/*.bbl
+ms/*.blg
+ms/*.out
+
 
 # Reads sequencing error simulations:
 reads-seq-err/plot*.pdf
@@ -50,10 +57,7 @@ reads-seq-err/*.fastq
 reads-seq-err/*_abundance.txt
 
 # Sampling:
-src/seqs/*.fasta*
-src/seqs/*reduced
-src/seqs/sim*.fasta
-src/seqs/seqs*
+src/seqs/seqs*fasta*
 
 src/trees/*.out
 src/trees/*.nwk
