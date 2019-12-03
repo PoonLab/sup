@@ -1,0 +1,74 @@
+\documentclass[10pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, top=2cm, right=4cm, left = 4cm} 
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xspace}
+\usepackage{float} % Place figures exactly "here" (option "H")
+\usepackage[modulo]{lineno}
+\hypersetup{
+colorlinks=true,
+linkcolor = blue,
+citecolor = blue} 
+
+% ==== My Macro =====
+
+
+\newcommand{\comment}[1]{\textsl{\textcolor{cyan}{#1}}}
+\newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
+\newcommand{\pr}[1]{\mathrm{Pr}(#1)}
+\newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
+\newcommand{\eg}{\textit{e.g.,}\xspace}
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+% ===================
+
+\title{Propagating Sequencing Uncertainty in Phylogeny Reconstruction}
+\author{Champredon, David \and Poon, Art}
+\date{\today}
+
+\begin{document}
+\maketitle
+\linenumbers
+
+\section{Introduction}
+
+Molecular phylogenies are tree-based models of how of genetic sequences are related by common ancestors.
+For nearly three decades, scientists have developed sophisticated statistical tools to reconstruct phylogenies from genetic material extracted from biological samples. 
+Those statistical methods rely, to a varying degree, on ``truthful'' and accurate observations of molecular sequences, their main -- if not unique -- input data.
+
+\textbf{Sequencing error.} 
+Extracting DNA/RNA from biological samples is a complex process that involves several steps: extraction of the genetic material of interest (avoiding contamination with foreign/unwanted genetic material); reverse transcription (if RNA); DNA fragmentation of the genome into smaller segments; amplification of the fragmented sequences using PCR; sequencing the fragments (\eg with fluorescent techniques); putting back the small fragments together by aligning them (de novo) or mapping them to benchmark libraries.\comment{(all this must be checked by someone who knows well the process!)}
+It is well known that errors can be introduced at each of these steps for various reasons and errors can be quantified quantified for some of them (\eg sequencing quality scores from chromatographs). 
+
+\textbf{In-host diversity and polymorphisms.} 
+When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical example are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients. 
+
+
+\textbf{Current uncertainty management.} 
+The different sources of uncertainty described above impact our observations of the actual genetic sequences.
+There are standard approaches to deal with identifiable observation errors. 
+Base calls that are ambiguous (from equivocal chromatograph curves or because of genuine polymorphisms) are assigned ambiguity codes (\eg Y for C or T, R for A or G, etc.).
+\comment{((Is there uncertainty quantification for alignment methods??))}
+Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes.
+
+\textbf{Propagate and quantify uncertainty.}
+In summary, sources of sequencing observation errors are known and, for a few of them, quantified (quality scores, ambiguity codes).
+But, to our knowledge, the resulting uncertainty has never been propagated and quantified in a statistical framework for downstream analysis in  phylogenies inferences.
+In other words, genetic sequences are treated as \emph{certain} quantities.
+
+Here we propose a theoretical framework to represent genetic sequence uncertainty and quantify the impact of uncertainty as it is propagated through methods of phylogeny reconstruction. 
+
+\section{Methods}
+
+\subsection{Probabilistic sequences}
+
+\subsection{Simulating realistic probabilistic sequences}
+
+
+\section{Results}
+
+
+
+\end{document}  
