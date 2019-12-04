@@ -5,6 +5,7 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{xspace}
+\usepackage{xcolor}
 \usepackage{float} % Place figures exactly "here" (option "H")
 \usepackage[modulo]{lineno}
 \hypersetup{
@@ -15,12 +16,15 @@ citecolor = blue}
 % ==== My Macro =====
 
 
-\newcommand{\comment}[1]{\textsl{\textcolor{cyan}{#1}}}
+\newcommand{\comment}[1]{\textsl{\textcolor{cyan}{((#1))}}}
 \newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
 \newcommand{\pr}[1]{\mathrm{Pr}(#1)}
 \newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
 \newcommand{\eg}{\textit{e.g.,}\xspace}
 \newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\newcommand{\allset}{\mathcal{B}}
+
 
 % ===================
 
@@ -34,13 +38,13 @@ citecolor = blue}
 
 \section{Introduction}
 
-Molecular phylogenies are tree-based models of how of genetic sequences are related by common ancestors.
-For nearly three decades, scientists have developed sophisticated statistical tools to reconstruct phylogenies from genetic material extracted from biological samples. 
+Molecular phylogenies are tree-based models that relate common ancestors of genetic sequences.
+Many sophisticated statistical tools exist to reconstruct phylogenies from genetic material extracted from biological samples. 
 Those statistical methods rely, to a varying degree, on ``truthful'' and accurate observations of molecular sequences, their main -- if not unique -- input data.
 
 \textbf{Sequencing error.} 
 Extracting DNA/RNA from biological samples is a complex process that involves several steps: extraction of the genetic material of interest (avoiding contamination with foreign/unwanted genetic material); reverse transcription (if RNA); DNA fragmentation of the genome into smaller segments; amplification of the fragmented sequences using PCR; sequencing the fragments (\eg with fluorescent techniques); putting back the small fragments together by aligning them (de novo) or mapping them to benchmark libraries.\comment{(all this must be checked by someone who knows well the process!)}
-It is well known that errors can be introduced at each of these steps for various reasons and errors can be quantified quantified for some of them (\eg sequencing quality scores from chromatographs). 
+It is well known that errors can be introduced at each of these steps for various reasons and errors can be quantified for some of them (\eg sequencing quality scores from chromatographs). 
 
 \textbf{In-host diversity and polymorphisms.} 
 When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical example are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients. 
@@ -50,7 +54,7 @@ When the phylogenic tree to infer is based on pathogen sequences infecting hosts
 The different sources of uncertainty described above impact our observations of the actual genetic sequences.
 There are standard approaches to deal with identifiable observation errors. 
 Base calls that are ambiguous (from equivocal chromatograph curves or because of genuine polymorphisms) are assigned ambiguity codes (\eg Y for C or T, R for A or G, etc.).
-\comment{((Is there uncertainty quantification for alignment methods??))}
+\comment{Is there uncertainty quantification for alignment methods??}
 Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes.
 
 \textbf{Propagate and quantify uncertainty.}
@@ -60,12 +64,115 @@ In other words, genetic sequences are treated as \emph{certain} quantities.
 
 Here we propose a theoretical framework to represent genetic sequence uncertainty and quantify the impact of uncertainty as it is propagated through methods of phylogeny reconstruction. 
 
+
+
+% ==============================================================
+% ==============================================================
+
+
+
+
 \section{Methods}
+
+
 
 \subsection{Probabilistic sequences}
 
-\subsection{Simulating realistic probabilistic sequences}
+Here, we propose two simple probabilistic frameworks to represent the uncertainty of our genetic sequences observations.
+The first framework represents uncertainty at the \emph{nucleotide level}, whereas the second one is at the \emph{sequence level}.
+In both frameworks, the sequence of nucleotides from a biological sample is not treated as a certain observation anymore, but as a collection of possible sequences.
 
+
+\subsubsection{Nucleotide uncertainty}
+ 
+We define probabilistically a nucleotide sequence in a matrix form. For a sequence of length $\ell$ we can write:
+
+$$S = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
+                \sq{A} & S_{A, 1} & S_{A, 2} & \ldots & S_{A, \ell} \cr
+                \sq{C} & S_{C, 1} & S_{C, 2} & \ldots & S_{C, \ell} \cr
+                \sq{G} & S_{G, 1} & S_{G, 2} & \ldots & S_{G, \ell} \cr
+                \sq{T} & S_{T, 1} & S_{T, 2} & \ldots & S_{T, \ell} \cr 
+                \sq{x} & S_{x, 1} & S_{x, 2} & \ldots & S_{x, \ell} \cr 
+}$$
+
+Each column represents the nucleotide position, each row one of the four nucleotide \sq{A,C,G,T} as well as an empty position \sq{x} that symbolizes a deletion.
+Hence, $S$ is a $5\times\ell$ matrix. Its elements represent the probability that a nucleotide is at given position:
+
+\begin{equation}
+S_{n,j} = \pr{\text{nucleotide \sq{n} is at position }j}
+\end{equation}
+with the special case for a deletion:
+
+\begin{equation}
+S_{\sq{x},j} = \pr{\text{empty position }j}
+\end{equation}
+
+Note, that we have, for all $1\leq j \leq \ell$:
+\begin{equation}
+\sum_{n\in \{ \sq{A,C,G,T,x} \} } S_{n, j} = 1
+\end{equation}
+Also, the sequence length is stochastic if $S_{x,i}>0$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-S_{x,i})$. 
+We call the matrix $S$ the \emph{probabilistic nucleotide sequence} of a biological sample.
+The nucleotide (or deletion) drawn at each position is independent from all the other one, so there are $5^\ell$ possible different sequences for a given probabilistic nucleotide sequence. 
+
+
+
+\subsubsection{Polymorphism uncertainty}
+
+Out of the $5^\ell$ possible sequences, the nucleotide uncertainty likely assigns a positive probability to sequences that are not biologically possible.
+As an alternative representation and to reduce the space of sequences, let's assume we have enough information to generate the set $(\allset_i)_{i=1\ldots M}$ of all biologically possible sequences. Note that the $\allset_i$ do not have necessarily the same length. 
+The observed genetic sequence, $s$, is a sample from a specified distribution $a$:
+\begin{equation}
+\pr{s = \allset_i} = a(i)
+\end{equation}
+As a practical example, the set $\allset$ can be generated from polymorphism data and the distribution $a$ is the abundance of each polymorphism.
+
+
+
+\subsubsection{Examples}
+
+If we have the following probabilistic sequence
+$$
+S = 
+\begin{pmatrix}
+0.9 & 0.05   & 0.99 & 0 & 0\\
+0   & 0.8 & 0 & 0 & 0.1\\
+0.1 & 0.15 & 0 & 0.3 & 0.9\\
+0 & 0 & 0.01 & 0.7 & 0\\
+0 & 0 & 0 & 0 & 0\\
+\end{pmatrix}
+$$
+then there are $2\times 3 \times 2^3 = 48$ possible sequences. The most likely is the one having the highest nucleotides probabilities: \sq{ACATG} with probability 0.449  ($0.9\times 0.8\times 0.99 \times 0.7 \times 0.9$).
+
+If there is a positive probability for at least one deletion, then the sequence has a variable length. 
+Let's take the same example as above, but adding one possible empty position:
+
+$$
+S = 
+\begin{pmatrix}
+0.9 & 0.05   & 0.99 & 0 & 0\\
+0   & 0.8 & 0 & 0 & 0.1\\
+0.1 & 0.15 & 0 & 0.2 & 0.9\\
+0 & 0 & 0.01 & 0.7 & 0\\
+0 & 0 & 0 & 0.1 & 0\\
+\end{pmatrix}
+$$
+
+Like above, there is still a 0.449 probability that the sequence is \sq{ACATG}, but with probability 0.064, the sequence could be shorter when position 4 is empty and be \sq{ACAG}.
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Simulating realistic probabilistic sequences}
+\subsection{Distances between phylogenies}
 
 \section{Results}
 
