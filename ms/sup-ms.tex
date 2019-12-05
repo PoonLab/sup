@@ -23,7 +23,10 @@ citecolor = blue}
 \newcommand{\eg}{\textit{e.g.,}\xspace}
 \newcommand{\ie}{\textit{i.e.,}\xspace}
 
-\newcommand{\allset}{\mathcal{B}}
+\newcommand{\sps}{\mathcal{B}} % sequence probability sequence
+\newcommand{\nps}{\mathcal{S}} % nucleotide probability sequence
+\newcommand{\nlps}{nucleotide-level probabilistic sequence\xspace}
+\newcommand{\slps}{sequence-level probabilistic sequence\xspace}
 
 
 % ===================
@@ -83,57 +86,56 @@ The first framework represents uncertainty at the \emph{nucleotide level}, where
 In both frameworks, the sequence of nucleotides from a biological sample is not treated as a certain observation anymore, but as a collection of possible sequences.
 
 
-\subsubsection{Nucleotide uncertainty}
+\subsubsection{Nucleotide-level uncertainty}
  
 We define probabilistically a nucleotide sequence in a matrix form. For a sequence of length $\ell$ we can write:
 
-$$S = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
-                \sq{A} & S_{A, 1} & S_{A, 2} & \ldots & S_{A, \ell} \cr
-                \sq{C} & S_{C, 1} & S_{C, 2} & \ldots & S_{C, \ell} \cr
-                \sq{G} & S_{G, 1} & S_{G, 2} & \ldots & S_{G, \ell} \cr
-                \sq{T} & S_{T, 1} & S_{T, 2} & \ldots & S_{T, \ell} \cr 
-                \sq{x} & S_{x, 1} & S_{x, 2} & \ldots & S_{x, \ell} \cr 
+$$\nps = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
+                \sq{A} & \nps_{A, 1} & \nps_{A, 2} & \ldots & \nps_{A, \ell} \cr
+                \sq{C} & \nps_{C, 1} & \nps_{C, 2} & \ldots & \nps_{C, \ell} \cr
+                \sq{G} & \nps_{G, 1} & \nps_{G, 2} & \ldots & \nps_{G, \ell} \cr
+                \sq{T} & \nps_{T, 1} & \nps_{T, 2} & \ldots & \nps_{T, \ell} \cr 
+                \sq{x} & \nps_{x, 1} & \nps_{x, 2} & \ldots & \nps_{x, \ell} \cr 
 }$$
-
 Each column represents the nucleotide position, each row one of the four nucleotide \sq{A,C,G,T} as well as an empty position \sq{x} that symbolizes a deletion.
-Hence, $S$ is a $5\times\ell$ matrix. Its elements represent the probability that a nucleotide is at given position:
+Hence, $\nps$ is a $5\times\ell$ matrix. Its elements represent the probability that a nucleotide is at given position:
 
 \begin{equation}
-S_{n,j} = \pr{\text{nucleotide \sq{n} is at position }j}
+\nps_{n,j} = \pr{\text{nucleotide \sq{n} is at position }j}
 \end{equation}
 with the special case for a deletion:
 
 \begin{equation}
-S_{\sq{x},j} = \pr{\text{empty position }j}
+\nps_{\sq{x},j} = \pr{\text{empty position }j}
 \end{equation}
-
-Note, that we have, for all $1\leq j \leq \ell$:
+Note that we have for all $1\leq j \leq \ell$:
 \begin{equation}
-\sum_{n\in \{ \sq{A,C,G,T,x} \} } S_{n, j} = 1
+\sum_{n\in \{ \sq{A,C,G,T,x} \} } \nps_{n, j} = 1
 \end{equation}
-Also, the sequence length is stochastic if $S_{x,i}>0$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-S_{x,i})$. 
-We call the matrix $S$ the \emph{probabilistic nucleotide sequence} of a biological sample.
+Also, the sequence length is stochastic if $\nps_{x,i}>0$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-\nps_{x,i})$. 
+We call the matrix $\nps$ the \emph{\nlps} of a biological sample.
 The nucleotide (or deletion) drawn at each position is independent from all the other one, so there are $5^\ell$ possible different sequences for a given probabilistic nucleotide sequence. 
 
 
 
-\subsubsection{Polymorphism uncertainty}
+\subsubsection{Sequence-level uncertainty}
 
 Out of the $5^\ell$ possible sequences, the nucleotide uncertainty likely assigns a positive probability to sequences that are not biologically possible.
-As an alternative representation and to reduce the space of sequences, let's assume we have enough information to generate the set $(\allset_i)_{i=1\ldots M}$ of all biologically possible sequences. Note that the $\allset_i$ do not have necessarily the same length. 
+As an alternative representation and to reduce the space of sequences, let's assume we have enough information to generate the set $\sps = (\sps_i)_{i\in\{1\ldots M\} }$ of all biologically possible sequences. Note that the $\sps_i$ do not have necessarily the same length. 
 The observed genetic sequence, $s$, is a sample from a specified distribution $a$:
 \begin{equation}
-\pr{s = \allset_i} = a(i)
+\pr{s = \sps_i} = a(i)
 \end{equation}
-As a practical example, the set $\allset$ can be generated from polymorphism data and the distribution $a$ is the abundance of each polymorphism.
+We call the set $\sps$ the \emph{\slps}.
+
 
 
 
 \subsubsection{Examples}
 
-If we have the following probabilistic sequence
+If we have the following \nlps:
 $$
-S = 
+\nps = 
 \begin{pmatrix}
 0.9 & 0.05   & 0.99 & 0 & 0\\
 0   & 0.8 & 0 & 0 & 0.1\\
@@ -144,11 +146,11 @@ S =
 $$
 then there are $2\times 3 \times 2^3 = 48$ possible sequences. The most likely is the one having the highest nucleotides probabilities: \sq{ACATG} with probability 0.449  ($0.9\times 0.8\times 0.99 \times 0.7 \times 0.9$).
 
-If there is a positive probability for at least one deletion, then the sequence has a variable length. 
+If there is a positive probability of deletion for at least one position, then the sequence has a variable length. 
 Let's take the same example as above, but adding one possible empty position:
 
 $$
-S = 
+\nps = 
 \begin{pmatrix}
 0.9 & 0.05   & 0.99 & 0 & 0\\
 0   & 0.8 & 0 & 0 & 0.1\\
@@ -158,21 +160,63 @@ S =
 \end{pmatrix}
 $$
 
-Like above, there is still a 0.449 probability that the sequence is \sq{ACATG}, but with probability 0.064, the sequence could be shorter when position 4 is empty and be \sq{ACAG}.
+\noindent Like above, there is still a 0.449 probability that the sequence is \sq{ACATG}, but with probability 0.064 position 4 is deleted and the sequence would be \sq{ACAG}.
+
+Let's take the following example for a \slps $\sps$:
+\begin{table}[H]
+%\caption{default}
+\begin{center}
+\begin{tabular}{lc}
+\hline
+sequence & $a$ \\
+\hline
+\sq{ACATG} & 0.60 \\
+\sq{ACATC} & 0.12 \\
+\sq{AGATC} & 0.15 \\
+\sq{ACAG}  & 0.05 \\
+\sq{GCATG} & 0.08 \\
+\hline
+\end{tabular}
+\end{center}
+\label{default}
+\end{table}%
+Sampling from $\sps$, we will have for example \sq{ACATC} $12\%$ of the time. 
 
 
+\subsection{Probabilistic sequences from data}
 
+Here, we suggest possible methods to populate values in probabilistic sequences from data. 
 
+\subsubsection{Quality scores}
+Fragment sequencing error is an error that is quantified with quality (or ``Phred'') score attributed to each base call from sequencing instrument. 
+The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{xxx} (for the widespread Illumina instruments, the sequencing error probability ranges between $10^{-3.5}$ and  $10^{-1.5}$ \cite{xxx}).  
+So each base call is right with probability $1-\epsilon$. Assuming the other bases and deletion \sq{x} are all equally likely with probability $\epsilon/4$. Alternatively, if we know only mutations (not deletions) affect the sequence, the last row can be filled with zeros and the other base-calls equal to $\epsilon/3$.
 
+For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$. The probabilistic sequence can be defined as:
 
+$$
+S = 
+\begin{pmatrix}
+1-10^{-6} & 10^{-3}/4  & 1-10^{-5} & 10^{-1}/4 & 10^{-4}/4  \\
+10^{-6}/4 & 1-10^{-3}  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4  \\
+10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 1-10^{-4} \\
+10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 1-10^{-1} & 10^{-4}/4\\
+10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4 \\
+\end{pmatrix}
+$$
+Usually, this output from the sequencing instrument would be considered as certain (and quality scores discarded). In the probabilistic sequence framework, the probability to have \sq{ACATG} is 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
 
+\subsubsection{Polymorphisms data}
+Both \nlps and \slps can be generated from polymorphisms data where the distribution $a$ is the abundance of each polymorphism.
 
+\comment{STOPPED HERE. CONTINUE WITH ZANINI'S DATA}
 
-
-
-
-\subsection{Simulating realistic probabilistic sequences}
 \subsection{Distances between phylogenies}
+\comment{a brief review of the some distances because we'll them in the next section}
+
+\subsection{Propagating sequence uncertainty in phylogeny reconstruction}
+
+
 
 \section{Results}
 
