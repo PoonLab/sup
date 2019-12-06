@@ -13,6 +13,9 @@ colorlinks=true,
 linkcolor = blue,
 citecolor = blue} 
 
+
+\bibliographystyle{apalike}
+
 % ==== My Macro =====
 
 
@@ -31,7 +34,7 @@ citecolor = blue}
 
 % ===================
 
-\title{Propagating Sequencing Uncertainty in Phylogeny Reconstruction}
+\title{Propagating Sequence Uncertainty in Phylogeny Reconstruction}
 \author{Champredon, David \and Poon, Art}
 \date{\today}
 
@@ -47,7 +50,7 @@ Those statistical methods rely, to a varying degree, on ``truthful'' and accurat
 
 \textbf{Sequencing error.} 
 Extracting DNA/RNA from biological samples is a complex process that involves several steps: extraction of the genetic material of interest (avoiding contamination with foreign/unwanted genetic material); reverse transcription (if RNA); DNA fragmentation of the genome into smaller segments; amplification of the fragmented sequences using PCR; sequencing the fragments (\eg with fluorescent techniques); putting back the small fragments together by aligning them (de novo) or mapping them to benchmark libraries.\comment{(all this must be checked by someone who knows well the process!)}
-It is well known that errors can be introduced at each of these steps for various reasons and errors can be quantified for some of them (\eg sequencing quality scores from chromatographs). 
+Errors can be introduced at each of these steps for various reasons \cite{Beerenwinkel:2011} and some errors can be quantified (\eg sequencing quality scores from chromatographs). 
 
 \textbf{In-host diversity and polymorphisms.} 
 When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical example are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients. 
@@ -207,19 +210,91 @@ $$
 Usually, this output from the sequencing instrument would be considered as certain (and quality scores discarded). In the probabilistic sequence framework, the probability to have \sq{ACATG} is 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
 
 \subsubsection{Polymorphisms data}
-Both \nlps and \slps can be generated from polymorphisms data where the distribution $a$ is the abundance of each polymorphism.
+Both \nlps and \slps can be generated using data from studies investigating polymorphisms.
+\comment{Are those studies as generic as I claim?}
+The design of such studies may vary but a standard data format they generate can be summarized as follow: the genetic material from several specimens of organisms of interests (e.g., a pathogen infecting a host) is sequenced and all polymorphisms encountered are recorded (after alignment). 
+After alignment, the data can be displayed in a matrix where the columns represent the nucleotide position, the rows represent the nucleotide and deletion, and the matrix elements the number of times the nucleotide was found at that position.
+If this matrix is normalized column-wise, we obtain the \nlps introduced earlier. 
+An example of such a study, that we'll use to run our simulations, can be found in \cite{Zanini:2015}. \comment{other similar examples?}
 
-\comment{STOPPED HERE. CONTINUE WITH ZANINI'S DATA}
+\comment{Example of studies with full length sequences and their respective frequencies?}
 
-\subsection{Distances between phylogenies}
-\comment{a brief review of the some distances because we'll them in the next section}
 
 \subsection{Propagating sequence uncertainty in phylogeny reconstruction}
+
+Here, we describe our study design to propagate and measure sequence uncertainty in phylogeny reconstruction. 
+
+
+\subsubsection{Generating simulated probabilistic sequences} 
+
+If we want to simulate realistic probabilistic sequence, we have to reproduce a similar uncertainty as the one we would have from either sequencing error or polymorphism. 
+
+We illustrate our methodology in the context of in-host HIV infections. 
+The data from Zanini \cite{Zanini:2015} is a good source to assess primarily the diversity of polymorphism for HIV, and to a certain extent too, the sequencing error (because it is always here). 
+Briefly, this data set gives, for several patients at several time points during their (untreated) infection, the number of times nucleotides were sample at a given position, across the whole HIV genome. 
+The number of nucleotide occurrences at each position can easily be transformed into the probabilities for the probabilistic sequence. The entropy can then be calculated at each position, and also for the entire genome (by simply summing up the entropies for all positions). 
+
+Entropy is a measure of uncertainty. So we can consider the distribution of entropies (for each position on the genome) as a representation of the overall genome sequencing uncertainty, that should be approximately matched by simulations deemed realistic. 
+The data from Zanini shows that $\nps_{n,j}$, the distribution of base-call probabilities for most positions is highly concentrated just under 1 (which means a high base-call probability for most positions). 
+Hence, we choose a Beta distribution to simulate base-call probabilities, and fit the shape parameters $\alpha$ and $\beta$ on the observed entropy distribution:
+\begin{equation}
+\label{eq:beta_sampling}
+S_{n,j} \sim \betadist{\alpha, \beta}
+\end{equation}
+\begin{equation}
+\alpha, \beta \text{ such that } E(\alpha,\beta) = E_{obs}
+\end{equation}
+where $E$ is the distribution of position-wise entropy.
+A fit on Zanini's data \cite{Zanini:2015} gives approximately $\hat{\alpha} = 29.7$ and $\hat{\beta} = 0.06$. \comment{make an appendix to show the details of this fit.}
+%Hence, using $\hat{\alpha}$ and $\hat{\beta}$ in simulations of probabilistic sequences should give an ``uncertainty profile'' that is similar to the one observed in Zanini's data. 
+
+
+\subsubsection{Assessing the impact of sequencing uncertainty}
+
+
+Below is our simulation design to study the impact of uncertainty on phylogeny reconstruction.
+
+\begin{enumerate}
+\setcounter{enumi}{-1} 
+
+\item Choose a root sequence of interest (\eg a HIV genome, a random sequence)
+
+\item Generate a phylogeny from this root sequence, using \textsf{phyloSim}. The resulting tree $T^*$ has $n$ tips that represent the sequenced samples $seq_1, seq_2,\ldots, seq_n$. The tree $T^*$ with its sequences $seq_i$ is the ``base'' phylogeny.
+
+\item Add a simulated layer of uncertainty by transforming the ``base'' sequences $seq_i$ into probabilistic sequences $\nps^i$ (for $i=1,2,\ldots,n$).
+
+\item Repeat $M$ times\footnote{Monte-Carlo iterations}: 
+draw a sequence $\widetilde{seq_i}$ for each $\nps^i$ (for $i=1,\ldots, n$).
+
+\item Repeat $M$ times: reconstruct the phylogeny $T_m$ with \textsf{RAxML} from the $(\widetilde{seq_i})_{i=1\ldots n}$. 
+
+\item \label{item:assess} Assess the uncertainty by considering the variance among the phylogenies $(T_m)_{m=1:M}$ using several distance metrics (detailed below).
+\end{enumerate}
+
+\noindent Studying the distance between the $(T_m)_{m=1:M}$ and $T^*$ is not our main goal (this distance essentially assesses the performance of the phylogeny reconstruction software to correctly infer the ``true'' ancestry).
+Instead, we are principally interested in \emph{uncertainty propagation}.
+
+Our analysis considers multiple levels of uncertainty. We start with a inexistent/minimal sequence uncertainty, then increased it by lowering the base call probability. This is done by sampling the probability from multiple parameter sets of a Beta distribution (see \autoref{eq:beta_sampling}) whose mean decreases away from 1.0. 
+
+For Step \ref{item:assess}, we can consider the pairwise distances between trees. 
+Define the set $$D = \{d(T_i,T_j);\,\, i=1,\ldots, M \text{ and } j<i \}$$ with $d$ a tree distance. 
+%$D$ has ${M(M-1)/2}$ data points. 
+The distance $d$ should be a statistically-convenient metric that represents faithfully the differences of interpretation (\ie uncertainty) of phylogeny reconstruction. 
+We use three distances:  Robinson-Foulds (RF) \cite{Robinson:1981}, kernel \cite{Poon:2013} and labelled \cite{xxx}. 
+% We expect the mean (and variance) of $D$ to increase as the sequencing uncertainty increases. 
+
+\comment{insert pipeline figure here}
+
+%Labeled distance: Tree distances are relatively ``generic''. 
+%Given our phylogenic framework, more ``practical'' measure could be useful (?). 
+%For example, for a given terminal node (tip, leaf) A, how does the probability that it shares a direct common ancestor with B evolve as we increase uncertainty?
+
+
 
 
 
 \section{Results}
 
-
-
+\newpage
+\bibliography{papers}
 \end{document}  
