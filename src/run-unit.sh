@@ -18,5 +18,5 @@ Rscript draw-tip-seqs.R $i
 
 # Compare the reconstruction
 # to the true phylogeny:
-Rscript ss.R $i
+Rscript dist-calc.R $i
 
