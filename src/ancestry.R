@@ -40,6 +40,9 @@ descendants_list <- function(t, do.root=F, do.plot = F) {
 
 # tree     <- ape::read.tree(nwks[149])
 
+#' Calculate the proportion of nodes in a tree that have
+#' the same descendance as a reference tree. Descendance
+#' is calculated from ordered tips labels.
 shared_descendance <- function(tree, tree.ref ) {
     d.ref <- descendants_list(tree.ref)
     d     <- descendants_list(tree)

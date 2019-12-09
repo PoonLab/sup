@@ -24,7 +24,7 @@ do
 done
 
 # Analyze the distances:
-# Rscript analysis.R
+Rscript analysis.R
 
 echo " * * run-multi.sh completed * * "
 
