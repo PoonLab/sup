@@ -22,7 +22,9 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 
 ### Main analysis
 
+`run-multi.sh` performs uncertainty analyses with different beta distribution shape values (i.e., uncertainty levels) as defined in `prm-btshp.csv`.
 
+The type of sequence and phylogeny simulated is defined in `prm.csv`.
 
 
 ### Fragment sequencing eror
