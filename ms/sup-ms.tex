@@ -6,6 +6,7 @@
 \usepackage{hyperref}
 \usepackage{xspace}
 \usepackage{xcolor}
+\usepackage{graphicx}
 \usepackage{float} % Place figures exactly "here" (option "H")
 \usepackage[modulo]{lineno}
 \hypersetup{
@@ -253,6 +254,7 @@ A fit on Zanini's data \cite{Zanini:2015} gives approximately $\hat{\alpha} = 29
 
 
 Below is our simulation design to study the impact of uncertainty on phylogeny reconstruction.
+An illustration of this pipeline is given by \autoref{fig:pipeline}.
 
 \begin{enumerate}
 \setcounter{enumi}{-1} 
@@ -263,7 +265,7 @@ Below is our simulation design to study the impact of uncertainty on phylogeny r
 
 \item Add a simulated layer of uncertainty by transforming the ``base'' sequences $seq_i$ into probabilistic sequences $\nps^i$ (for $i=1,2,\ldots,n$).
 
-\item Repeat $M$ times\footnote{Monte-Carlo iterations}: 
+\item Repeat $M$ times: 
 draw a sequence $\widetilde{seq_i}$ for each $\nps^i$ (for $i=1,\ldots, n$).
 
 \item Repeat $M$ times: reconstruct the phylogeny $T_m$ with \textsf{RAxML} from the $(\widetilde{seq_i})_{i=1\ldots n}$. 
@@ -271,19 +273,52 @@ draw a sequence $\widetilde{seq_i}$ for each $\nps^i$ (for $i=1,\ldots, n$).
 \item \label{item:assess} Assess the uncertainty by considering the variance among the phylogenies $(T_m)_{m=1:M}$ using several distance metrics (detailed below).
 \end{enumerate}
 
-\noindent Studying the distance between the $(T_m)_{m=1:M}$ and $T^*$ is not our main goal (this distance essentially assesses the performance of the phylogeny reconstruction software to correctly infer the ``true'' ancestry).
-Instead, we are principally interested in \emph{uncertainty propagation}.
+\noindent Note that the $M$ iterations amounts to a Monte-Carlo algorithm.
+Studying the distance between the $(T_m)_{m=1:M}$ and $T^*$ is not our main goal (this distance essentially assesses the performance of the phylogeny reconstruction software to correctly infer the ``true'' ancestry).
+Instead, we are principally interested in \emph{uncertainty propagation}, that is the variance of the pairwise distances between the $(T_m)_{m=1:M}$.
 
-Our analysis considers multiple levels of uncertainty. We start with a inexistent/minimal sequence uncertainty, then increased it by lowering the base call probability. This is done by sampling the probability from multiple parameter sets of a Beta distribution (see \autoref{eq:beta_sampling}) whose mean decreases away from 1.0. 
+Our analysis considers five levels of uncertainty. We start with a virtually inexistent sequence uncertainty, then increased it by lowering the base call probability. This is done by sampling the probability from multiple parameter sets $(\alpha,\beta)$ of a Beta distribution (see \autoref{eq:beta_sampling}). 
+We choose a single value $\alpha=29$ and use five different values for the second shape parameter $\beta = 10^{-3}, 10^{-2}, 10^{-1}, 1 \text{ and } 3$.
+With these values, mean of the Beta distribution for the base-call probability decreases away from 1.0. 
+Finally, note that the middle value $(\alpha=29, \beta=10^{-1})$ is close to the fitted entropy values of the longitudinal HIV dataset from Zanini and colleagues \cite{Zanini:2015}.
 
-For Step \ref{item:assess}, we can consider the pairwise distances between trees. 
-Define the set $$D = \{d(T_i,T_j);\,\, i=1,\ldots, M \text{ and } j<i \}$$ with $d$ a tree distance. 
+For Step \ref{item:assess}, we consider the pairwise distances between trees. 
+Define the set 
+\begin{equation}
+D = \{d(T_i,T_j);\,\, i=1,\ldots, M \text{ and } j<i \}
+\end{equation}
+with $d$ a tree distance. 
 %$D$ has ${M(M-1)/2}$ data points. 
 The distance $d$ should be a statistically-convenient metric that represents faithfully the differences of interpretation (\ie uncertainty) of phylogeny reconstruction. 
-We use three distances:  Robinson-Foulds (RF) \cite{Robinson:1981}, kernel \cite{Poon:2013} and labelled \cite{xxx}. 
+We use three distances:  Robinson-Foulds (RF) \cite{Robinson:1981}, kernel \cite{Poon:2013} and a label-based distance \cite{xxx}. 
 % We expect the mean (and variance) of $D$ to increase as the sequencing uncertainty increases. 
 
-\comment{insert pipeline figure here}
+We measure the uncertainty of phylogenetic inference with the coefficient of variation $c = s / m$ where $m$ is the mean of $D$ and $s$ its standard deviation.
+We note $c_{RF}$, $c_K$ and $c_{L}$ the coefficients of variation calculated with the RF, kernel and label-based distances, respectively.
+
+Although not our primary objective in this study, we also investigate the distance of the inferred tree $T_i$ to the benchmark tree $T^*$, and define 
+\begin{equation}
+D^* = \{d(T_i,T^*);\,\, i=1,\ldots, M \} 
+\end{equation}
+Similarly as for $c$, we define $c^*$ as the coefficient of variation of $D^*$ and adopt the same subscript notation to differentiate between the distances used for its calculation.
+
+
+
+\begin{figure}[ht]
+\centering
+    \includegraphics[width=0.99\textwidth]{figs/pipeline.pdf}
+\caption{\textbf{Simulations pipeline.} 
+\textit{Step 1}: A phylogeny with $n$ final nodes is simulated from a root sequence using \textsf{phylosim}.
+\textit{Step 2}: A \nlps is generated for each sequence, assuming a Beta distribution for the base-call probability
+\textit{Step 3}: For each \nlps, a sequence is drawn $M$ times
+\textit{Step 4}: Using the ith drawn sequence (\ie ith Monte Carlo iteration), the phylogeny $T_i$ is inferred ($i=1,\ldots,M$). 
+\textit{Step 5}: The pairwise distances $d(T_i, t_j)$ are calculated for all $i<j$.
+Steps 1 to 5 are repeated for several level of uncertainty (defined by the Beta parameters of the base-call probabilities).
+}
+\label{fig:pipeline}
+\end{figure}
+
+
 
 %Labeled distance: Tree distances are relatively ``generic''. 
 %Given our phylogenic framework, more ``practical'' measure could be useful (?). 
