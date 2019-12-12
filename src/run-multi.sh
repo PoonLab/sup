@@ -23,8 +23,5 @@ do
   ./run-unit.sh $i &
 done
 
-# Analyze the distances:
-Rscript analysis.R
-
 echo " * * run-multi.sh completed * * "
 
