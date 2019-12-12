@@ -18,10 +18,16 @@ mv RAxML_*certain*.out* trees/
 # probabilistic sequences:
 N_PRM_SET=$(wc -l < prm-btshp.csv)
 
+pids=""
 for i in $(seq 1 $N_PRM_SET)  
 do
   ./run-unit.sh $i &
+  pids="$pids $!"
 done
+
+# Run analysis once all is done:
+wait $pids
+Rscript analysis.R
 
 echo " * * run-multi.sh completed * * "
 
