@@ -1,7 +1,6 @@
 library(ggplot2)
 library(ape)
 
-
 source('dist-fcts.R')
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -39,6 +38,13 @@ for(i in 1:n.mc){
   if(i%%10==0) message(paste('Read tree',i,'/',n.mc))
 }
 
+# Retrieve the simulation parameters the 
+# trees were generated with and create a label:
+prmsim <- read.csv('prm.csv')
+prmlabel <- paste0('L', prmsim$value[grepl('seq.length',prmsim$name)],
+                   'n', prmsim$value[grepl('n.tips',prmsim$name)],
+                   'PI', 100*prmsim$value[grepl('prop.invar',prmsim$name)],
+                   'MC', prmsim$value[grepl('n.mc',prmsim$name)])
 
 # ---- Distances ----
 
@@ -74,7 +80,8 @@ dist.list <- list(d.rf.star = d.rf.star,
                   d.sh.star = d.sh.star, 
                   d.rf      = d.rf,
                   d.sh      = d.sh,
-                  prmset    = args[1])
+                  prmset    = args[1],
+                  prmsimlab = prmlabel)
 save(list = 'dist.list', 
      file = paste0('treedist-',args[1],'.RData'))
 
@@ -101,11 +108,6 @@ for(i in 1:n.plot){
 }
 dev.off()
 
-pdf(paste0('plot-ss-prm-',args[1],'.pdf'))
-par(mfrow=c(1,2))
-hist(d.rf.star, col = 'lightgrey')
-hist(d.rf, col = 'lightgrey')
-dev.off()
 
 message(paste('Assessment done for parameter set', args[1]))
 

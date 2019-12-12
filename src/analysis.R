@@ -21,9 +21,11 @@ for(i in seq_along(rdatas)){  # i=1
     tmps[[i]] <- data.frame(d.rf = dist.list$d.rf.star, 
                             d.sh = dist.list$d.sh.star, 
                             prmset = dist.list$prmset)
+    prmsimlabel <- dist.list[['prmsimlab']]
 }
 df.d  <- do.call('rbind',tmp)
 df.ds <- do.call('rbind',tmps)
+
 
 
 digest_distances <- function(df) {
@@ -144,14 +146,17 @@ g.digest  <- plot_analysis_dig(df.d.m, 'b/w inferred trees')
 g.digest0 <- plot_analysis_dig(df.d.ms, 'from benchmark')
 
 g.j <- plot_analysis_join(df.d.m,df.d.ms)
-pdf('plot-analysis.pdf', width = 12 , height = 10)
+
+
+fname <- paste0('plot-analysis-',prmsimlabel,'.pdf')
+pdf(fname, width = 12 , height = 10)
 plot(g$g.hist)
-plot(g$g.dens)
+#plot(g$g.dens)
 plot(g.digest$g.mmm)
 plot(g.digest$g.cv)
 
 plot(g0$g.hist)
-plot(g0$g.dens)
+#plot(g0$g.dens)
 plot(g.digest0$g.mmm)
 plot(g.digest0$g.cv)
 
