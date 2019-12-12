@@ -71,19 +71,34 @@ plot_analysis_dig <- function(dfm, subtitle='') {
         guides(colour=FALSE, shape=FALSE)+
         theme(panel.grid.major.x = element_blank())
     
-    # Standard-deviation
+    # Standard-deviation:
+    g.sd <- dfm %>%
+        ggplot(aes(x=as.numeric(prmset), y=s, 
+                   colour = distance.type))+
+        geom_line(size=1)+
+        geom_point(size=3, alpha=0.7)+
+        # facet_wrap(~distance.type, nrow=1)+
+        ggtitle('Tree distance standard-deviation', subtitle)+
+        ylab('SD distance')+
+        xlab('prmset')+
+        # guides(colour=FALSE)+
+        theme(panel.grid.major.x = element_blank())
+    
+    # Coefficient of variation
     g.cv <- dfm %>%
         ggplot(aes(x=as.numeric(prmset), y=cv, 
                    colour = distance.type))+
         geom_line(size=1)+
         geom_point(size=3, alpha=0.7)+
         # facet_wrap(~distance.type, nrow=1)+
-        ggtitle('Tree distance variation', subtitle)+
+        ggtitle('Tree distance coeff. of variation', subtitle)+
         ylab('CV distance')+
+        xlab('prmset')+
         # guides(colour=FALSE)+
         theme(panel.grid.major.x = element_blank())
-    return(list(g.mmm=g.mmm, 
-                g.cv=g.cv))
+    return(list(g.mmm = g.mmm, 
+                g.cv  = g.cv,
+                g.sd  = g.sd))
 }
 
 plot_analysis <- function(df, subtitle='') {
@@ -128,7 +143,9 @@ plot_analysis_join <- function(df.d.m, df.d.ms) {
                    size=2)+
         geom_segment(aes(x=m.x, xend=m.x, y=m.y-s.y, yend=m.y+s.y, colour=prmset.x))+
         geom_segment(aes(x=m.x-s.x, xend=m.x+s.x, y=m.y, yend=m.y, colour=prmset.x))+
-        geom_smooth(method = 'lm', aes(x=m.x, y=m.y), alpha = 0.2) +
+        geom_smooth(method = 'lm', aes(x=m.x, y=m.y, 
+                                       colour=distance.type.x), 
+                    alpha = 0.2) +
         xlab('RF distance between inferred trees')+
         ylab("RF distance from Benchmark")+
         ggtitle("RF distances (mean +/- sd)")+
@@ -153,12 +170,12 @@ pdf(fname, width = 12 , height = 10)
 plot(g$g.hist)
 #plot(g$g.dens)
 plot(g.digest$g.mmm)
-plot(g.digest$g.cv)
+grid.arrange(g.digest$g.sd, g.digest$g.cv, nrow=1)
 
 plot(g0$g.hist)
 #plot(g0$g.dens)
 plot(g.digest0$g.mmm)
-plot(g.digest0$g.cv)
+grid.arrange(g.digest0$g.sd, g.digest0$g.cv, nrow=1)
 
 plot(g.j)
 dev.off()
