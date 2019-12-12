@@ -54,19 +54,20 @@ Extracting DNA/RNA from biological samples is a complex process that involves se
 Errors can be introduced at each of these steps for various reasons \cite{Beerenwinkel:2011} and some errors can be quantified (\eg sequencing quality scores from chromatographs). 
 
 \textbf{In-host diversity and polymorphisms.} 
-When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical example are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients. 
+When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical examples are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients \comment{ref phyloscanner}. 
 
 
 \textbf{Current uncertainty management.} 
 The different sources of uncertainty described above impact our observations of the actual genetic sequences.
 There are standard approaches to deal with identifiable observation errors. 
 Base calls that are ambiguous (from equivocal chromatograph curves or because of genuine polymorphisms) are assigned ambiguity codes (\eg Y for C or T, R for A or G, etc.).
-\comment{Is there uncertainty quantification for alignment methods??}
+Alignment methods are heuristic methods based on similarity scores that generally do not quantify the uncertainty of alignment.\comment{double check this is indeed the case for MUSCLE, MAPFT, PRANK, ClustalW}
 Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes.
 
 \textbf{Propagate and quantify uncertainty.}
 In summary, sources of sequencing observation errors are known and, for a few of them, quantified (quality scores, ambiguity codes).
 But, to our knowledge, the resulting uncertainty has never been propagated and quantified in a statistical framework for downstream analysis in  phylogenies inferences.
+\comment{Check what BALIphy does, this may be the only example of uncertainty propagation}
 In other words, genetic sequences are treated as \emph{certain} quantities.
 
 Here we propose a theoretical framework to represent genetic sequence uncertainty and quantify the impact of uncertainty as it is propagated through methods of phylogeny reconstruction. 
@@ -99,9 +100,9 @@ $$\nps = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
                 \sq{C} & \nps_{C, 1} & \nps_{C, 2} & \ldots & \nps_{C, \ell} \cr
                 \sq{G} & \nps_{G, 1} & \nps_{G, 2} & \ldots & \nps_{G, \ell} \cr
                 \sq{T} & \nps_{T, 1} & \nps_{T, 2} & \ldots & \nps_{T, \ell} \cr 
-                \sq{x} & \nps_{x, 1} & \nps_{x, 2} & \ldots & \nps_{x, \ell} \cr 
+                \sq{-} & \nps_{x, 1} & \nps_{x, 2} & \ldots & \nps_{x, \ell} \cr 
 }$$
-Each column represents the nucleotide position, each row one of the four nucleotide \sq{A,C,G,T} as well as an empty position \sq{x} that symbolizes a deletion.
+Each column represents the nucleotide position, each row one of the four nucleotide \sq{A,C,G,T} as well as an empty position ``\sq{-}'' that symbolizes a genuine deletion (not caused by missing data).
 Hence, $\nps$ is a $5\times\ell$ matrix. Its elements represent the probability that a nucleotide is at given position:
 
 \begin{equation}
@@ -110,11 +111,11 @@ Hence, $\nps$ is a $5\times\ell$ matrix. Its elements represent the probability 
 with the special case for a deletion:
 
 \begin{equation}
-\nps_{\sq{x},j} = \pr{\text{empty position }j}
+\nps_{\sq{-},j} = \pr{\text{empty position }j}
 \end{equation}
 Note that we have for all $1\leq j \leq \ell$:
 \begin{equation}
-\sum_{n\in \{ \sq{A,C,G,T,x} \} } \nps_{n, j} = 1
+\sum_{n\in \{ \sq{A,C,G,T,-} \} } \nps_{n, j} = 1
 \end{equation}
 Also, the sequence length is stochastic if $\nps_{x,i}>0$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-\nps_{x,i})$. 
 We call the matrix $\nps$ the \emph{\nlps} of a biological sample.
@@ -125,7 +126,7 @@ The nucleotide (or deletion) drawn at each position is independent from all the 
 \subsubsection{Sequence-level uncertainty}
 
 Out of the $5^\ell$ possible sequences, the nucleotide uncertainty likely assigns a positive probability to sequences that are not biologically possible.
-As an alternative representation and to reduce the space of sequences, let's assume we have enough information to generate the set $\sps = (\sps_i)_{i\in\{1\ldots M\} }$ of all biologically possible sequences. Note that the $\sps_i$ do not have necessarily the same length. 
+As an alternative representation and to reduce the space of sequences, let's assume we have enough information (either directly observed from data or simulated) to generate a set of $m$ sequences $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of all biologically possible sequences. Note that the $\sps_i$ do not have necessarily the same length. 
 The observed genetic sequence, $s$, is a sample from a specified distribution $a$:
 \begin{equation}
 \pr{s = \sps_i} = a(i)
@@ -194,7 +195,7 @@ Here, we suggest possible methods to populate values in probabilistic sequences 
 \subsubsection{Quality scores}
 Fragment sequencing error is an error that is quantified with quality (or ``Phred'') score attributed to each base call from sequencing instrument. 
 The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{xxx} (for the widespread Illumina instruments, the sequencing error probability ranges between $10^{-3.5}$ and  $10^{-1.5}$ \cite{xxx}).  
-So each base call is right with probability $1-\epsilon$. Assuming the other bases and deletion \sq{x} are all equally likely with probability $\epsilon/4$. Alternatively, if we know only mutations (not deletions) affect the sequence, the last row can be filled with zeros and the other base-calls equal to $\epsilon/3$.
+So each base call is right with probability $1-\epsilon$. Assuming the other bases and deletion \sq{-} are all equally likely with probability $\epsilon/4$. Alternatively, if we know only mutations (not deletions) affect the sequence, the last row can be filled with zeros and the other base-calls equal to $\epsilon/3$.
 
 For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$. The probabilistic sequence can be defined as:
 
@@ -211,9 +212,8 @@ $$
 Usually, this output from the sequencing instrument would be considered as certain (and quality scores discarded). In the probabilistic sequence framework, the probability to have \sq{ACATG} is 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
 
 \subsubsection{Polymorphisms data}
-Both \nlps and \slps can be generated using data from studies investigating polymorphisms.
-\comment{Are those studies as generic as I claim?}
-The design of such studies may vary but a standard data format they generate can be summarized as follow: the genetic material from several specimens of organisms of interests (e.g., a pathogen infecting a host) is sequenced and all polymorphisms encountered are recorded (after alignment). 
+Both \nlps and \slps can be generated using error-only non-polymorphic data as well as data from studies investigating polymorphisms.
+The design of the latter studies may vary but a standard data format they generate can be summarized as follow: the genetic material from several specimens of organisms of interests (e.g., a pathogen infecting a host) is sequenced and all polymorphisms encountered are recorded (after alignment). 
 After alignment, the data can be displayed in a matrix where the columns represent the nucleotide position, the rows represent the nucleotide and deletion, and the matrix elements the number of times the nucleotide was found at that position.
 If this matrix is normalized column-wise, we obtain the \nlps introduced earlier. 
 An example of such a study, that we'll use to run our simulations, can be found in \cite{Zanini:2015}. \comment{other similar examples?}
