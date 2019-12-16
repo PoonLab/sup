@@ -141,31 +141,40 @@ We call the set $\sps$ the \emph{\slps}.
 If we have the following \nlps:
 $$
 \nps = 
-\begin{pmatrix}
-0.9 & 0.05   & 0.99 & 0 & 0\\
-0   & 0.8 & 0 & 0 & 0.1\\
-0.1 & 0.15 & 0 & 0.3 & 0.9\\
-0 & 0 & 0.01 & 0.7 & 0\\
-0 & 0 & 0 & 0 & 0\\
-\end{pmatrix}
+\bordermatrix{
+& \scriptscriptstyle{1} & \scriptscriptstyle{2}& \scriptscriptstyle{3}& \scriptscriptstyle{4} & \scriptscriptstyle{5} & \scriptscriptstyle{6} \cr
+\sq{A} & 0.9 & 0.05   & 0.99 & 0 & 0 & 0.6\cr
+\sq{C} & 0   & 0.8 & 0 & 0 & 0.1 & 0.1\cr
+\sq{G} & 0.1 & 0.15 & 0 & 0.3 & 0.9 & 0\cr
+\sq{T} & 0 & 0 & 0.01 & 0.7 & 0 & 0.3\cr
+\sq{-} & 0 & 0 & 0 & 0 & 0 & 0\cr
+}
 $$
-then there are $2\times 3 \times 2^3 = 48$ possible sequences. The most likely is the one having the highest nucleotides probabilities: \sq{ACATG} with probability 0.449  ($0.9\times 0.8\times 0.99 \times 0.7 \times 0.9$).
+then there are $2\times 3 \times 2^3 \times 3 = 144$ possible sequences. The most likely is the one having the highest nucleotides probabilities: \sq{ACATGA} with probability 0.2694  ($0.9\times 0.8\times 0.99 \times 0.7 \times 0.9 \times 0.6$).
 
 If there is a positive probability of deletion for at least one position, then the sequence has a variable length. 
 Let's take the same example as above, but adding one possible empty position:
 
 $$
 \nps = 
-\begin{pmatrix}
-0.9 & 0.05   & 0.99 & 0 & 0\\
-0   & 0.8 & 0 & 0 & 0.1\\
-0.1 & 0.15 & 0 & 0.2 & 0.9\\
-0 & 0 & 0.01 & 0.7 & 0\\
-0 & 0 & 0 & 0.1 & 0\\
-\end{pmatrix}
+\bordermatrix{
+&\scriptscriptstyle{1} & \scriptscriptstyle{2}& \scriptscriptstyle{3}& \scriptscriptstyle{4} & \scriptscriptstyle{5} & \scriptscriptstyle{6} \cr
+\sq{A} & 0.9 & 0.05   & 0.99 & 0 & 0 & 0.6\cr
+\sq{C} & 0   & 0.8 & 0 & 0 & 0.1 & 0.1\cr
+\sq{G} & 0.1 & 0.15 & 0 & 0.2 & 0.9 & 0\cr
+\sq{T} & 0 & 0 & 0.01 & 0.7 & 0 & 0.3\cr
+\sq{-} & 0 & 0 & 0 & 0.1 & 0 & 0\cr
+}
+%\begin{pmatrix}
+%0.9 & 0.05   & 0.99 & 0 & 0 & 0.6\\
+%0   & 0.8 & 0 & 0 & 0.1 & 0.1\\
+%0.1 & 0.15 & 0 & 0.2 & 0.9 & 0\\
+%0 & 0 & 0.01 & 0.7 & 0 & 0.3\\
+%0 & 0 & 0 & 0.1 & 0 & 0\\
+%\end{pmatrix}
 $$
 
-\noindent Like above, there is still a 0.449 probability that the sequence is \sq{ACATG}, but with probability 0.064 position 4 is deleted and the sequence would be \sq{ACAG}.
+\noindent Like above, there is still a 0.2694 probability that the sequence is \sq{ACATGA}, but now there is a chance that position 4 is deleted. For example, with probability 0.038 the sequence is \sq{ACA-GA}.
 
 Let's take the following example for a \slps $\sps$:
 \begin{table}[H]
@@ -175,17 +184,17 @@ Let's take the following example for a \slps $\sps$:
 \hline
 sequence & $a$ \\
 \hline
-\sq{ACATG} & 0.60 \\
-\sq{ACATC} & 0.12 \\
-\sq{AGATC} & 0.15 \\
-\sq{ACAG}  & 0.05 \\
-\sq{GCATG} & 0.08 \\
+\sq{ACATGA} & 0.60 \\
+\sq{ACATCA} & 0.12 \\
+\sq{AGATCA} & 0.15 \\
+\sq{ACAGA}  & 0.05 \\
+\sq{GCATGA} & 0.08 \\
 \hline
 \end{tabular}
 \end{center}
 \label{default}
 \end{table}%
-Sampling from $\sps$, we will have for example \sq{ACATC} $12\%$ of the time. 
+Sampling from $\sps$, we will have for example \sq{ACATCA} $12\%$ of the time. 
 
 
 \subsection{Probabilistic sequences from data}
