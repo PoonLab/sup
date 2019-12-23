@@ -4,13 +4,14 @@ library(ggplot2) ; theme_set(theme_bw())
 library(gridExtra)
 library(ape)
 
-
-
 set.seed(123456)
 
-n <- 75
-phy<-unroot(rtree(n))
+# ---- Functions ----
 
+#' Swap 2 tips of a given phylogeny.
+#' @param phy Phylo object
+#' @param i Integer. Tip number.
+#' @param j Integer. Tip number.
 swap_tips <- function(phy, i, j) {
     old.lab <- phy$tip.label
     new.lab <- replace(old.lab, c(i,j), old.lab[c(j,i)])
@@ -19,6 +20,7 @@ swap_tips <- function(phy, i, j) {
     return(phy.new)
 }
 
+#' Swap all possible tip pairs.
 swap_all_tip_pairs <- function(phy) {
     n <- length(phy$tip.label)
     ivec <- numeric(n*(n+1)/2)
@@ -49,6 +51,9 @@ swap_all_tip_pairs <- function(phy) {
     grid.arrange(g1, g2)
 }
 
+#' Swap p tip pairs randomly chosen.
+#' @param phy Phylo object
+#' @param p Integer. Number of tip pairs to swap.
 random_p_swaps <- function(phy, p) { # p = 3
     n <- length(phy$tip.label)
     if(2*p > n) stop("ERROR: too many swaps asked!")
@@ -63,11 +68,15 @@ random_p_swaps <- function(phy, p) { # p = 3
     return(tmp)
 }
 
-
+#' Calculate the RF distances b/w a benchmark phylo
+#' and phylogenies that had some tip pairs swapped.
+#' 
+#' @param phy Phylo object
+#' @param iter.per.swap Integer. Number of times the tip pairs are swapped
+#' @param swapmax Integer. The number of swaps will range from 1 to `swapmax`
 multi_swap <- function(phy, 
                        iter.per.swap, 
                        swapmax ) {
-    
     m    <- iter.per.swap * swapmax
     d.rf <- numeric(m)
     sw   <- numeric(m)
@@ -76,16 +85,22 @@ multi_swap <- function(phy,
     for(p in 1:swapmax){
         print(paste(p,'/',swapmax))
         for(i in 1:iter.per.swap){
-            tmp <- random_p_swaps(phy, p)
+            tmp     <- random_p_swaps(phy, p)
             d.rf[k] <- dist.topo(phy, tmp)
-            sw[k] <- p
+            sw[k]   <- p
             iter[k] <- i
-          k = k+1  
+            k = k+1  
         }
     }
     df <- data.frame(sw, iter, d.rf)
     return(df)
 }
+
+
+# ---- RUN ----
+
+n   <- 75   # number of tips
+phy <- unroot(rtree(n))
 
 df <- multi_swap(phy, 
                  iter.per.swap = 30, 
