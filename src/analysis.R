@@ -17,9 +17,11 @@ for(i in seq_along(rdatas)){  # i=1
     load(rdatas[[i]])
     tmp[[i]]  <- data.frame(d.rf = dist.list$d.rf,
                             d.sh = dist.list$d.sh,
+                            d.kern = dist.list$d.kern,
                             prmset = dist.list$prmset)
     tmps[[i]] <- data.frame(d.rf = dist.list$d.rf.star, 
                             d.sh = dist.list$d.sh.star, 
+                            d.kern = dist.list$d.kern.star, 
                             prmset = dist.list$prmset)
     prmsimlabel <- dist.list[['prmsimlab']]
 }
@@ -37,17 +39,16 @@ digest_distances <- function(df) {
                      names_to = 'distance.type', 
                      values_to = 'value') %>%
         group_by(prmset, distance.type) %>%
-        summarise(m = mean(value), 
-                  md = median(value),
-                  s = sd(value),
-                  q.lo = quantile(value, probs = p.lo),
-                  q.hi = quantile(value, probs = p.hi),
-                  minv = min(value),
-                  maxv = max(value)) %>%
+        summarise(m = mean(value, na.rm = TRUE), 
+                  md = median(value, na.rm = TRUE),
+                  s = sd(value, na.rm = TRUE),
+                  q.lo = quantile(value, probs = p.lo, na.rm = TRUE),
+                  q.hi = quantile(value, probs = p.hi, na.rm = TRUE),
+                  minv = min(value, na.rm = TRUE),
+                  maxv = max(value, na.rm = TRUE)) %>%
         mutate(cv = s / m)
     return(res)
 }
-
 
 df.d.m  <- digest_distances(df.d)
 df.d.ms <- digest_distances(df.ds)
