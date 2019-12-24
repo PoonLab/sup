@@ -9,7 +9,8 @@ args <- commandArgs(trailingOnly = TRUE)
 
 software <- 'raxml'   # 'raxml' or 'fasttree'
 
-message(paste('Inference assessment for prmset',args[1],'...'))
+message(paste('Inference assessment for prmset',
+              args[1],'...'))
 
 # ---- Data ----
 
@@ -50,13 +51,15 @@ prmlabel <- paste0('L', prmsim$value[grepl('seq.length',prmsim$name)],
 
 # ---- _benchmark ----
 
-d.rf.star <- sapply(x, dist.RF, tstaru)
-d.sh.star <- sapply(x, dist.shared, tree.ref = tstar)
+d.rf.star   <- sapply(x, dist.RF, tstaru)
+d.sh.star   <- sapply(x, dist.shared, tree.ref = tstar)
+d.kern.star <- sapply(x, dist.kernel, tstar)
 
 # ---- _b/w inferred ----
 
-d.rf <- numeric(n.mc*(n.mc-1)/2) 
-d.sh <- numeric(n.mc*(n.mc-1)/2) 
+d.rf   <- numeric(n.mc*(n.mc-1)/2) 
+d.sh   <- numeric(n.mc*(n.mc-1)/2) 
+d.kern <- numeric(n.mc*(n.mc-1)/2) 
 k    <- 1
 
 for(i in seq_along(x)){
@@ -68,6 +71,7 @@ for(i in seq_along(x)){
     if(j != i) {
       d.rf[k] <- dist.RF(x[[i]], x[[j]])
       d.sh[k] <- dist.shared(x[[i]], x[[j]])
+      d.kern[k] <- dist.kernel(x[[i]], x[[j]])
       k <- k+1
     }
   }
@@ -78,8 +82,10 @@ for(i in seq_along(x)){
 
 dist.list <- list(d.rf.star = d.rf.star, 
                   d.sh.star = d.sh.star, 
+                  d.kern.star = d.kern.star, 
                   d.rf      = d.rf,
                   d.sh      = d.sh,
+                  d.kern    = d.kern,
                   prmset    = args[1],
                   prmsimlab = prmlabel)
 save(list = 'dist.list', 

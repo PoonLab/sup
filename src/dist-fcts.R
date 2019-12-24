@@ -5,6 +5,7 @@
 library(ape)
 library(phytools)
 library(phylobase)
+source('treekernel.R')
 
 #' Robinson-Foulds distance. 
 #' @param tree1 `ape::phylo` object. First tree. 
@@ -69,6 +70,22 @@ dist.shared <- function(tree, tree.ref ) {
     return(1.0 - mean(b))
 }
 
-
-
+#' @param tree1 `ape::phylo` object. First tree. 
+#' @param tree2 `ape::phylo` object. Second tree. 
+#' @param normalize Boolean. Normalize kernel distance.
+dist.kernel <- function(tree1, tree2, normalize = TRUE) {
+    chk <- try(d  <- tree.kernel(tree1, 
+                                 tree2, 
+                                 normalize = normalize), 
+               silent = TRUE)
+    if(class(chk)=='try-error')
+        res <- NA
+    else{
+        # "kernel" is a similarity measure,
+        # so calculate inverse for distance.
+        res <- 1.0/d
+        }
+    
+    return(res)
+}
 

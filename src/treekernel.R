@@ -38,20 +38,6 @@ library(igraph)
     return(tree)
 }
 
-
-# DEPRECATED
-parse.newick <- function(tree) {
-    if (class(tree)=='phylo') {
-        res <- .Call("R_Kaphi_parse_newick", write.tree(tree), PACKAGE="Kaphi")
-    } else if (class(tree) == 'character') {
-        res <- .Call("R_Kaphi_parse_newick", tree, PACKAGE="Kaphi")
-    } else {
-        return (1)
-    }
-    return (res)
-}
-
-
 .preprocess.tree <- function(tree, config) {
     #print ('preprocess')
     if (class(tree) == 'character') {
@@ -102,8 +88,6 @@ utk <- function(t1, t2, config) {
     return(result)
 }
 
-
-
 # also try R-igraph?
 
 .get.productions <- function(g) {
@@ -130,7 +114,6 @@ utk <- function(t1, t2, config) {
     edges <- incident_edges(g, 1:n.nodes, mode='out')
     sapply(edges, function(e) get.edge.attribute(g, 'length', e))
 }
-
 
 .get.children <- function(g) {
     # @return A list keyed by node name, containing either:
@@ -172,8 +155,13 @@ utk <- function(t1, t2, config) {
 }
 
 
-tree.kernel <- function(t1, t2, lambda=0.5, sigma=1.0, rho=TRUE, normalize=FALSE, 
-                        label1=NA, label2=NA, gamma=0) {
+tree.kernel <- function(t1, t2, 
+                        lambda = 0.5, 
+                        sigma = 1.0, 
+                        rho = TRUE, 
+                        normalize = FALSE, 
+                        label1=NA, label2=NA, 
+                        gamma=0) {
     # Wrapper function for tree.kernel.R() to normalize 
     
     # convert Phylo objects to igraph
@@ -219,11 +207,12 @@ tree.kernel <- function(t1, t2, lambda=0.5, sigma=1.0, rho=TRUE, normalize=FALSE
     for (n1 in .postorder(g1)) {
         for (n2 in .postorder(g2)) {
             if (V(g1)$production[n1] == V(g2)$production[n2]) {
+                print(paste(n1,n2))
                 # Gaussian radial basis function
                 res <- lambda * exp(
                     -1./rbf.var * (
                         V(g1)$ssq.bl[n1] + V(g2)$ssq.bl[n2] - 
-                            2 * as.numeric(V(g1)$bl[[n1]] %*% V(g2)$bl[[n2]])
+                                2 * as.numeric(V(g1)$bl[[n1]] %*% V(g2)$bl[[n2]])
                     )
                 )
                 for (cn1 in 1:2) {
