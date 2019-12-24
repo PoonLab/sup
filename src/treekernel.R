@@ -207,7 +207,7 @@ tree.kernel <- function(t1, t2,
     for (n1 in .postorder(g1)) {
         for (n2 in .postorder(g2)) {
             if (V(g1)$production[n1] == V(g2)$production[n2]) {
-                print(paste(n1,n2))
+                # DEBUG:print(paste(n1,n2))
                 # Gaussian radial basis function
                 res <- lambda * exp(
                     -1./rbf.var * (

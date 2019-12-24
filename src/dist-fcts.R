@@ -73,9 +73,16 @@ dist.shared <- function(tree, tree.ref ) {
 #' @param tree1 `ape::phylo` object. First tree. 
 #' @param tree2 `ape::phylo` object. Second tree. 
 #' @param normalize Boolean. Normalize kernel distance.
-dist.kernel <- function(tree1, tree2, normalize = TRUE) {
+dist.kernel <- function(tree1, tree2, 
+                        lambda = 0.5, 
+                        sigma = 1.0, 
+                        rho = TRUE,
+                        normalize = TRUE) {
     chk <- try(d  <- tree.kernel(tree1, 
                                  tree2, 
+                                 lambda = lambda, 
+                                 sigma = sigma, 
+                                 rho = rho,
                                  normalize = normalize), 
                silent = TRUE)
     if(class(chk)=='try-error')

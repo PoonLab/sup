@@ -1,5 +1,6 @@
 library(ggplot2)
 library(ape)
+library(phytools)
 
 source('dist-fcts.R')
 
@@ -38,6 +39,8 @@ for(i in 1:n.mc){
   x[[i]] <- ape::read.tree(file = treename[i])
   if(i%%10==0) message(paste('Read tree',i,'/',n.mc))
 }
+# Midpoint rooting:
+xr <- lapply(X = x, phytools::midpoint.root)
 
 # Retrieve the simulation parameters the 
 # trees were generated with and create a label:
@@ -53,7 +56,7 @@ prmlabel <- paste0('L', prmsim$value[grepl('seq.length',prmsim$name)],
 
 d.rf.star   <- sapply(x, dist.RF, tstaru)
 d.sh.star   <- sapply(x, dist.shared, tree.ref = tstar)
-d.kern.star <- sapply(x, dist.kernel, tstar)
+d.kern.star <- sapply(xr, dist.kernel, tstar, lambda = 0.5) # Kernel assumes _rooted_ trees
 
 # ---- _b/w inferred ----
 
@@ -63,15 +66,15 @@ d.kern <- numeric(n.mc*(n.mc-1)/2)
 k    <- 1
 
 for(i in seq_along(x)){
-  if(i%%10==0) message(paste('Calculating distances',i,
+  if(i==1 | i%%10==0) message(paste('Calculating distances',i,
                              '/',n.mc,'...'))
   
   # Distance b/w the `x`s:
   for(j in 1:i){
     if(j != i) {
-      d.rf[k] <- dist.RF(x[[i]], x[[j]])
-      d.sh[k] <- dist.shared(x[[i]], x[[j]])
-      d.kern[k] <- dist.kernel(x[[i]], x[[j]])
+      d.rf[k]   <- dist.RF(x[[i]], x[[j]])
+      d.sh[k]   <- dist.shared(x[[i]], x[[j]])
+      d.kern[k] <- dist.kernel(xr[[i]], xr[[j]])
       k <- k+1
     }
   }
