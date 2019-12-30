@@ -15,26 +15,34 @@ tmp  <- list()
 tmps <- list()
 for(i in seq_along(rdatas)){  # i=1
     load(rdatas[[i]])
-    tmp[[i]]  <- data.frame(d.rf = dist.list$d.rf,
-                            d.sh = dist.list$d.sh,
+    tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
+                            d.sh   = dist.list$d.sh,
                             d.kern = dist.list$d.kern,
-                            prmset = dist.list$prmset)
-    tmps[[i]] <- data.frame(d.rf = dist.list$d.rf.star, 
-                            d.sh = dist.list$d.sh.star, 
+                            prmset = as.numeric(dist.list$prmset))
+    tmps[[i]] <- data.frame(d.rf   = dist.list$d.rf.star, 
+                            d.sh   = dist.list$d.sh.star, 
                             d.kern = dist.list$d.kern.star, 
-                            prmset = dist.list$prmset)
+                            prmset = as.numeric(dist.list$prmset))
     prmsimlabel <- dist.list[['prmsimlab']]
 }
 df.d  <- do.call('rbind',tmp)
 df.ds <- do.call('rbind',tmps)
 
 
+# Retrieve the sequence entropy for each prm set:
+get_entropy_prmset <- function(fname = 'entropy-prmset.out') {
+    x <- read.csv(fname, header = F)
+    names(x) <- c('prmset', 's1','s2','entropy')
+    return(x)
+}
 
 digest_distances <- function(df) {
     p.lo = 0.025
     p.hi = 0.975
     
-    res <- df %>%
+    df.ent <- get_entropy_prmset()
+    
+    tmp <- df %>%
         pivot_longer(cols = -prmset, 
                      names_to = 'distance.type', 
                      values_to = 'value') %>%
@@ -45,10 +53,16 @@ digest_distances <- function(df) {
                   q.lo = quantile(value, probs = p.lo, na.rm = TRUE),
                   q.hi = quantile(value, probs = p.hi, na.rm = TRUE),
                   minv = min(value, na.rm = TRUE),
-                  maxv = max(value, na.rm = TRUE)) %>%
+                  maxv = max(value, na.rm = TRUE),
+                  n = sum(!is.na(value))) %>%
         mutate(cv = s / m)
+    
+    res <- left_join(tmp, df.ent, by='prmset')
+    
     return(res)
 }
+
+
 
 df.d.m  <- digest_distances(df.d)
 df.d.ms <- digest_distances(df.ds)
@@ -59,13 +73,15 @@ plot_analysis_dig <- function(dfm, subtitle='') {
     
     # Mean, min, max
     g.mmm <- dfm %>%
-        ggplot()+
-        geom_pointrange(aes(x=prmset, 
-                            y=m, ymin=minv, ymax=maxv,
-                            colour=prmset,
-                            shape = distance.type),
-                        size=1, alpha=0.7)+
-        facet_wrap(~distance.type, nrow=1)+
+        ggplot(aes(x= entropy, y=m))+
+        geom_point(    # ymin=minv, ymax=maxv,
+                       # colour=prmset,
+                       aes(shape = distance.type),
+                   size=1, alpha=0.7)+
+        geom_line()+
+        geom_ribbon(aes(ymin=minv, ymax=maxv), alpha=0.2)+
+        scale_x_log10()+
+        facet_wrap(~distance.type, nrow=1, scales = 'fixed')+
         ggtitle('Tree distance (mean, min, max)',
                 subtitle)+
         ylab('distance')+
@@ -74,23 +90,25 @@ plot_analysis_dig <- function(dfm, subtitle='') {
     
     # Standard-deviation:
     g.sd <- dfm %>%
-        ggplot(aes(x=as.numeric(prmset), y=s, 
+        ggplot(aes(x=entropy, y=s, 
                    colour = distance.type))+
         geom_line(size=1)+
         geom_point(size=3, alpha=0.7)+
+        scale_x_log10()+
         # facet_wrap(~distance.type, nrow=1)+
         ggtitle('Tree distance standard-deviation', subtitle)+
         ylab('SD distance')+
-        xlab('prmset')+
+        xlab('entropy')+
         # guides(colour=FALSE)+
         theme(panel.grid.major.x = element_blank())
     
     # Coefficient of variation
     g.cv <- dfm %>%
-        ggplot(aes(x=as.numeric(prmset), y=cv, 
+        ggplot(aes(x=entropy, y=cv, 
                    colour = distance.type))+
         geom_line(size=1)+
         geom_point(size=3, alpha=0.7)+
+        scale_x_log10()+
         # facet_wrap(~distance.type, nrow=1)+
         ggtitle('Tree distance coeff. of variation', subtitle)+
         ylab('CV distance')+
@@ -140,13 +158,17 @@ plot_analysis_join <- function(df.d.m, df.d.ms) {
     g2 <- ggplot(dfj)+
         geom_point(aes(x=m.x, y=m.y, 
                        shape = distance.type.x,
-                       colour = prmset.x), 
+                       colour = factor(prmset.x)), 
                    size=2)+
-        geom_segment(aes(x=m.x, xend=m.x, y=m.y-s.y, yend=m.y+s.y, colour=prmset.x))+
-        geom_segment(aes(x=m.x-s.x, xend=m.x+s.x, y=m.y, yend=m.y, colour=prmset.x))+
-        geom_smooth(method = 'lm', aes(x=m.x, y=m.y, 
-                                       colour=distance.type.x), 
-                    alpha = 0.2) +
+        geom_segment(aes(x=m.x, xend=m.x, y=m.y-s.y, yend=m.y+s.y,
+                         colour = factor(prmset.x)))+
+        geom_segment(aes(x=m.x-s.x, xend=m.x+s.x, y=m.y, yend=m.y,
+                         colour = factor(prmset.x)))+
+        geom_smooth(method = 'lm', 
+                    aes(x=m.x, y=m.y,
+                        colour = factor(prmset.x),
+                        fill = factor(prmset.x)), 
+                    alpha = 0.1) +
         xlab('RF distance between inferred trees')+
         ylab("RF distance from Benchmark")+
         ggtitle("RF distances (mean +/- sd)")+
@@ -155,7 +177,7 @@ plot_analysis_join <- function(df.d.m, df.d.ms) {
     return(g2)
 }
 
-# ---- Plots ----
+# ---- RUN ----
 
 g  <- plot_analysis(df.d, 'b/w inferred trees')
 g0 <- plot_analysis(df.ds, 'from benchmark')

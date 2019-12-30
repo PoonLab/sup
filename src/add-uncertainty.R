@@ -16,7 +16,9 @@ args <- commandArgs(trailingOnly = TRUE)
 # ---- Func ----
 add_uncertainty <- function(prm, fasta.file,
                             beta.shape.p,
-                            do.plot = FALSE) {
+                            prmset,
+                            do.plot = FALSE,
+                            fname.out = 'entropy-prmset.out') {
     
     # Read the simulated phylogeny:
     seqs.sim <- read.fasta(file = fasta.file, #'seqs/sim.fasta', 
@@ -46,6 +48,15 @@ add_uncertainty <- function(prm, fasta.file,
         seq.entropy[[i]] <- apply(PS.list[[i]] , MARGIN=2, FUN=entropy)
     }
     
+    # Save the mean entropy 
+    # (summed over the sequence length):
+    sum.entropy <- sapply(seq.entropy, sum, na.rm=T)
+    write.table(x = t(c(prmset,s1,s2,mean(sum.entropy))), 
+                file = fname.out,
+                append = TRUE, sep = ',', 
+                row.names = FALSE, 
+                col.names = FALSE)
+    
     if(do.plot){
         plotname <- paste0('plot-add-uncertainty-',args[1],'.pdf')
         pdf(plotname, 
@@ -54,7 +65,6 @@ add_uncertainty <- function(prm, fasta.file,
         hist(p, breaks = 30, col='grey',
              main = paste('Base call probability\nbeta shape =',
                           paste(beta.shape.p,collapse = ' ; ')))
-        sum.entropy <- sapply(seq.entropy, sum, na.rm=T)
         boxplot(sum.entropy, 
                 las=1,
                 main = paste('Total entropy.\nSequence length =',n))
@@ -77,14 +87,15 @@ add_uncertainty <- function(prm, fasta.file,
 
 plot_prmset_distrib <- function(fname) { #fname='prm-btshp.csv'
     
-    b <- read.csv('prm-btshp.csv', header = F)
+    b <- read.csv(fname, header = F)
     
     dfl <- list()
     for(i in 1:nrow(b)){
         x <- seq(0,1,length=1e3)
         y <- dbeta(x, shape1 = b[i,1], shape2 = b[i,2])
         dfl[[i]] <- data.frame(x=x, y=y, 
-                               prmset=paste('s1 =',b[i,1],
+                               prmset=paste('prmset',i,
+                                            ': s1 =',b[i,1],
                                             '; s2 =',b[i,2]))
     }
     df <- do.call('rbind',dfl) %>%
@@ -125,6 +136,7 @@ print(paste('beta shape =',btshp, collapse = ' ; '))
 prob_seqs <- add_uncertainty(prm = prm, 
                              fasta.file = 'seqs/sim.fasta', 
                              beta.shape.p = btshp,
+                             prmset = args[1],
                              do.plot = TRUE)
 
 fname <- paste0('prob_seqs_',args[1],'.RData')
