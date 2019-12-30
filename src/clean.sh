@@ -7,6 +7,7 @@ rm -rf trees/RAxML*.out*
 
 rm -rf plot*.pdf
 rm -rf *.RData
+rm -rf *.out
 
 echo CLEANED.
 
