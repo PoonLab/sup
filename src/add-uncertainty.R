@@ -55,7 +55,7 @@ add_uncertainty <- function(prm, fasta.file,
                 file = fname.out,
                 append = TRUE, sep = ',', 
                 row.names = FALSE, 
-                col.names = FALSE)
+                col.names = FALSE, quote = FALSE)
     
     if(do.plot){
         plotname <- paste0('plot-add-uncertainty-',args[1],'.pdf')
