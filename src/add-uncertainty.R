@@ -123,7 +123,7 @@ if(length(args) == 0){
 
 if(length(args) == 1){
     fname = 'prm-btshp.csv'
-    idx <- args[1]
+    idx <- as.numeric(args[1])
     btshp.file <- read.csv(fname, header = F)
     btshp <- as.numeric(btshp.file[idx,])
     pdf('plot-proba-basecall-beta.pdf')
