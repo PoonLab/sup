@@ -6,7 +6,7 @@
 ###  here from an input error probability. 
 ###
 
-library(seqinr)
+suppressPackageStartupMessages(library(seqinr))
 source('utils.R')
 
 set.seed(1234)

@@ -2,11 +2,13 @@
 ###  Generate Probabilistic Sequences from existing sequence
 ###
 
-library(seqinr)
-library(tidyr)
-library(dplyr)
+suppressPackageStartupMessages({
+library(seqinr);
+library(tidyr);
+library(dplyr);
 library(ggplot2) ; theme_set(theme_bw())
-library(stringr)
+library(stringr);
+})
 
 
 source('utils.R')
