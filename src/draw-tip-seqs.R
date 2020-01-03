@@ -10,7 +10,7 @@ library(seqinr)
 source('utils.R')
 
 set.seed(1234)
-args <- commandArgs(trailingOnly = TRUE)
+args <- commandArgs(trailingOnly = TRUE)   # args=4
 
 # Load the probabilistic sequences object: `prob_seqs`
 load(paste0('prob_seqs_',args[1],'.RData'))
@@ -28,7 +28,9 @@ path.seqs <- paste0('seqs/seqs-prm-',args[1],'-mc-')
 for(i in 1:n.mc){
     draw_multiple_seq(prob_seqs,
                       filename = paste0(path.seqs,i,'.fasta')) 
-    if(i%%10==0) message(paste('Tip seqs sampling:',i,'/',n.mc))
+    if(i%%10==0) message(paste('prm set #',args[1], 
+                               '--> Tip seqs sampling:',i,'/',n.mc))
 }
 
-message("Sampled tips sequences completed.")
+message(paste("Sampled tips sequences completed. (prm set =",args[1],
+              ')'))

@@ -36,7 +36,7 @@ do
 done
 
 # RAxML can only output in the local directory,
-# so move outfiles manually:
+# so move output files manually:
 mv RAxML_*$TREE_NAME*.out* trees/
 rm trees/*.out-e #TODO: fix that
 

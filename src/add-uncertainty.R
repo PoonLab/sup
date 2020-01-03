@@ -11,7 +11,7 @@ library(stringr)
 
 source('utils.R')
 
-args <- commandArgs(trailingOnly = TRUE)
+args <- commandArgs(trailingOnly = TRUE)  # args=4
 
 # ---- Func ----
 add_uncertainty <- function(prm, fasta.file,
@@ -131,7 +131,9 @@ if(length(args) == 1){
     dev.off()
 }
 
-print(paste('beta shape =',btshp, collapse = ' ; '))
+print(paste('prm set =', args[1],'-->',
+            paste('beta shape =',btshp, 
+            collapse = ' ; ')))
 
 prob_seqs <- add_uncertainty(prm = prm, 
                              fasta.file = 'seqs/sim.fasta', 
