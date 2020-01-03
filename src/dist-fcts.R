@@ -2,9 +2,10 @@
 ###  DEFINE THE DISTANCE FUNCTIONS
 ### 
 
-suppressPackageStartupMessages({library(ape);
-library(phytools);
-library(phylobase)})
+suppressPackageStartupMessages({
+    library(ape);
+    library(phytools);
+    library(phylobase)})
 source('treekernel.R')
 
 #' Robinson-Foulds distance. 
