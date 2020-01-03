@@ -97,3 +97,62 @@ dist.kernel <- function(tree1, tree2,
     return(res)
 }
 
+
+.extract_mc <- function(s) {
+    return(stringr::str_extract(s, "mc-\\d+") %>%
+        stringr::str_extract("\\d+") %>%
+        as.numeric())
+}
+
+#' Retrieve the TN93 distances (b/w sequences of one single tree)
+#'
+#' @param prmset Integer. Parameter set used.
+.dist.tn93.prmset <- function(prmset) {
+    # prmset = 1 ; mc = 7
+    
+    # WARNING: file name template hard-coded!
+    fastafiles <- system(paste0('ls seqs/seqs-prm-', 
+                                prmset,
+                                '*.fasta.out'),
+                         intern = TRUE)    
+    n <- length(fastafiles)
+    tmp <- list()
+    for(i in 1:n){  # i=2
+        mc <- .extract_mc(fastafiles[i])
+        tmp[[i]] <- read.csv(fastafiles[i])
+        tmp[[i]]$mc <- mc
+        tmp[[i]]$prmset <- prmset
+    }
+    df <- do.call('rbind', tmp)
+    return(df)
+}
+
+
+dist.tn93 <- function() {
+    n <- system('wc -l < prm-btshp.csv', intern = TRUE) %>% 
+        as.numeric()
+    tmp <- list()
+    for(i in 1:n)
+        tmp[[i]] <- .dist.tn93.prmset(i)
+    df <- do.call('rbind', tmp)
+    return(df)
+}
+
+# Fri Jan  3 15:51:06 2020 ------------------------------
+# This function should be a starting point
+# for another one in `dist-calc.R`
+to_finish <- function(df) { 
+    # df = dist.tn93()
+    
+    dfs <- df %>%
+        group_by(prmset, mc) %>%
+        summarise(m = mean(Distance),
+                  s = sd(Distance))
+    
+    g <- dfs %>%
+        ggplot() +
+        geom_histogram(aes(x=m), bins = 20)+
+        facet_wrap(~ prmset, ncol=1 )
+    plot(g)    
+}
+
