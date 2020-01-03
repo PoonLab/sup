@@ -2,6 +2,7 @@
 
 rm -rf seqs/seqs-*.fasta
 rm -rf seqs/seqs-*.fasta.reduced
+rm -rf seqs/seqs-*.out
 rm -rf trees/tree*mc*.out*
 rm -rf trees/tree*mc*.nwk*
 rm -rf trees/RAxML*.out*
