@@ -1,5 +1,5 @@
-library(ape)
-library(igraph)
+suppressPackageStartupMessages(library(ape))
+suppressPackageStartupMessages(library(igraph))
 
 # This file is part of Kaphi.
 # https://github.com/PoonLab/Kaphi/blob/master/pkg/R/treekernel.R
