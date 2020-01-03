@@ -1,6 +1,6 @@
 name, value, comment
 phylosim.root.seq.length, 300, Length of the 'true' root sequence
-phylosim.prop.invar, 0.50, Proportion of invariant positions in the root sequence
+phylosim.prop.invar, 0.75, Proportion of invariant positions in the root sequence
 phylosim.root.random, 1, Generate the root sequence randomly?
 phylosim.n.tips, 20, Number of tips in the 'true' simulated phylogeny
 beta.shape.p1, 29, Beta shape prm_1 (alpha) for base call probability
