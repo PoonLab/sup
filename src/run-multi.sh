@@ -21,6 +21,7 @@ N_PRM_SET=$(wc -l < prm-btshp.csv)
 pids=""
 for i in $(seq 1 $N_PRM_SET)  
 do
+  # This is run in parallel:
   ./run-unit.sh $i &
   pids="$pids $!"
 done
