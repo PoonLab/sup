@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# CALCULATE THE TN93 DISTANCE
+# FOR ALL SEQUENCES WITHIN 
+# EACH TREE (MCxPRMSET)
+
 x=$(ls seqs/seqs-prm-*.fasta)
 
 for i in $x  
