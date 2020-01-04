@@ -3,6 +3,8 @@
 ### 
 
 suppressPackageStartupMessages({
+    library(dplyr);
+    library(ggplot2);
     library(ape);
     library(phytools);
     library(phylobase)})
@@ -116,6 +118,10 @@ dist.kernel <- function(tree1, tree2,
                                 '*.fasta.out'),
                          intern = TRUE)    
     n <- length(fastafiles)
+    if(n==0){
+        stop(paste("CANNOT FIND seqs/*.fasta.out FOR PRM SET #",
+                   prmset))
+    }
     tmp <- list()
     for(i in 1:n){  # i=2
         mc <- .extract_mc(fastafiles[i])
@@ -127,13 +133,16 @@ dist.kernel <- function(tree1, tree2,
     return(df)
 }
 
-
+#' Retrieve all TN93 distances calculated
+#' by the script `dist-tn93.sh` and store
+#' them in a dataframe
 dist.tn93 <- function() {
     n <- system('wc -l < prm-btshp.csv', intern = TRUE) %>% 
         as.numeric()
     tmp <- list()
-    for(i in 1:n)
+    for(i in 1:n){
         tmp[[i]] <- .dist.tn93.prmset(i)
+    }
     df <- do.call('rbind', tmp)
     return(df)
 }
@@ -152,7 +161,7 @@ to_finish <- function(df) {
     g <- dfs %>%
         ggplot() +
         geom_histogram(aes(x=m), bins = 20)+
-        facet_wrap(~ prmset, ncol=1 )
+        facet_wrap(~ prmset, ncol=1 , scales = 'free_y')
     plot(g)    
 }
 
