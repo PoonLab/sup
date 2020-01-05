@@ -160,8 +160,24 @@ to_finish <- function(df) {
     
     g <- dfs %>%
         ggplot() +
-        geom_histogram(aes(x=m), bins = 20)+
+        geom_histogram(aes(x=m), binwidth = 0.005)+
         facet_wrap(~ prmset, ncol=1 , scales = 'free_y')
     plot(g)    
+}
+
+
+tmp_clstr <- function(df) {
+    
+    dfi <- df %>%
+        filter(mc==1, prmset==4) %>%
+        filter(Distance > 0.24) %>%
+        select(ID1,ID2)
+    g <- igraph::graph.data.frame(dfi, directed = FALSE)
+    
+    plot(g)
+
+    # Sun Jan  5 09:51:14 2020 ------------------------------
+    # STOPPED HERE: Not much clustering going on... :( )
+    # GTG
 }
 

@@ -16,7 +16,8 @@ Rscript draw-tip-seqs.R $i
 # Reconstruct phylogeny using RAxML:
 ./infr-tree-raxml.sh $i > raxml.out
 
-# Compare the reconstruction
-# to the true phylogeny:
+# Calculate tree and sequences
+# distance among phylogeny reconstructions:
+./dist-tn93.sh
 Rscript dist-calc.R $i
 
