@@ -89,6 +89,9 @@ for(i in seq_along(x)){
   }
 }
 
+# ---- _TN93 ----
+
+d.tn93 <- dist.tn93()
 
 # ---- Save ----
 
