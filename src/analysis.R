@@ -3,6 +3,8 @@ library(dplyr)
 library(ggplot2) ; theme_set(theme_bw())
 library(gridExtra)
 
+source('dist-fcts.R')
+
 message('Starting analysis...')
 
 # ---- Data ----
@@ -66,6 +68,23 @@ digest_distances <- function(df) {
 
 df.d.m  <- digest_distances(df.d)
 df.d.ms <- digest_distances(df.ds)
+
+# ---- TN93 distances ----
+
+# Warning, these are distances between sequences 
+# in one tree, not distances between trees!
+
+
+
+# The raw TN93 distances:
+df.tn93 <- dist.tn93()
+
+# Number of clusters based on TN93 distance:
+dist.thresh.mean = 0.20
+df.tn93.clustr <- dist.tn93() %>%
+    clstr_num(dist.thresh.mean) 
+
+
 
 # ---- Plot Fcts ----
 
@@ -177,6 +196,64 @@ plot_analysis_join <- function(df.d.m, df.d.ms) {
     return(g2)
 }
 
+
+#' Plot TN93 distances within all trees
+#' across all parameter sets and MC iterations
+#' @param df Data frame as output by the function `dist.tn93()`
+plot_tn93_distances <- function(df) { 
+    # df = dist.tn93()
+    df.entropy <- get_entropy_prmset()
+    
+    dfs <- df %>%
+        group_by(prmset) %>%
+        summarise(m = mean(Distance),
+                  d.min = min(Distance),
+                  d.max = max(Distance),
+                  d.lo = quantile(Distance, probs=0.05),
+                  d.hi = quantile(Distance, probs=0.95)
+                  ) %>%
+        left_join(df.entropy, by='prmset')
+    
+    g <- dfs %>%
+        ggplot(aes(x=entropy, y=m))+
+        geom_line()+
+        geom_pointrange(aes(ymin=d.lo, 
+                            ymax=d.hi))+
+        scale_x_log10()+
+        ylab('TN93 distance')+
+        ggtitle('Raw TN93 distances')
+    
+    return(g)    
+}
+
+
+plot_clstr_num <- function(dfclst, subtitle='') {
+    # dfclst = df.tn93.clustr
+    
+    df.entropy <- get_entropy_prmset()
+    
+    dfs <- dfclst %>%
+        group_by(prmset) %>%
+        summarise(m = mean(n.clusters),
+                  d.min = min(n.clusters),
+                  d.max = max(n.clusters),
+                  d.lo = quantile(n.clusters, probs=0.05),
+                  d.hi = quantile(n.clusters, probs=0.95)) %>%
+        left_join(df.entropy, by='prmset')
+    
+    g <- dfs %>%
+        ggplot(aes(x=entropy, y=m ))+
+        geom_line()+
+        geom_pointrange(aes(ymin=d.min, 
+                            ymax=d.max))+
+        scale_x_log10()+
+        ylab('Number of clusters')+
+        ggtitle('Number of clusters (TN93-based)')
+    
+    return(g)
+}
+
+
 # ---- RUN ----
 
 g  <- plot_analysis(df.d, 'b/w inferred trees')
@@ -201,6 +278,14 @@ plot(g.digest0$g.mmm)
 grid.arrange(g.digest0$g.sd, g.digest0$g.cv, nrow=1)
 
 plot(g.j)
+
+g.tn93 <- plot_tn93_distances(df.tn93)
+
+g.tn93.clustr <- plot_clstr_num(df.tn93.clustr,
+                                subtitle = paste('Threshold(mean) =',dist.thresh.mean))
+grid.arrange(g.tn93, g.tn93.clustr, 
+             ncol=1)
+
 dev.off()
 
 

@@ -10,6 +10,8 @@ suppressPackageStartupMessages({
     library(phylobase)})
 source('treekernel.R')
 
+# ---- Tree distances ----
+
 #' Robinson-Foulds distance. 
 #' @param tree1 `ape::phylo` object. First tree. 
 #' @param tree2 `ape::phylo` object. Second tree. 
@@ -100,6 +102,9 @@ dist.kernel <- function(tree1, tree2,
 }
 
 
+# ---- TN93 distance ----
+
+
 .extract_mc <- function(s) {
     return(stringr::str_extract(s, "mc-\\d+") %>%
         stringr::str_extract("\\d+") %>%
@@ -147,37 +152,44 @@ dist.tn93 <- function() {
     return(df)
 }
 
-# Fri Jan  3 15:51:06 2020 ------------------------------
-# This function should be a starting point
-# for another one in `dist-calc.R`
-to_finish <- function(df) { 
-    # df = dist.tn93()
-    
-    dfs <- df %>%
-        group_by(prmset, mc) %>%
-        summarise(m = mean(Distance),
-                  s = sd(Distance))
-    
-    g <- dfs %>%
-        ggplot() +
-        geom_histogram(aes(x=m), binwidth = 0.005)+
-        facet_wrap(~ prmset, ncol=1 , scales = 'free_y')
-    plot(g)    
-}
 
 
-tmp_clstr <- function(df) {
-    
+.num_of_clusters <- function(df, p, m) {
+    # m=2; p=3
     dfi <- df %>%
-        filter(mc==1, prmset==4) %>%
-        filter(Distance > 0.24) %>%
+        filter(mc==m, prmset==p) %>%
+        filter(Distance < dist.thresh.mean * mean(Distance)) %>%
         select(ID1,ID2)
     g <- igraph::graph.data.frame(dfi, directed = FALSE)
-    
-    plot(g)
-
-    # Sun Jan  5 09:51:14 2020 ------------------------------
-    # STOPPED HERE: Not much clustering going on... :( )
-    # GTG
+    n <- igraph::no.clusters(g)
+    return(n)
 }
+
+#' Calculate the number of clusters for each 
+#' reconstructed tree across all parameter sets 
+#' and MC iterations.
+#' @param df Data frame as output by the function `dist.tn93()`
+#' @param dist.thresh.mean Numeric. Threshold TN93 distance for defining a cluster, expressed as a proportion of the mean TN93 distances of one reconstructed tree (i.e., 0.1 will set the threshold at 0.1*mean).
+clstr_num <- function(df, 
+                      dist.thresh.mean) {
+    
+    mc         <- numeric()
+    prmset     <- numeric()
+    n.clusters <- numeric()
+    k = 1
+    for(p in unique(df$prmset)){
+        print(paste('Calculating number of clusters', 
+                    'for prmset #',
+                    p))
+        for(m in unique(df$mc)){
+            mc[k] <- m
+            prmset[k] <- p
+            n.clusters[k] <- .num_of_clusters(df, p, m)
+            k <- k+1   
+        }
+    }
+    dfclst <- data.frame(prmset, mc, n.clusters)
+    return(dfclst)
+}
+
 
