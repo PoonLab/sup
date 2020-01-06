@@ -12,7 +12,7 @@ x=$(ls seqs/seqs-prm-*.fasta)
 
 for i in $x  
 do
-  tn93 -t 1 -f csv -o $i.out -q $i &
+  tn93 -t 1 -f csv -o $i.out -q $i > /dev/null &
 done
 
 echo "TN93 distances calculated."

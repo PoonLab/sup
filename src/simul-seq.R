@@ -3,9 +3,11 @@
 ##  "root" nucleotide sequence 
 ##
 
-library(phylosim, quietly = TRUE, warn.conflicts = F)
-library(dplyr,quietly = TRUE, warn.conflicts = F)
-library(seqinr,quietly = TRUE, warn.conflicts = F)
+suppressPackageStartupMessages(
+    library(phylosim);
+    library(dplyr);
+    library(seqinr);
+)
 
 source('utils.R')
 
