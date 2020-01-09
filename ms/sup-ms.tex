@@ -20,6 +20,7 @@ citecolor = blue}
 % ==== My Macro =====
 
 
+\newcommand{\warning}[1]{\textbf{\textcolor{orange}{((#1))}}}
 \newcommand{\comment}[1]{\textsl{\textcolor{cyan}{((#1))}}}
 \newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
 \newcommand{\pr}[1]{\mathrm{Pr}(#1)}
@@ -299,7 +300,10 @@ We choose a single value $\alpha=29$ and use five different values for the secon
 With these values, mean of the Beta distribution for the base-call probability decreases away from 1.0. 
 Finally, note that the middle value $(\alpha=29, \beta=10^{-1})$ is close to the fitted entropy values of the longitudinal HIV dataset from Zanini and colleagues \cite{Zanini:2015}.
 
-For Step \ref{item:assess}, we consider the pairwise distances between trees. 
+For Step \ref{item:assess}, we explore the impact of sequence uncertainty on several types of downstream analysis on reconstructed phylogenies: pairwise distance between trees, clustering and an example of source attribution \comment{amend if needed}.
+
+
+\textbf{Pairwise distances between trees.}
 Define the set 
 \begin{equation}
 D = \{d(T_i,T_j);\,\, i=1,\ldots, M \text{ and } j<i \}
@@ -336,6 +340,11 @@ Steps 1 to 5 are repeated for several level of uncertainty (defined by the Beta 
 \end{figure}
 
 
+\textbf{Impact on clustering.}
+\warning{TODO}
+
+\textbf{Impact on source attribution.}
+\warning{TODO}
 
 %Labeled distance: Tree distances are relatively ``generic''. 
 %Given our phylogenic framework, more ``practical'' measure could be useful (?). 
