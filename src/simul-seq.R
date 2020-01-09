@@ -4,9 +4,9 @@
 ##
 
 suppressPackageStartupMessages(
-    library(phylosim);
+    {library(phylosim);
     library(dplyr);
-    library(seqinr);
+    library(seqinr)}
 )
 
 source('utils.R')

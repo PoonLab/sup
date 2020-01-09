@@ -154,7 +154,7 @@ dist.tn93 <- function() {
 
 
 
-.num_of_clusters <- function(df, p, m) {
+.num_of_clusters <- function(df, p, m, dist.thresh.mean) {
     # m=2; p=3
     dfi <- df %>%
         filter(mc==m, prmset==p) %>%
@@ -184,7 +184,9 @@ clstr_num <- function(df,
         for(m in unique(df$mc)){
             mc[k] <- m
             prmset[k] <- p
-            n.clusters[k] <- .num_of_clusters(df, p, m)
+            n.clusters[k] <- .num_of_clusters(df, 
+                                              p, m, 
+                                              dist.thresh.mean)
             k <- k+1   
         }
     }

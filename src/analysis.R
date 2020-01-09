@@ -74,17 +74,17 @@ df.d.ms <- digest_distances(df.ds)
 # Warning, these are distances between sequences 
 # in one tree, not distances between trees!
 
-
-
 # The raw TN93 distances:
 df.tn93 <- dist.tn93()
 
 # Number of clusters based on TN93 distance:
-dist.thresh.mean = 0.20
-df.tn93.clustr <- dist.tn93() %>%
-    clstr_num(dist.thresh.mean) 
+thresh <- c(0.02, 0.30)
 
+df.tn93.clustr.1 <- dist.tn93() %>%
+    clstr_num(dist.thresh.mean = thresh[1]) 
 
+df.tn93.clustr.2 <- dist.tn93() %>%
+    clstr_num(dist.thresh.mean = thresh[2]) 
 
 # ---- Plot Fcts ----
 
@@ -213,21 +213,33 @@ plot_tn93_distances <- function(df) {
                   d.hi = quantile(Distance, probs=0.95)
                   ) %>%
         left_join(df.entropy, by='prmset')
+
+    
+    q <- df %>%
+        mutate(ps = paste0('prmset #',prmset)) %>%
+        ggplot()+
+        geom_histogram(aes(x=Distance),
+                       binwidth = 0.02)+
+        facet_wrap(~ps, ncol=1)+
+        xlab('TN93 distance')
     
     g <- dfs %>%
         ggplot(aes(x=entropy, y=m))+
         geom_line()+
         geom_pointrange(aes(ymin=d.lo, 
-                            ymax=d.hi))+
+                            ymax=d.hi),
+                        size=1)+
         scale_x_log10()+
         ylab('TN93 distance')+
         ggtitle('Raw TN93 distances')
     
-    return(g)    
+    return(list(g.ptrng = g,
+                g.hist  = q))    
 }
 
 
-plot_clstr_num <- function(dfclst, subtitle='') {
+plot_clstr_num <- function(dfclst, 
+                           subtitle='') {
     # dfclst = df.tn93.clustr
     
     df.entropy <- get_entropy_prmset()
@@ -248,7 +260,8 @@ plot_clstr_num <- function(dfclst, subtitle='') {
                             ymax=d.max))+
         scale_x_log10()+
         ylab('Number of clusters')+
-        ggtitle('Number of clusters (TN93-based)')
+        ggtitle('Number of clusters (TN93-based)',
+                subtitle)
     
     return(g)
 }
@@ -281,9 +294,16 @@ plot(g.j)
 
 g.tn93 <- plot_tn93_distances(df.tn93)
 
-g.tn93.clustr <- plot_clstr_num(df.tn93.clustr,
-                                subtitle = paste('Threshold(mean) =',dist.thresh.mean))
-grid.arrange(g.tn93, g.tn93.clustr, 
+g.tn93.clustr.1 <- plot_clstr_num(df.tn93.clustr.1,
+                                subtitle = paste('Threshold(mean) =',
+                                                 thresh[1]))
+g.tn93.clustr.2 <- plot_clstr_num(df.tn93.clustr.2,
+                                subtitle = paste('Threshold(mean) =',
+                                                 thresh[2]))
+plot(g.tn93$g.hist)
+grid.arrange(g.tn93$g.ptrng, 
+             g.tn93.clustr.1,
+             g.tn93.clustr.2,
              ncol=1)
 
 dev.off()
