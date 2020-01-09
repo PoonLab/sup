@@ -256,7 +256,15 @@ S_{n,j} \sim \betadist{\alpha, \beta}
 \end{equation}
 where $E$ is the distribution of position-wise entropy.
 A fit on Zanini's data \cite{Zanini:2015} gives approximately $\hat{\alpha} = 29.7$ and $\hat{\beta} = 0.06$. \comment{make an appendix to show the details of this fit.}
-%Hence, using $\hat{\alpha}$ and $\hat{\beta}$ in simulations of probabilistic sequences should give an ``uncertainty profile'' that is similar to the one observed in Zanini's data. 
+
+We calculate the entropy value as 
+\begin{equation}
+\label{eq:entropyDefinition}
+E(\alpha, \beta) = -\sum_{i=1}^{\ell} p_i \log_2(p_i)
+\end{equation}
+where $p_i$ is the ($\alpha$- and $\beta$-dependent) base-call probability drawn for the nucleotide at position $i$ and $\ell$ is the length of the sequence.
+
+
 
 
 \subsubsection{Assessing the impact of sequencing uncertainty}
@@ -287,7 +295,7 @@ Studying the distance between the $(T_m)_{m=1:M}$ and $T^*$ is not our main goal
 Instead, we are principally interested in \emph{uncertainty propagation}, that is the variance of the pairwise distances between the $(T_m)_{m=1:M}$.
 
 Our analysis considers five levels of uncertainty. We start with a virtually inexistent sequence uncertainty, then increased it by lowering the base call probability. This is done by sampling the probability from multiple parameter sets $(\alpha,\beta)$ of a Beta distribution (see \autoref{eq:beta_sampling}). 
-We choose a single value $\alpha=29$ and use five different values for the second shape parameter $\beta = 10^{-3}, 10^{-2}, 10^{-1}, 1 \text{ and } 3$.
+We choose a single value $\alpha=29$ and use five different values for the second shape parameter $\beta = 10^{-3}, 10^{-2}, 10^{-1}, 1 \text{ and } 3$ \comment{update if necessary}.
 With these values, mean of the Beta distribution for the base-call probability decreases away from 1.0. 
 Finally, note that the middle value $(\alpha=29, \beta=10^{-1})$ is close to the fitted entropy values of the longitudinal HIV dataset from Zanini and colleagues \cite{Zanini:2015}.
 
@@ -332,6 +340,7 @@ Steps 1 to 5 are repeated for several level of uncertainty (defined by the Beta 
 %Labeled distance: Tree distances are relatively ``generic''. 
 %Given our phylogenic framework, more ``practical'' measure could be useful (?). 
 %For example, for a given terminal node (tip, leaf) A, how does the probability that it shares a direct common ancestor with B evolve as we increase uncertainty?
+
 
 
 
