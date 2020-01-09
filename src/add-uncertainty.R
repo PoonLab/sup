@@ -15,7 +15,8 @@ source('utils.R')
 
 args <- commandArgs(trailingOnly = TRUE)  # args=4
 
-# ---- Func ----
+# ---- Functions ----
+
 add_uncertainty <- function(prm, fasta.file,
                             beta.shape.p,
                             prmset,
@@ -33,9 +34,9 @@ add_uncertainty <- function(prm, fasta.file,
     n <- get_prm(prm, 'phylosim.root.seq.length')
     
     # Error probability of base call.
-    s1 = beta.shape.p[1]
-    s2 = beta.shape.p[2] 
-    p <- rbeta(n=n, shape1 = s1, shape2 = s2)
+    s1 <- beta.shape.p[1]
+    s2 <- beta.shape.p[2] 
+    p  <- rbeta(n=n, shape1 = s1, shape2 = s2)
     
     # Add uncertainty by transforming the 
     # (certain) sequence string into a 
@@ -47,7 +48,9 @@ add_uncertainty <- function(prm, fasta.file,
         seq <- seqs.sim[[i]]
         seq <- seq[seq!=' '] 
         PS.list[[i]]     <- build_from_seq(seq, p)
-        seq.entropy[[i]] <- apply(PS.list[[i]] , MARGIN=2, FUN=entropy)
+        seq.entropy[[i]] <- apply(PS.list[[i]] , 
+                                  MARGIN=2, 
+                                  FUN=entropy)
     }
     
     # Save the mean entropy 
