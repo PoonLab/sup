@@ -57,6 +57,7 @@ prmlabel <- paste0('L', prmsim$value[grepl('seq.length',prmsim$name)],
 # ---- _benchmark ----
 
 d.rf.star   <- sapply(x, dist.RF, tstaru)
+d.kf.star   <- sapply(x, dist.KF, tstaru)
 d.sh.star   <- sapply(x, dist.shared, tree.ref = tstar)
 
 d.kern.star <- rep(NA, times = length(d.sh.star))
@@ -66,6 +67,7 @@ if(do.kernel)
 # ---- _b/w inferred ----
 
 d.rf   <- numeric(n.mc*(n.mc-1)/2) 
+d.kf   <- numeric(n.mc*(n.mc-1)/2) 
 d.sh   <- numeric(n.mc*(n.mc-1)/2) 
 d.kern <- numeric(n.mc*(n.mc-1)/2) 
 
@@ -81,6 +83,7 @@ for(i in seq_along(x)){
   for(j in 1:i){
     if(j != i) {
       d.rf[k]   <- dist.RF(x[[i]], x[[j]])
+      d.kf[k]   <- dist.KF(x[[i]], x[[j]])
       d.sh[k]   <- dist.shared(x[[i]], x[[j]])
       if(do.kernel)
         d.kern[k] <- dist.kernel(xr[[i]], xr[[j]])
@@ -93,9 +96,11 @@ for(i in seq_along(x)){
 # ---- Save ----
 
 dist.list <- list(d.rf.star = d.rf.star, 
+                  d.kf.star = d.kf.star, 
                   d.sh.star = d.sh.star, 
                   d.kern.star = d.kern.star, 
                   d.rf      = d.rf,
+                  d.kf      = d.kf,
                   d.sh      = d.sh,
                   d.kern    = d.kern,
                   prmset    = as.numeric(args[1]),

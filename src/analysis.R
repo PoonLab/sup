@@ -18,10 +18,12 @@ tmps <- list()
 for(i in seq_along(rdatas)){  # i=1
     load(rdatas[[i]])
     tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
+                            d.kf   = dist.list$d.kf,
                             d.sh   = dist.list$d.sh,
                             d.kern = dist.list$d.kern,
                             prmset = as.numeric(dist.list$prmset))
     tmps[[i]] <- data.frame(d.rf   = dist.list$d.rf.star, 
+                            d.kf   = dist.list$d.kf.star, 
                             d.sh   = dist.list$d.sh.star, 
                             d.kern = dist.list$d.kern.star, 
                             prmset = as.numeric(dist.list$prmset))

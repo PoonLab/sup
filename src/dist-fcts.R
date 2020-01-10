@@ -33,6 +33,15 @@ dist.RF <- function(tree1, tree2, normalize=TRUE) {
     return(res)
 }
 
+#' Kuhner-Felsenstein distance. 
+#' @param tree1 `ape::phylo` object. First tree. 
+#' @param tree2 `ape::phylo` object. Second tree. 
+dist.KF <- function(tree1, tree2) {
+    # Distance b/w tree1 and tree2:
+    res <- ape::dist.topo(tree1, tree2, method='score')
+    return(res)
+}
+
 
 #' Get all internal nodes and their descendants labels.
 #' @param t phylo tree.
