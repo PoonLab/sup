@@ -53,6 +53,10 @@ message("\nThe root sequence is (first 200 nucleotides):")
 message(substr(root.seq,1,200))
 message(paste("Root sequence length:", root.seq.length))
 
+# Evolution rate (for all positions):
+evol.rate   <- get_prm(prm,'phylosim.evol.rate')
+setRateMultipliers(root.seq, ev.proc, evol.rate)
+message(paste("Evolution rate:", evol.rate))
 
 # Draw invariable positions 
 invar.p   <- get_prm(prm,'phylosim.prop.invar')
@@ -95,7 +99,10 @@ message(paste(" done.\nSimulated phylogeny saved in:",
 pdf('plot-sim-phylo.pdf', 
     width=15, height = 10)
 plot(ev.proc)
-plot(tree.sim, type = 'clad')
+plot(tree.sim, main='Benchmark tree simulated')
+plot(tree.sim, main='Benchmark tree simulated\nwith branch lengths')
+edgelabels(round(tree.sim$edge.length,2), 
+           bg="black", col="white", font=2, cex=.6)
 plot(sim, num.pages = 1)
 dev.off()
 
