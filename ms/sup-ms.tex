@@ -118,7 +118,7 @@ Note that we have for all $1\leq j \leq \ell$:
 \begin{equation}
 \sum_{n\in \{ \sq{A,C,G,T,-} \} } \nps_{n, j} = 1
 \end{equation}
-Also, the sequence length is stochastic if $\nps_{x,i}>0$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-\nps_{x,i})$. 
+Also, the sequence length is stochastic if $\nps_{\sq{-},i}>0$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-\nps_{x,i})$. 
 We call the matrix $\nps$ the \emph{\nlps} of a biological sample.
 The nucleotide (or deletion) drawn at each position is independent from all the other one, so there are $5^\ell$ possible different sequences for a given probabilistic nucleotide sequence. 
 
@@ -126,13 +126,13 @@ The nucleotide (or deletion) drawn at each position is independent from all the 
 
 \subsubsection{Sequence-level uncertainty}
 
-Out of the $5^\ell$ possible sequences, the nucleotide uncertainty likely assigns a positive probability to sequences that are not biologically possible.
-As an alternative representation and to reduce the space of sequences, let's assume we have enough information (either directly observed from data or simulated) to generate a set of $m$ sequences $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of all biologically possible sequences. Note that the $\sps_i$ do not have necessarily the same length. 
+Out of the $5^\ell$ possible sequences, the nucleotide uncertainty may assign a positive probability to sequences that are not biologically possible.
+As an alternative representation and to reduce the space of possible sequences, let's assume we have enough information (either directly observed from data or simulated) to generate a set of $m$ sequences $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of all biologically possible sequences. Note that the $\sps_i$ do not have necessarily the same length. 
 The observed genetic sequence, $s$, is a sample from a specified distribution $a$:
 \begin{equation}
 \pr{s = \sps_i} = a(i)
 \end{equation}
-We call the set $\sps$ the \emph{\slps}.
+We call the set $\sps$ the \emph{\slps}. Note that, because $a$ is a distribution, we must have $\sum_{i=1}^m a(i) = 1$. 
 
 
 
