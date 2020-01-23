@@ -26,13 +26,14 @@ citecolor = blue}
 \newcommand{\pr}[1]{\mathrm{Pr}(#1)}
 \newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
 \newcommand{\eg}{\textit{e.g.,}\xspace}
-\newcommand{\ie}{\textit{i.e.,}\xspace}
+\newcommand{\ie}{\textit{i.e.},\xspace}
 
 \newcommand{\sps}{\mathcal{B}} % sequence probability sequence
 \newcommand{\nps}{\mathcal{S}} % nucleotide probability sequence
 \newcommand{\nlps}{nucleotide-level probabilistic sequence\xspace}
 \newcommand{\slps}{sequence-level probabilistic sequence\xspace}
 
+\newcommand{\md}{\mathcal{M}} % Multinomial distribution
 
 % ===================
 
@@ -205,21 +206,62 @@ Here, we suggest possible methods to populate values in probabilistic sequences 
 \subsubsection{Quality scores}
 Fragment sequencing error is an error that is quantified with quality (or ``Phred'') score attributed to each base call from sequencing instrument. 
 The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{xxx} (for the widespread Illumina instruments, the sequencing error probability ranges between $10^{-3.5}$ and  $10^{-1.5}$ \cite{xxx}).  
-So each base call is right with probability $1-\epsilon$. Assuming the other bases and deletion \sq{-} are all equally likely with probability $\epsilon/4$. Alternatively, if we know only mutations (not deletions) affect the sequence, the last row can be filled with zeros and the other base-calls equal to $\epsilon/3$.
+Hence we have information on the ``base call'', \ie probability that the observed nucleotide is the correct one: 
 
+\begin{equation}
+\label{eq:basecall}
+p(\text{observed nucleotide}=X \,\,|\,\, \text{true nucleotide} = X) = 1 - \epsilon
+\end{equation}
+
+Unfortunately, this base-call probability is about only one \emph{focal} nucleotide and we have no information on the probability for the three other possible nucleotides (a gap, that is a fluorescent signal that is generated out of nowhere, is not a possibility at the chromatograph stage \warning{double check this!}). 
+Hence, we must make a modelling choice regarding the distribution of the remaining probabilities. 
+
+\textbf{Uniform distribution.} We can assume that the other bases  are all equally likely with probability $\epsilon/3$. \warning{or $\epsilon/4$ if deletions possible}
+%Alternatively, if we know only mutations (not deletions) affect the sequence, the last row can be filled with zeros and the other base-calls equal to $\epsilon/3$.
 For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$. The probabilistic sequence can be defined as:
 
 $$
 S = 
 \begin{pmatrix}
-1-10^{-6} & 10^{-3}/4  & 1-10^{-5} & 10^{-1}/4 & 10^{-4}/4  \\
-10^{-6}/4 & 1-10^{-3}  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4  \\
-10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 1-10^{-4} \\
-10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 1-10^{-1} & 10^{-4}/4\\
-10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4 \\
+1-10^{-6} & 10^{-3}/3  & 1-10^{-5} & 10^{-1}/3 & 10^{-4}/3  \\
+10^{-6}/3 & 1-10^{-3}  & 10^{-5}/3 & 10^{-1}/3 & 10^{-4}/3  \\
+10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 10^{-1}/3 & 1-10^{-4} \\
+10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 1-10^{-1} & 10^{-4}/3\\
+0&0&0&0&0 \\
 \end{pmatrix}
 $$
+
+%$$
+%S = 
+%\begin{pmatrix}
+%1-10^{-6} & 10^{-3}/4  & 1-10^{-5} & 10^{-1}/4 & 10^{-4}/4  \\
+%10^{-6}/4 & 1-10^{-3}  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4  \\
+%10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 1-10^{-4} \\
+%10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 1-10^{-1} & 10^{-4}/4\\
+%10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4 \\
+%\end{pmatrix}
+%$$
 Usually, this output from the sequencing instrument would be considered as certain (and quality scores discarded). In the probabilistic sequence framework, the probability to have \sq{ACATG} is 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
+
+\textbf{Multinomial distribution.} We can also assume a nucleotide-specific multinomial distribution for the remaining possibilities. For each focal nucleotide observed $X$, a multinomial distribution $\md_X(\theta)$ can be specified, where $\theta$ is the vector of probabilities for the ad-hoc nucleotides.
+For example, if the observed nucleotide is \sq{A} and its quality score implies an error probability of $\epsilon = 10^{-4}$, the probabilities that the true nucleotide at that position is actually \sq{C}, \sq{G} or \sq{T} are given by $\md_A(\theta)$ with $\theta_A(C) + \theta_A(G) + \theta_A(T) = \epsilon$ and $\theta_A(X) = p(\text{observed nucleotide} = A \,\,|\,\, \text{true nucleotide} = X )$.
+We also have to specify the distributions $\md_X$ for $X=\sq{C},\sq{G},\sq{T}$ (which will have not necessarily the same probabilities $\theta$).
+Note that the multinomial case collapses to the uniform one when the elements of $\theta$ are all equal.
+
+
+\subsubsection{Ambiguity codes}
+
+When IUPAC ambiguity codes are produced, we define $q$ as the reliability probability, that is the probability the true nucleotide is among the possibilities given by the ambiguity code. Then we can uniformly distribute $q$ to the possibilities offered by the ambiguity code and $(1-q)$ to the other nucleotides.
+For example, the ambiguity code \sq{Y} is interpreted as $p(\text{observed nucleotide} = C \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = T \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =q/2$ and $p(\text{observed nucleotide} = A \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = G \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =(1-q)/2$.
+\comment{simplify those notations!}
+
+Note we could also do a multinomial distribution that distribute $q$ among all the choices offered by the ambiguity code. For simplicity, the special case of a uniform distribution was presented here. 
+
+
+\subsubsection{Absence of uncertainty information}
+
+When we have no information about the observation uncertainty of a sequence, we can specify the error probability with a Beta distribution where its parameters $\alpha$ and $\beta$ are either arbitrarily chosen or fitted to available data (see \ref{sec:zanini_poly}).
+
 
 \subsubsection{Polymorphisms data}
 Both \nlps and \slps can be generated using error-only non-polymorphic data as well as data from studies investigating polymorphisms.
@@ -231,12 +273,23 @@ An example of such a study, that we'll use to run our simulations, can be found 
 \comment{Example of studies with full length sequences and their respective frequencies?}
 
 
+
+\subsection{Models of sequence uncertainty}
+
+Given an observed sequence, we can model sequencing uncertainty with three approaches, depending on the information available. 
+
+\subsubsection{FASTQ}
+
+
+
+
 \subsection{Propagating sequence uncertainty in phylogeny reconstruction}
 
 Here, we describe our study design to propagate and measure sequence uncertainty in phylogeny reconstruction. 
 
 
 \subsubsection{Generating simulated probabilistic sequences} 
+\label{sec:zanini_poly}
 
 If we want to simulate realistic probabilistic sequence, we have to reproduce a similar uncertainty as the one we would have from either sequencing error or polymorphism. 
 
