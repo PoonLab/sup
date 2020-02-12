@@ -1,5 +1,5 @@
 #
-# Read FASTQ files, extract and translate error probabilities 
+# Read FASTQ files, extract and translate error probabilities
 # from Phred Q-scores
 #
 library(tidyr)
@@ -25,26 +25,58 @@ translate_to_P <- function(x){
     return(10^(-Q/10))
 }
 
-#' Read the quality FASTQ file and 
-#' translate ASCCI scores to Q scores and 
-#' error probabilities
-#' @param filename String. FASTQ file name. 
-#' 
-fastq_to_QP <- function(filename) {
-    
+
+fastq_seq_proba <- function(filename) {  # filename = 'novaseq_reads_R1.fastq'
+
     x <- readLines(filename)
-    
-    # Identify the line of quality scores 
+
+    # Identify the lines of seq ID
+    q.seqid <- which(grepl("^@",x))
+
+    seqid <- x[q.seqid]
+    seq   <- x[q.seqid+1]
+    phred <- x[q.seqid+3]
+
+    # Vector format (more convenient):
+    phred <- strsplit(x = phred, split='')
+
+    # Convert all reads to Q scores and probabilities:
+    Q <- list()
+    P <- list()
+    for(i in 1:length(phred)){
+        Q[[i]] <- sapply(phred[[i]], translate_to_Q)
+        P[[i]] <- sapply(phred[[i]], translate_to_P)
+    }
+
+    return(list(seqid     = seqid,
+                seq       = seq,
+                err.proba = P,
+                Q.score   = Q))
+
+}
+
+
+
+#' Read the quality FASTQ file and
+#' translate ASCII scores to Q scores and
+#' error probabilities
+#' @param filename String. FASTQ file name.
+#'
+fastq_to_QP <- function(filename) {
+
+    x <- readLines(filename)
+
+    # Identify the line of quality scores
     # (comes after the '+' separator):
     q.lines <- which(x=='+')+1
-    
+
     # Keep the scores only:
     q.reads <- x[q.lines]
-    
+
     # Vector format (more convenient):
-    qv <- strsplit(x = q.reads, split='') 
-    
-    
+    qv <- strsplit(x = q.reads, split='')
+
+
     # Convert all reads to Q scores and probabilities:
     Q <- list()
     P <- list()
@@ -52,12 +84,12 @@ fastq_to_QP <- function(filename) {
         Q[[i]] <- sapply(qv[[i]], translate_to_Q)
         P[[i]] <- sapply(qv[[i]], translate_to_P)
     }
-    
+
     allQ <- do.call('c',Q)
     allP <- do.call('c',P)
-    
+
     return(list(Q = Q,
-                P = P, 
+                P = P,
                 allQ = allQ,
                 allP = allP))
 }
@@ -66,11 +98,11 @@ fastq_to_QP <- function(filename) {
 #' Plot the Q-scores for the ith read.
 plot_Q_read <- function(i, Q) {
     qi = Q[[i]]
-    plot(x=1:length(qi), y=qi, 
+    plot(x=1:length(qi), y=qi,
          xlab = 'position', ylab = 'Q-score',
          ylim=c(0,45),
          main = paste('Read',i),
-         las = 1, 
+         las = 1,
          pch=16, cex = 2,
          col=rgb(0,0,0,0.5))
     grid()
@@ -79,8 +111,8 @@ plot_Q_read <- function(i, Q) {
 
 plot_P_read <- function(i, P) {
     y = P[[i]]
-    plot(x=1:length(y), y=y, 
-         xlab = 'position', 
+    plot(x=1:length(y), y=y,
+         xlab = 'position',
          ylab = 'Error probability',
          ylim=c(10^-5,1),
          main = paste('Read',i),
@@ -106,19 +138,19 @@ reads_to_df <- function(res) {
 
 
 plot_P_pos <- function(res, title, ci = 0.99) {
-    
+
     df <- reads_to_df(res)
     qt <- c(0.5-ci/2, 0.5+ci/2 )
-    
+
     dfs <- df %>%
         group_by(pos) %>%
         summarise(p.mean = mean(p),
                   p.lo = quantile(p, probs = qt[1]),
                   p.hi = quantile(p, probs = qt[2])
         )
-    
+
     g <- dfs %>%
-        ggplot(aes(x=pos)) + 
+        ggplot(aes(x=pos)) +
         # geom_point(aes(y=p.mean))+
         geom_ribbon(aes(ymin=p.lo, ymax=p.hi),
                     fill = 'blue',
@@ -128,7 +160,7 @@ plot_P_pos <- function(res, title, ci = 0.99) {
         xlab('position')+
         ylab('Error Probability')+
         ggtitle(title, paste('Mean, CI =',ci*100,'%'))
-    
+
     return(g)
 }
 
@@ -140,6 +172,15 @@ combo <- function(f) {
 }
 
 # ==== RUN ====
+
+z <- fastq_seq_proba(filename = 'novaseq_reads_R1.fastq')
+
+
+i = 7
+z$seqid[i]
+z$seq[i]
+z$err.proba[i]
+
 
 # Read the FASTQ file:
 fnames <- system('ls *.fastq', intern = TRUE)

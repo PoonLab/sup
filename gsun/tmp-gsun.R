@@ -115,9 +115,9 @@ gen_letters <- function(prob, n) { # n = 9
 #' `obs.err`: observation error for every position of the observed sequence. 
 #' 
 draw_sequences_beta_unif <- function(obs.seq, 
-                                prm.beta, 
-                                n.repl, 
-                                alphabet) {
+                                     prm.beta, 
+                                     n.repl, 
+                                     alphabet) {
   # Draw errors:
   alpha <- prm.beta[["alpha"]]
   beta  <- prm.beta[["beta"]]
@@ -139,20 +139,30 @@ draw_sequences_beta_unif <- function(obs.seq,
 
 # ---- RUN ----
 
+# -- Create synthetic observed sequence
+
 seq.length = 1000
 alphabet = c('A','C','G','T')
 obs.seq <- gen_seq_random(seq.length, alphabet)
 paste(obs.seq[1:300], collapse = '')
 
+# -- Uncertainty sequence Model 
+
 prm.beta <- list(alpha = 0.1, 
                  beta  = 30)
+
+# Given: 
+#   * an observed sequence
+#   * a seq uncertainty model
+# Generate `n.repl` replicates of the 
+# likely true sequences:
 n.repl <- 100
 
 system.time({
-res <- draw_sequences_beta_unif(obs.seq, 
-                           prm.beta, 
-                           n.repl, 
-                           alphabet)
+  res <- draw_sequences_beta_unif(obs.seq, 
+                                  prm.beta, 
+                                  n.repl, 
+                                  alphabet)
 })
 
 seq.drawn <- res$seq.drawn
@@ -161,7 +171,8 @@ obs.err   <- res$obs.err
 h <- hist(obs.err, breaks = 30, plot = F)
 plot(h$mids, h$density, log='y', typ='o', las=1, pch=16, cex=1, lwd=2,
      main = paste("Observation-Error Probability Distribution\n",
-                  "Beta Unif Model:", paste(prm.beta,collapse = ' ; ')),
+                  "Beta Unif Model:", 
+                  paste(prm.beta,collapse = ' ; ')),
      xlab = 'Obs. Err. Probability', ylab = 'Density')
 grid()
 
