@@ -345,12 +345,12 @@ draw a sequence $\widetilde{seq_i}$ for each $\nps^i$ (for $i=1,\ldots, n$).
 \end{enumerate}
 
 \noindent Note that the $M$ iterations amounts to a Monte-Carlo algorithm.
-Studying the distance between the $(T_m)_{m=1:M}$ and $T^*$ is not our main goal (this distance essentially assesses the performance of the phylogeny reconstruction software to correctly infer the ``true'' ancestry).
+Studying the distance between the reconstructed trees $(T_m)_{m=1:M}$ and the true tree $T^*$ is not our main goal (this distance essentially assesses the performance of the phylogeny reconstruction software to correctly infer the ``true'' ancestry).
 Instead, we are principally interested in \emph{uncertainty propagation}, that is the variance of the pairwise distances between the $(T_m)_{m=1:M}$.
 
 Our analysis considers five levels of uncertainty. We start with a virtually inexistent sequence uncertainty, then increased it by lowering the base call probability. This is done by sampling the probability from multiple parameter sets $(\alpha,\beta)$ of a Beta distribution (see \autoref{eq:beta_sampling}). 
 We choose a single value $\alpha=29$ and use five different values for the second shape parameter $\beta = 10^{-3}, 10^{-2}, 10^{-1}, 1 \text{ and } 3$ \comment{update if necessary}.
-With these values, mean of the Beta distribution for the base-call probability decreases away from 1.0. 
+With these values, the mean of the Beta distribution for the base-call probability decreases away from 1.0. 
 Finally, note that the middle value $(\alpha=29, \beta=10^{-1})$ is close to the fitted entropy values of the longitudinal HIV dataset from Zanini and colleagues \cite{Zanini:2015}.
 
 For Step \ref{item:assess}, we explore the impact of sequence uncertainty on several types of downstream analysis on reconstructed phylogenies: pairwise distance between trees, clustering and an example of source attribution \comment{amend if needed}.
