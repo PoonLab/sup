@@ -4,11 +4,16 @@ i=$1
 
 echo "Processing parameter set #$i ..."
 
+# --  TO DELETE:
 # Add uncertainty to the true sequences:
-Rscript add-uncertainty.R $i
-
+# Rscript add-uncertainty.R $i
 # Draw from the probabilistic sequences (Monte Carlo):
-Rscript draw-tip-seqs.R $i
+# Rscript draw-tip-seqs.R $i
+# --------
+
+# Add uncertainty to the true sequences
+# using the `sung` library:
+Rscript gen-uncertain.R $i
 
 # Reconstruct phylogeny using FastTree:
 #./infr-tree-fasttree.sh > fasttree.out
