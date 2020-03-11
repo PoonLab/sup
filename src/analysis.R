@@ -149,8 +149,7 @@ plot_analysis <- function(df, subtitle='') {
     
     g.hist <- dfl %>%
         ggplot()+
-        geom_histogram(aes(x=value, fill=prmset), 
-                       bins = 20)+
+        geom_histogram(aes(x=value), bins = 20)+
         facet_grid(prmset~distance.type, 
                    scales = 'free_y')+
         ggtitle('Tree distance', subtitle)+
