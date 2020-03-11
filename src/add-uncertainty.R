@@ -90,7 +90,10 @@ add_uncertainty <- function(prm, fasta.file,
                 seqs.names = seqs.names))
 }
 
-plot_prmset_distrib <- function(fname) { #fname='prm-btshp.csv'
+#' Plot the distribution of the base call probabilities defined
+#' by a Beta-Uniform uncertainty model
+#' 
+plot_prmset_distrib <- function(fname) {    # fname='prm-btshp.csv'
     
     b <- read.csv(fname, header = F)
     

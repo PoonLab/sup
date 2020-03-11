@@ -55,6 +55,24 @@ get_prm <- function(prm, prm.name) {
     return(prm$value[prm$name == prm.name])
 }
 
+#' Load the shape parameters for the Beta distribution.
+#' @param fname.prm String. File name where the shape parameters are defined. 
+#' @param args Integer. Command line argument specifying which parameter set to consider.
+load_beta_shapes <- function(fname.prm, args = NULL ) {
+    if(length(args) == 0){
+        prm <- read.csv(fname.prm)
+        btshp <- c(get_prm(prm, 'beta.shape.p1'), 
+                   get_prm(prm, 'beta.shape.p2'))
+    }
+    if(length(args) == 1){
+        idx <- as.numeric(args[1])
+        btshp.file <- read.csv(fname.prm, header = F)
+        btshp <- as.numeric(btshp.file[idx,])
+    }
+    names(btshp) <- c('alpha', 'beta')
+    return(btshp)
+}
+
 #' Define a probabilistic sequence, randomly assigning probabilities.
 #' Four rows for each nucleotide: A,C,G,T
 #' Column = nucleotide position
@@ -209,4 +227,31 @@ draw_multiple_seq <- function(M.list,
 }
 
 
-
+#' Plot the distribution of the base-call probabilities
+#' @param fname String. File name where the Beta parameter shapes are defined.
+#' 
+plot_prmset_distrib <- function(fname) { #fname='prm-btshp.csv'
+    
+    b <- read.csv(fname, header = F)
+    
+    dfl <- list()
+    for(i in 1:nrow(b)){
+        x <- seq(0,1,length=1e3)
+        y <- dbeta(x, shape1 = b[i,1], shape2 = b[i,2])
+        dfl[[i]] <- data.frame(x=x, y=y, 
+                               prmset=paste('prmset',i,
+                                            ': s1 =',b[i,1],
+                                            '; s2 =',b[i,2]))
+    }
+    df <- do.call('rbind',dfl) %>%
+        mutate(prmset = factor(prmset))
+    
+    g <- df %>%
+        ggplot(aes(x=x, y=y))+
+        geom_line(aes(colour=prmset), size=2, alpha=0.8)+
+        scale_y_log10(limits = c(1e-12, 1e3))+
+        coord_cartesian(xlim = c(0.5,1))+
+        ggtitle('Beta Density of Base Call Probability')+
+        xlab('Base call probability') + ylab('density')
+    plot(g)
+}

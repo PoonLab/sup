@@ -76,6 +76,10 @@ df.d.ms <- digest_distances(df.ds)
 # Warning, these are distances between sequences 
 # in one tree, not distances between trees!
 
+# Wed Mar 11 12:32:49 2020 ------------------------------
+# STOPPED HERE: 
+# I DON'T KNOW WHY THE TN93 DISTANCES (BELOW) FAIL NOW... INVESTIGATE!
+# ---
 # The raw TN93 distances:
 df.tn93 <- dist.tn93()
 
@@ -269,6 +273,11 @@ plot_clstr_num <- function(dfclst,
 
 
 # ---- RUN ----
+
+pdf('plot-proba-basecall-beta.pdf')
+plot_prmset_distrib(fname.prm)
+dev.off()
+
 
 g  <- plot_analysis(df.d, 'b/w inferred trees')
 g0 <- plot_analysis(df.ds, 'from benchmark')

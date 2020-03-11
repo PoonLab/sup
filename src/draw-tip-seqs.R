@@ -32,5 +32,4 @@ for(i in 1:n.mc){
                                '--> Tip seqs sampling:',i,'/',n.mc))
 }
 
-message(paste("Sampled tips sequences completed. (prm set =",args[1],
-              ')'))
+message(paste("Sampled tips sequences completed. (prm set =",args[1],')'))
