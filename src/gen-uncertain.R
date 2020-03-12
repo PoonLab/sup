@@ -13,11 +13,16 @@ fastafile <- 'seqs/sim.fasta'
 # Parameter shape for the Beta-Uniform uncertainty model:
 btshp <- load_beta_shapes(fname.prm = 'prm-btshp.csv', args = args)
 
+
+# Load other parameters:
+prm <- read.csv('prm.csv')
+n.repl <- get_prm(prm,'sample.tips.n.mc')
+
 # Draw replicates from the probabilistic sequences
 # defined by the Beta-Uniform uncertainty model:
 seqs <- sung::draw_fasta_beta_unif(fastafile = fastafile, 
-                                   prm.beta = btshp, 
-                                   n.repl = 10, 
+                                   prm.beta  = btshp, 
+                                   n.repl    = n.repl, 
                                    alphabet.type = 'nucleotide')
 
 # Save the replicates to FASTA files:
