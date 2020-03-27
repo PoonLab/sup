@@ -79,7 +79,9 @@ apply.cigar <- function(cigar, seq, qual, pos=0, clip.from=1, clip.to=NULL) {
     }
   }
   
-  return(c(new.seq, new.qual))
+  # append quality string to sequence as an attribute
+  attr(new.seq, 'qual') <- new.qual
+  return(new.seq)
 }
 
 
@@ -90,8 +92,11 @@ chr <- function(n) { rawToChar(as.raw(n)) }
 
 #' Combine paired-end reads into a single sequence.  Manage discordant
 #' base calls on the basis of quality scores.
-#' @param seq1: character, the first read of a pair
-#' @param seq2: character, the second read of a pair
+#' 
+#' @param seq1: character, the first read of a pair, already processed with 
+#'              apply.cigar
+#' @param seq2: character, the second read of a pair, already processed with 
+#'              apply.cigar
 #' @param qual1: character, the quality score string for the first read
 #' @param qual2: character, the quality score string for the second read
 #' @param qcutoff: integer, bases with a quality score below this cutoff
@@ -102,16 +107,19 @@ chr <- function(n) { rawToChar(as.raw(n)) }
 merge.pairs <- function(seq1, seq2, qual1, qual2, qcutoff=10, min.q.delta=5) {
   mseq <- ''
   
+  if (is.null(attr(seq1, "qual")) || is.null(attr(seq1, "qual"))) {
+    stop("Error: merge.pairs() requires seq1 and seq2 to be processed by apply.cigar()")
+  }
+  
   # force second read to be the longer of the two
   if (nchar(seq1) > nchar(seq2)) {
     temp <- seq1
     seq1 <- seq2
     seq2 <- seq1
-    temp <- qual1
-    qual1 <- qual2
-    qual2 <- qual1
   }
   
+  qual1 <- attr(seq1, "qual")
+  qual2 <- attr(seq2, "qual")
   qcutoff.char <- chr(qcutoff+33)
   is.forward.started <- FALSE
   is.reverse.started <- FALSE
@@ -123,7 +131,16 @@ merge.pairs <- function(seq1, seq2, qual1, qual2, qcutoff=10, min.q.delta=5) {
     }
     
     if (i <= nchar(seq1)) {
-      
+      c1 <- substr(seq1, i, i)
+      if (!is.forward.started) {
+        if (c1 == '-' && c2 == '-') { next }
+        
+        is.forward.started <- TRUE
+        mseq <- substr(seq1, 1, i)
+      }
+      else {
+        
+      }
     }
   }
 }
