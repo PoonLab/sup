@@ -53,7 +53,7 @@ ms/*.gz
 ms/*.bbl
 ms/*.blg
 ms/*.out
-
+ms/*.toc
 
 # Reads sequencing error simulations:
 reads-seq-err/plot*.pdf
