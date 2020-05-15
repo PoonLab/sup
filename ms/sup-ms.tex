@@ -9,6 +9,8 @@
 \usepackage{graphicx}
 \usepackage{float} % Place figures exactly "here" (option "H")
 \usepackage[modulo]{lineno}
+\usepackage[parfill]{parskip}		
+
 \hypersetup{
 colorlinks=true,
 linkcolor = blue,
@@ -83,7 +85,7 @@ Here we propose a theoretical framework to represent genetic sequence uncertaint
 % ==============================================================
 
 
-
+\newpage
 
 \section{Methods}
 
@@ -228,38 +230,39 @@ The low deletion probability for position 2 is straightforward to interpret: abo
 \textbf{sequence} & \textbf{frequency} \\
 \hline
 \sq{CGAAT}  & common, 98\% of the time \\
-\sq{CAAT}   & rare \sq{G} deletion, 1\% of the time \\
-\sq{CGATAT} & rare \sq{T} insertion, 1\% of the time \\
-\sq{CATAT} & very rare insertion and deletion, 0.01\% of the time \\
+\sq{CAAT}   & rare (1\% frequency) \sq{G} deletion at position 2,  \\
+\sq{CGATAT} & rare (1\% frequency) \sq{T} insertion at position 4 \\
+\sq{CATAT} & very rare (0.01\% frequency) deletion and insertion  \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-The representation of deletions and insertions with a \slps is straightforward.
+The representation of deletions and insertions with a \slps is straightforward. 
+
 
 
 \subsection{Probabilistic sequences from data}
+
+
 
 Here, we suggest possible methods to populate values in probabilistic sequences from data. 
 
 \subsubsection{Quality scores}
 Fragment sequencing error is an error that is quantified with quality (or ``Phred'') score attributed to each base call from sequencing instrument. 
-The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{xxx} (for the widespread Illumina instruments, the sequencing error probability ranges between $10^{-3.5}$ and  $10^{-1.5}$ \cite{xxx}).  
-Hence we have information on the ``base call'', \ie probability that the observed nucleotide is the correct one: 
-
+The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{xxx} (for the widespread Illumina instruments, the sequencing error probability ranges between $10^{-3.5}$ and  $10^{-1.5}$ \cite{xxx}). The FASTQ file format is the standard representation for combining sequence and observation error.
+Hence, the uncertainty associated to the base call is quantified by defining the probability that the observed nucleotide is the correct one: 
 \begin{equation}
 \label{eq:basecall}
 p(\text{observed nucleotide}=X \,\,|\,\, \text{true nucleotide} = X) = 1 - \epsilon
 \end{equation}
-
-Unfortunately, this base-call probability is about only one \emph{focal} nucleotide and we have no information on the probability for the three other possible nucleotides (a gap, that is a fluorescent signal that is generated out of nowhere, is not a possibility at the chromatograph stage \warning{double check this!}). 
+Unfortunately, this base-call probability relates to only one \emph{focal} nucleotide and we have no information on the probability for the three other possible nucleotides. 
 Hence, we must make a modelling choice regarding the distribution of the remaining probabilities. 
 
-\textbf{Uniform distribution.} We can assume that the other bases  are all equally likely with probability $\epsilon/3$. \warning{or $\epsilon/4$ if deletions possible}
-%Alternatively, if we know only mutations (not deletions) affect the sequence, the last row can be filled with zeros and the other base-calls equal to $\epsilon/3$.
-For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$. The probabilistic sequence can be defined as:
-
+\textbf{Uniform distribution.} 
+As a first simplifying step, we ignore insertions and deletions. 
+Given a base call and its associated quality score at each position, we can assume that the other bases  are all equally likely with probability $\epsilon/3$. 
+For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$. The probabilistic sequence is:
 $$
 S = 
 \begin{pmatrix}
@@ -271,19 +274,24 @@ S =
 \end{pmatrix}
 $$
 
-%$$
-%S = 
-%\begin{pmatrix}
-%1-10^{-6} & 10^{-3}/4  & 1-10^{-5} & 10^{-1}/4 & 10^{-4}/4  \\
-%10^{-6}/4 & 1-10^{-3}  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4  \\
-%10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 1-10^{-4} \\
-%10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 1-10^{-1} & 10^{-4}/4\\
-%10^{-6}/4 & 10^{-3}/4  & 10^{-5}/4 & 10^{-1}/4 & 10^{-4}/4 \\
-%\end{pmatrix}
-%$$
-Usually, this output from the sequencing instrument would be considered as certain (and quality scores discarded). In the probabilistic sequence framework, the probability to have \sq{ACATG} is 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
+Usually, the genetic sequence \sq{ACATG} would be considered as certain and quality scores discarded. In contrast, within the probabilistic sequence framework the probability the sequence is \sq{ACATG} is only 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
 
-\textbf{Multinomial distribution.} We can also assume a nucleotide-specific multinomial distribution for the remaining possibilities. For each focal nucleotide observed $X$, a multinomial distribution $\md_X(\theta)$ can be specified, where $\theta$ is the vector of probabilities for the ad-hoc nucleotides.
+Insertions and deletions (``indels'') can be included in the uniform framework. Here, we propose that the nucleotides probabilities are defined conditional on an indel but other models are possible. 
+For a given position, the error probability is $\epsilon = 10^{-Q/10}$ (that is its quality score is $Q$) and we assume the probability a deletion happens at this position is $d$.  Conditional on not being deleted, the probability to have the base called is $(1-d)(1-\epsilon)$ and the other three nucleotides can occur with probability $(1-d)\epsilon/3$. 
+Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
+$$
+\begin{pmatrix}
+(1-d)(1-\epsilon)  \\
+(1-d)\,\epsilon / 3  \\
+(1-d)\,\epsilon / 3  \\
+(1-d)\,\epsilon / 3  \\
+d\\
+\end{pmatrix}
+$$
+
+
+\textbf{Multinomial distribution.} 
+We can also assume a nucleotide-specific multinomial distribution for the remaining possibilities. For each focal nucleotide observed $X$, a multinomial distribution $\md_X(\theta)$ can be specified, where $\theta$ is the vector of probabilities for the ad-hoc nucleotides.
 For example, if the observed nucleotide is \sq{A} and its quality score implies an error probability of $\epsilon = 10^{-4}$, the probabilities that the true nucleotide at that position is actually \sq{C}, \sq{G} or \sq{T} are given by $\md_A(\theta)$ with $\theta_A(C) + \theta_A(G) + \theta_A(T) = \epsilon$ and $\theta_A(X) = p(\text{observed nucleotide} = A \,\,|\,\, \text{true nucleotide} = X )$.
 We also have to specify the distributions $\md_X$ for $X=\sq{C},\sq{G},\sq{T}$ (which will have not necessarily the same probabilities $\theta$).
 Note that the multinomial case collapses to the uniform one when the elements of $\theta$ are all equal.
@@ -321,6 +329,7 @@ Given an observed sequence, we can model sequencing uncertainty with three appro
 \subsubsection{FASTQ}
 
 
+\newpage
 
 
 \subsection{Propagating sequence uncertainty in phylogeny reconstruction}
@@ -449,7 +458,7 @@ Steps 1 to 5 are repeated for several level of uncertainty (defined by the Beta 
 
 
 
-
+\newpage
 \section{Results}
 
 \newpage
