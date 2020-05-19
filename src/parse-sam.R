@@ -22,8 +22,7 @@ re.findall <- function(pat, s) {
   })
 }
 
-#' apply.cigar
-#' 
+
 #' Use CIGAR (Compact Idiosyncratic Gapped Alignment Report) string
 #' to applly soft clips, insertions and deletions to the read sequence.
 #' Any insertions relative to the reference sequence are removed to 
@@ -86,7 +85,7 @@ apply.cigar <- function(cigar, seq, qual, pos=0, clip.from=1, clip.to=NULL) {
 
 
 # functions from https://datadebrief.blogspot.com/2011/03/ascii-code-table-in-r.html
-asc <- function(x) { strtoi(charToRaw(x),16L) }
+ord <- function(x) { strtoi(charToRaw(x),16L) }
 chr <- function(n) { rawToChar(as.raw(n)) }
 
 
@@ -104,6 +103,7 @@ chr <- function(n) { rawToChar(as.raw(n)) }
 #' @param min.q.delta: integer, if two reads disagree on a base call, the 
 #'                     base with higher quality will be assigned if it 
 #'                     exceeds this difference.
+#' @return character, merged sequence
 merge.pairs <- function(seq1, seq2, qual1, qual2, qcutoff=10, min.q.delta=5) {
   mseq <- ''
   
@@ -118,8 +118,10 @@ merge.pairs <- function(seq1, seq2, qual1, qual2, qcutoff=10, min.q.delta=5) {
     seq2 <- seq1
   }
   
+  # retrieve quality strings
   qual1 <- attr(seq1, "qual")
   qual2 <- attr(seq2, "qual")
+  
   qcutoff.char <- chr(qcutoff+33)
   is.forward.started <- FALSE
   is.reverse.started <- FALSE
@@ -134,15 +136,61 @@ merge.pairs <- function(seq1, seq2, qual1, qual2, qcutoff=10, min.q.delta=5) {
       c1 <- substr(seq1, i, i)
       if (!is.forward.started) {
         if (c1 == '-' && c2 == '-') { next }
-        
         is.forward.started <- TRUE
         mseq <- substr(seq1, 1, i)
       }
       else {
-        
+        if (c1 == '-' && c2 == '-') {
+          mseq <- paste0(mseq, '-')
+          next
+        }
+      }
+      
+      q1 <- ord(substr(qual1, i, i))
+      q2 <- prd(substr(qual2, i, i))
+      if (c1 == c2) {
+        # reads agree on base
+        if (q1 > qcutoff || q2 > qcutoff) {
+          # at least one has sufficient confidence
+          mseq <- paste0(mseq, c1)
+        } else {
+          # neither base call is confident
+          mseq <- paste0(mseq, "N")
+        }
+      }
+      else {
+        if (abs(q1-q2) >= min.q.delta) {
+          if (q1 > max(q2, qcutoff)) {
+            mseq <- paste0(mseq, c1)
+          } else if (q2 > max(q1, qcutoff)) {
+            mseq <- paste0(mseq, c2)
+          } else {
+            mseq <- paste0(mseq, 'N')
+          }
+        }
+        else {
+          mseq <- paste0(mseq, 'N')
+        }
+      }
+    }
+    else {
+      # past end of read 1
+      if (c2 == '-') {
+        if (is.reverse.started) {
+          mseq <- paste0(mseq, c2)
+        } else {
+          mseq <- paste0(mseq, 'n')  # interval between reads
+        }
+      } 
+      else if (q2 > qcutoff) {
+        mseq <- paste0(mseq, c2)
+      }
+      else {
+        mseq <- paste0(mseq, 'N')
       }
     }
   }
+  return (mseq)
 }
 
 
