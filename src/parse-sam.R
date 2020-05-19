@@ -1,5 +1,10 @@
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
+re.findall <- function(pat, string) {
+  result <- gregexpr(pat, string)[1]
+  
+}
+
 #' apply.cigar
 #' 
 #' Use CIGAR (Compact Idiosyncratic Gapped Alignment Report) string
@@ -23,6 +28,7 @@ apply.cigar <- function(cigar, seq, qual, pos=0) {
     stop("Error: Invalid CIGAR string", cigar)
   }
   
+  tokens <- 
 }
 
 parse.sam.line <- function(line) {
