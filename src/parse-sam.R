@@ -231,12 +231,17 @@ parse.sam <- function(infile, paired=TRUE, chunk.size=1000) {
   con <- file(infile, open='r')
   read.next <- TRUE
   i <- 0
-  
+  t0 <- as.numeric(proc.time())[3]
   while (TRUE) {
     i <- i + 1
     if (i %% 100 == 0) {
-      print(i)
+      dt <- as.numeric(proc.time())[3] - t0
+      cat(paste0(i, " ", round(dt/i, 5), " s/line\n"))
     }
+    if (i > 1000) {
+      break
+    }
+    
     if (read.next) {
       line <- readLines(con, n=1, warn=FALSE)
       if (length(line) == 0) {
