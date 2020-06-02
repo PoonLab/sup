@@ -78,6 +78,10 @@ apply.cigar <- function(cigar, seq, qual, pos) {
       # soft clip, omit
       left <- left + len
     }
+    else if (operand == 'H') {
+      # hard clip, do not advance along query
+      next
+    }
     else {
       stop("Error in apply.cigar: unsupported token ", token)
     }
@@ -289,15 +293,18 @@ parse.sam <- function(infile, paired=TRUE, chunk.size=1000) {
 #' @return data frame of nucleotide counts
 parse.sam.mp <- function(infile, n.cores=2) {
   # parse header information to allocate data frame
+  # FIXME: assumes only one reference!
   tot.len <- 0
+  skip <- 0
   con <- file(infile, open='r')
-  while (tot.len == 0) {
-    line <- readLines(con, n=1, warn=FALSE)
-    if (length(line) == 0) {
-      break  # end of file
-    }
-    if (grepl("@.+LN:[0-9]+", line)) {
-      tot.len <- as.integer(gsub(".+LN:([0-9]+)$", "\\1", line))
+  while (length(line <- readLines(con, n=1, warn=FALSE)) > 0) {
+    if (grepl("^@", line)) {
+      skip <- skip + 1
+      if (grepl("@.+LN:[0-9]+", line)) {
+        tot.len <- as.integer(gsub(".+LN:([0-9]+)$", "\\1", line))
+      }
+    } else {
+      # assume first line not prefixed with "@" exits comment block
       break
     }
   }
@@ -305,8 +312,8 @@ parse.sam.mp <- function(infile, n.cores=2) {
   
   # load the entire file contents
   cat("Loading SAM file...\n")
-  sam <- read.table(infile, sep='\t', comment.char='@', fill=TRUE, 
-                    stringsAsFactors = FALSE)
+  sam <- read.table(infile, sep='\t', skip=skip, quote="", fill=TRUE, 
+                    stringsAsFactors = FALSE, comment.char="")
   sam <- sam[,1:11]  # strip optional fields
   names(sam) <- c('qname', 'flag', 'rname', 'pos', 'mapq', 'cigar',
                   'rnext', 'pnext', 'tlen', 'seq', 'qual')
@@ -317,27 +324,36 @@ parse.sam.mp <- function(infile, n.cores=2) {
     names(df) <- c('A', 'C', 'G', 'T', 'N', 'gap')
     for (j in seq(i, nrow(sam), by=n.cores)) {
       row <- sam[j, ]
-      if (row$cigar == '*') {
+      if (row$cigar == '*' || any(is.na(row))) {
         next
       }
-      mseq <- apply.cigar(cigar=row$cigar, seq=row$seq,
+      aligned <- apply.cigar(cigar=row$cigar, seq=row$seq,
                              qual=row$qual, pos=row$pos)
-      start <- len.terminal.gap(mseq)
-      for (pos in seq(start, nchar(mseq))) {
-        nt <- substr(mseq, pos, pos)
+      start <- len.terminal.gap(aligned)
+      for (pos in seq(start, nchar(aligned))) {
+        nt <- substr(aligned, pos, pos)
+        qc <- substr(attr(aligned, 'qual'), pos, pos)
         if (nt == '-') {
-          nt <- 'gap'  # '-' is illegal column name
-        }
-        if (is.element(nt, names(resolve.mixture))) {
-          res <- resolve.mixture[[nt]]
-          df[pos, res[1]] <- df[pos, res[1]] + 0.5
-          df[pos, res[2]] <- df[pos, res[2]] + 0.5
-        } else {
-          df[pos, nt] <- df[pos, nt]+1  
+          # '-' is illegal column name
+          df[pos, 'gap'] <- df[pos, 'gap'] + 1
+        } 
+        else if (nt == 'N') {
+          # nanopore sequences have no N's
+          for (nt2 in c('A', 'C', 'G', 'T')) {
+            df[pos, nt2] <- df[pos, nt2]+0.25
+          }
+        } 
+        else {
+          q <- ord(qc)-30
+          p <- 10^-(q/10)  # Phred conversion
+          df[pos, nt] <- df[pos, nt]+(1-p)
+          for (nt2 in setdiff(c('A','C','G','T'), nt)) {
+            df[pos, nt2] <- df[pos, nt2]+(p/3)
+          }
         }
       }
     }
-    return(df)
+    df  # return data frame
   }, mc.cores=n.cores)  
   Reduce('+', res)
 }
