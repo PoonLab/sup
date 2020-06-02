@@ -1,3 +1,5 @@
+require(parallel)
+
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
 #' re.findall
@@ -61,8 +63,8 @@ apply.cigar <- function(cigar, seq, qual, pos) {
     }
     else if (operand == 'D') {
       # deletion relative to reference
-      new.seq <- paste0(new.seq, rep('-', len), collapse='')
-      new.qual <- paste0(new.qual, rep('!', len), collapse='')
+      new.seq <- paste0(new.seq, paste0(rep('-', len), collapse=""), collapse="")
+      new.qual <- paste0(new.qual, paste0(rep('!', len), collapse=""), collapse="")
     }
     else if (operand == 'I') {
       # insertion relative to reference
@@ -93,6 +95,24 @@ ord <- function(x) { strtoi(charToRaw(x),16L) }
 chr <- function(n) { rawToChar(as.raw(n)) }
 
 
+atomize <- function(seq, qcutoff) {
+  vec <- strsplit(seq, "")[[1]]
+  qual <- strsplit(attr(seq, 'qual'), "")[[1]]
+  to.censor <- (vec != '-') & sapply(qual, function(q) ord(q)-33 < qcutoff)
+  vec[to.censor] <- 'N'
+  return(vec)
+}
+
+mixtures <- list(
+  'AC'='M', 'AG'='R', 'AT'='W', 'CG'='S', 'CT'='Y', 'GT'='K',
+  'AN'='A', 'CN'='C', 'GN'='G', 'NT'='T',
+  '-A'='A', '-C'='C', '-G'='G', '-T'='T', '-N'='N'
+)
+resolve.mixture <- list(
+  'M'=c('A', 'C'), 'R'=c('A', 'G'), 'W'=c('A', 'T'),
+  'S'=c('C', 'G'), 'Y'=c('C', 'T'), 'K'=c('G', 'T')
+)
+
 #' Combine paired-end reads into a single sequence.  Manage discordant
 #' base calls on the basis of quality scores.
 #' 
@@ -107,96 +127,24 @@ chr <- function(n) { rawToChar(as.raw(n)) }
 #'                     exceeds this difference.
 #' @return character, merged sequence
 merge.pairs <- function(seq1, seq2, qcutoff=10, min.q.delta=5) {
-  mseq <- ''
-  
   if (is.null(attr(seq1, "qual")) || is.null(attr(seq1, "qual"))) {
     stop("Error: merge.pairs() requires seq1 and seq2 to be processed by apply.cigar()")
   }
   
-  # force second read to be the longer of the two
-  if (nchar(seq1) > nchar(seq2)) {
-    temp <- seq1
-    seq1 <- seq2
-    seq2 <- seq1
+  v1 <- atomize(seq1, qcutoff)
+  v2 <- atomize(seq2, qcutoff)
+  ldiff <- length(v1) - length(v2)
+  if (ldiff > 0) {
+    v2 <- c(v2, rep("N", ldiff))
+  } else if (ldiff < 0) {
+    v1 <- c(v1, rep("N", -ldiff))
   }
-  
-  # retrieve quality strings
-  qual1 <- attr(seq1, "qual")
-  qual2 <- attr(seq2, "qual")
-  
-  qcutoff.char <- chr(qcutoff+33)
-  is.forward.started <- FALSE
-  is.reverse.started <- FALSE
-  
-  for (i in 1:nchar(seq2)) {
-    c2 <- substr(seq2, i, i)
-    if (c2 != '-' && !is.reverse.started) {
-      is.reverse.started <- TRUE
-    }
-    
-    if (i <= nchar(seq1)) {
-      c1 <- substr(seq1, i, i)
-      
-      if (!is.forward.started) {
-        if (c1 == '-' && c2 == '-') { next }
-        is.forward.started <- TRUE
-        mseq <- substr(seq1, 1, i-1)
-      }
-      else {
-        if (c1 == '-' && c2 == '-') {
-          mseq <- paste0(mseq, '-')
-          next
-        }
-      }
-      
-      q1 <- ord(substr(qual1, i, i))
-      q2 <- ord(substr(qual2, i, i))
-      
-      if (c1 == c2) {
-        # reads agree on base
-        if (q1 > qcutoff || q2 > qcutoff) {
-          # at least one has sufficient confidence
-          mseq <- paste0(mseq, c1)
-        } else {
-          # neither base call is confident
-          mseq <- paste0(mseq, "N")
-        }
-      }
-      else {
-        if (abs(q1-q2) >= min.q.delta) {
-          if (q1 > max(q2, qcutoff)) {
-            mseq <- paste0(mseq, c1)
-          } else if (q2 > max(q1, qcutoff)) {
-            mseq <- paste0(mseq, c2)
-          } else {
-            mseq <- paste0(mseq, 'N')
-          }
-        }
-        else {
-          mseq <- paste0(mseq, 'N')
-        }
-      }
-    }
-    else {
-      # past end of read 1
-      if (c2 == '-') {
-        if (is.reverse.started) {
-          mseq <- paste0(mseq, c2)
-        } else {
-          mseq <- paste0(mseq, 'N')
-        }
-      } 
-      else if (q2 > qcutoff) {
-        mseq <- paste0(mseq, c2)
-      }
-      else {
-        mseq <- paste0(mseq, 'N')
-      }
-    }
-  }
-  
-  # TODO: reconcile insertions
-  return (mseq)
+  pair <- cbind(v1, v2)
+  mseq <- apply(pair, 1, function(x) {
+    if (x[1] == x[2]) { x[1] }
+    else { mixtures[[paste0(sort(x), collapse="")]] }
+  })
+  return(paste0(mseq, collapse=""))
 }
 
 
@@ -233,13 +181,11 @@ parse.sam <- function(infile, paired=TRUE, chunk.size=1000) {
   i <- 0
   t0 <- as.numeric(proc.time())[3]
   while (TRUE) {
+    # progress monitoring and timing
     i <- i + 1
     if (i %% 100 == 0) {
       dt <- as.numeric(proc.time())[3] - t0
       cat(paste0(i, " ", round(dt/i, 5), " s/line\n"))
-    }
-    if (i > 1000) {
-      break
     }
     
     if (read.next) {
@@ -258,9 +204,6 @@ parse.sam <- function(infile, paired=TRUE, chunk.size=1000) {
       next
     }
     row1 <- parse.sam.line(line)
-    if (row1$cigar == '*') {
-      
-    }
     
     # look ahead for second read of pair
     if (paired) {
@@ -322,7 +265,13 @@ parse.sam <- function(infile, paired=TRUE, chunk.size=1000) {
       if (nt == '-') {
         nt <- 'gap'
       }
-      df[pos, nt] <- df[pos, nt]+1
+      if (is.element(nt, names(resolve.mixture))) {
+        res <- resolve.mixture[[nt]]
+        df[pos, res[1]] <- df[pos, res[1]] + 0.5
+        df[pos, res[2]] <- df[pos, res[2]] + 0.5
+      } else {
+        df[pos, nt] <- df[pos, nt]+1  
+      }
     }
   }
   
@@ -332,9 +281,64 @@ parse.sam <- function(infile, paired=TRUE, chunk.size=1000) {
 }
 
 
+#' Parallel implementation specifically for unpaired
+#' read files.
+#' TODO: extend for paired read data
+#' @param infile:  absolute or relative path to SAM file
+#' @param n.cores:  number of cores to run in parallel
+#' @return data frame of nucleotide counts
+parse.sam.mp <- function(infile, n.cores=2) {
+  # parse header information to allocate data frame
+  tot.len <- 0
+  con <- file(infile, open='r')
+  while (tot.len == 0) {
+    line <- readLines(con, n=1, warn=FALSE)
+    if (length(line) == 0) {
+      break  # end of file
+    }
+    if (grepl("@.+LN:[0-9]+", line)) {
+      tot.len <- as.integer(gsub(".+LN:([0-9]+)$", "\\1", line))
+      break
+    }
+  }
+  close(con)
+  
+  # load the entire file contents
+  cat("Loading SAM file...\n")
+  sam <- read.table(infile, sep='\t', comment.char='@', fill=TRUE, 
+                    stringsAsFactors = FALSE)
+  sam <- sam[,1:11]  # strip optional fields
+  names(sam) <- c('qname', 'flag', 'rname', 'pos', 'mapq', 'cigar',
+                  'rnext', 'pnext', 'tlen', 'seq', 'qual')
 
-
-
-
-
+  cat("Launching processes...\n")
+  res <- mclapply(1:n.cores, function(i) {
+    df <- data.frame(matrix(0, nrow=tot.len, ncol=6))
+    names(df) <- c('A', 'C', 'G', 'T', 'N', 'gap')
+    for (j in seq(i, nrow(sam), by=n.cores)) {
+      row <- sam[j, ]
+      if (row$cigar == '*') {
+        next
+      }
+      mseq <- apply.cigar(cigar=row$cigar, seq=row$seq,
+                             qual=row$qual, pos=row$pos)
+      start <- len.terminal.gap(mseq)
+      for (pos in seq(start, nchar(mseq))) {
+        nt <- substr(mseq, pos, pos)
+        if (nt == '-') {
+          nt <- 'gap'  # '-' is illegal column name
+        }
+        if (is.element(nt, names(resolve.mixture))) {
+          res <- resolve.mixture[[nt]]
+          df[pos, res[1]] <- df[pos, res[1]] + 0.5
+          df[pos, res[2]] <- df[pos, res[2]] + 0.5
+        } else {
+          df[pos, nt] <- df[pos, nt]+1  
+        }
+      }
+    }
+    return(df)
+  }, mc.cores=n.cores)  
+  Reduce('+', res)
+}
 
