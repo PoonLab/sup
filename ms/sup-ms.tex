@@ -25,7 +25,7 @@ citecolor = blue}
 \newcommand{\warning}[1]{\textbf{\textcolor{orange}{((#1))}}}
 \newcommand{\comment}[1]{\textsl{\textcolor{cyan}{((#1))}}}
 \newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
-\newcommand{\pr}[1]{\mathrm{Pr}(#1)}
+\newcommand{\pr}[1]{\mathbb{P}(#1)}
 \newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
 \newcommand{\eg}{\textit{e.g.,}\xspace}
 \newcommand{\ie}{\textit{i.e.},\xspace}
@@ -46,6 +46,7 @@ citecolor = blue}
 \begin{document}
 \maketitle
 \linenumbers
+\modulolinenumbers[2]
 
 \tableofcontents
 
@@ -254,7 +255,7 @@ The quality score $Q$ is directly related to the error probability: $\epsilon = 
 Hence, the uncertainty associated to the base call is quantified by defining the probability that the observed nucleotide is the correct one: 
 \begin{equation}
 \label{eq:basecall}
-p(\text{observed nucleotide}=X \,\,|\,\, \text{true nucleotide} = X) = 1 - \epsilon
+\pr{\text{observed nucleotide}=X \,\,|\,\, \text{true nucleotide} = X} = 1 - \epsilon
 \end{equation}
 Unfortunately, this base-call probability relates to only one \emph{focal} nucleotide and we have no information on the probability for the three other possible nucleotides. 
 Hence, we must make a modelling choice regarding the distribution of the remaining probabilities. 
@@ -300,7 +301,10 @@ Note that the multinomial case collapses to the uniform one when the elements of
 \subsubsection{Ambiguity codes}
 
 When IUPAC ambiguity codes are produced, we define $q$ as the reliability probability, that is the probability the true nucleotide is among the possibilities given by the ambiguity code. Then we can uniformly distribute $q$ to the possibilities offered by the ambiguity code and $(1-q)$ to the other nucleotides.
-For example, the ambiguity code \sq{Y} is interpreted as $p(\text{observed nucleotide} = C \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = T \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =q/2$ and $p(\text{observed nucleotide} = A \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = G \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =(1-q)/2$.
+For example, the ambiguity code \sq{Y} is interpreted as
+
+\warning{review this, I think this is wrong:}
+ $p(\text{observed nucleotide} = C \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = T \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =q/2$ and $p(\text{observed nucleotide} = A \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = G \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =(1-q)/2$.
 \comment{simplify those notations!}
 
 Note we could also do a multinomial distribution that distribute $q$ among all the choices offered by the ambiguity code. For simplicity, the special case of a uniform distribution was presented here. 
@@ -320,6 +324,50 @@ An example of such a study, that we'll use to run our simulations, can be found 
 
 \comment{Example of studies with full length sequences and their respective frequencies?}
 
+
+\subsubsection{Alignments of short reads (SAM files)}
+
+Massive parallel sequencing platforms (\eg Illumina, Oxford Nanopores, etc.) provide a large number of short reads sequences of the biological sample of interest. The length of those short reads are typically much smaller than the genome sequenced, so they have to be aligned and stitch together in order to re-assemble the full genome sequence.
+The short reads are typically stored in FASTQ files where the observation error of each nucleotide (estimated by the sequencing platform itself)) is indicated by its Phred score. 
+The alignment and assembly of the short reads is performed by a software (internal to the sequencing platform or not \comment{check this. Examples?}) and generates a SAM file \comment{ref} that efficiently stores the alignments information.
+The assembly of the short reads in the SAM file can be represented in as an array where the column are the nucleotide positions. The short reads are ``stacked'' vertically according to the alignment previously run. The number of short reads stacked for a given nucleotide gives the ``coverage'' of that position.
+See \autoref{fig:sam} for an illustration of this SAM file representation.
+
+We can build a sequence uncertainty model using the information of the SAM representation. 
+
+Let's consider a nucleotide at a given position which has a coverage of $N$ short reads (that is a column of the SAM graphical representation). 
+We have $N$ observations for this nucleotide as well as the observation error (available from the FASTQ file of short reads). 
+A simple approach \comment{and the one usually taken?} to call the base at that position is the plurality consensus: the base that has the highest frequency is the base called. 
+However, a probabilistic approach estimates the probability that the base is, say, \sq{A} given the $N$ bases observed at that position, that is $\pr{\text{``true'' base is } \sq{A} | \text{observations}}$. The observations are a collection of $N$ nucleotides. To simplify the notations, we identify only the number of nucleotides identical to the focal base and lump together the ones that are different. For example if the focal base is \sq{A}, we count the number $n$ of \sq{A} nucleotide, hence the number of bases that are different from \sq{A} is $N-n$. 
+For a given position, the probability that the ``true'' base is \sq{A} given that $n$ \sq{A} and $N-n$ non-\sq{A} are observed is noted 
+$\pr{\sq{A} | obs:\sq{A}^n \sq{X}^{N-n}}$
+where \sq{X} represents non-\sq{A} bases (the order does not matter).
+
+At a given nucleotide position, we assume the following:
+\begin{itemize}
+\item observations are independent from one another \warning{double-check this is reasonable}
+\item the probability to observe any single nucleotide is 0.25 (\ie observations not biased)
+\item the distribution frequency of nucleotide is uniform with probability 0.25
+\end{itemize}
+
+Given those assumptions and some algebra using Bayes' theorem, the probability that the ``true'' base is \sq{A} given that $n$ \sq{A} and $N-n$ non-\sq{A} are observed is
+\begin{equation}
+\pr{\sq{A} | obs:\sq{A}^n \sq{X}^{N-n}} = 
+\left(
+1 + 3^{1-n} \prod_{i=1}^n\frac{\epsilon_{A_i}}{1-\epsilon_{A_i}}
+\prod_{i=1}^{N-n}\left(\frac{1}{\epsilon_{X_i}} - \frac{1}{3}\right)
+\right)^{-1}
+\end{equation}
+where $\epsilon$ is the observation error probability associated with each observation (obtained from the FASTQ file of the short read).
+
+
+
+\begin{figure}[ht]
+\centering
+    \includegraphics[width=0.99\textwidth]{figs/sam-tablet.png}
+\caption{\textbf{SAM file graphical representation.} The software Tablet \comment{ref } was used. The 72th nucleotide in this alignment has a coverage of 388...blabla}
+\label{fig:sam}
+\end{figure}
 
 
 \subsection{Models of sequence uncertainty}
