@@ -103,13 +103,16 @@ In both frameworks, the sequence of nucleotides from a biological sample is not 
  
 We define probabilistically a nucleotide sequence in a matrix form. For a sequence of length $\ell$ we can write:
 
-$$\nps = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
+\begin{equation}
+\nps = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
                 \sq{A} & \nps_{A, 1} & \nps_{A, 2} & \ldots & \nps_{A, \ell} \cr
                 \sq{C} & \nps_{C, 1} & \nps_{C, 2} & \ldots & \nps_{C, \ell} \cr
                 \sq{G} & \nps_{G, 1} & \nps_{G, 2} & \ldots & \nps_{G, \ell} \cr
                 \sq{T} & \nps_{T, 1} & \nps_{T, 2} & \ldots & \nps_{T, \ell} \cr 
                 \sq{-} & \nps_{x, 1} & \nps_{x, 2} & \ldots & \nps_{x, \ell} \cr 
-}$$
+}\label{eq:nps}
+\end{equation}
+
 Each column represents the nucleotide position, each row one of the four nucleotide \sq{A,C,G,T} as well as an empty position ``\sq{-}'' that symbolizes a genuine deletion (not caused by missing data).
 Hence, $\nps$ is a $5\times\ell$ matrix. Its elements represent the probability that a nucleotide is at given position:
 
@@ -341,7 +344,7 @@ A simple approach \comment{and the one usually taken?} to call the base at that 
 However, a probabilistic approach estimates the probability that the base is, say, \sq{A} given the $N$ bases observed at that position, that is $\pr{\text{``true'' base is } \sq{A} | \text{observations}}$. The observations are a collection of $N$ nucleotides. To simplify the notations, we identify only the number of nucleotides identical to the focal base and lump together the ones that are different. For example if the focal base is \sq{A}, we count the number $n$ of \sq{A} nucleotide, hence the number of bases that are different from \sq{A} is $N-n$. 
 For a given position, the probability that the ``true'' base is \sq{A} given that $n$ \sq{A} and $N-n$ non-\sq{A} are observed is noted 
 $\pr{\sq{A} | obs:\sq{A}^n \sq{X}^{N-n}}$
-where \sq{X} represents non-\sq{A} bases (the order does not matter).
+where \sq{X} represents non-\sq{A} bases (that is \sq{C,G,T} and the gap \sq{-}; the order does not matter).
 
 At a given nucleotide position, we assume the following:
 \begin{itemize}
@@ -357,9 +360,23 @@ Given those assumptions and some algebra using Bayes' theorem, the probability t
 1 + 3^{1-n} \prod_{i=1}^n\frac{\epsilon_{A_i}}{1-\epsilon_{A_i}}
 \prod_{i=1}^{N-n}\left(\frac{1}{\epsilon_{X_i}} - \frac{1}{3}\right)
 \right)^{-1}
+\label{eq:probaSAM}
 \end{equation}
-where $\epsilon$ is the observation error probability associated with each observation (obtained from the FASTQ file of the short read).
+where $\epsilon$ is the observation error probability associated with the quality score from each observation (obtained from the FASTQ file of the short read).
 
+Using \autoref{eq:probaSAM}, we can calculate the probability for all bases \sq{A}, \sq{C}, \sq{G}, \sq{T} and gap \sq{-} and populate the matrix of the \nlps, as defined by \autoref{eq:nps}, that is
+
+
+\begin{equation}
+\nps = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
+                \sq{A} & \pr{\sq{A} | obs_1} & \pr{\sq{A} | obs_2} & \ldots & \pr{\sq{A} | obs_\ell} \cr
+                \sq{C} & \pr{\sq{C} | obs_1} & \pr{\sq{C} | obs_2} & \ldots & \pr{\sq{C} | obs_\ell} \cr
+                \sq{G} & \pr{\sq{G} | obs_1} & \pr{\sq{G} | obs_2} & \ldots & \pr{\sq{G} | obs_\ell} \cr
+                \sq{T} & \pr{\sq{T} | obs_1} & \pr{\sq{T} | obs_2} & \ldots & \pr{\sq{T} | obs_\ell} \cr 
+                \sq{-} & \pr{\sq{-} | obs_1} & \pr{\sq{-} | obs_2} & \ldots & \pr{\sq{-} | obs_\ell} \cr 
+}\label{eq:npsSAM}
+\end{equation}
+where $obs_i$ represents the $N_i$ nucleotides observed at position $i$ of the aligned short reads (\ie $N_i$ is the coverage for position $i$).
 
 
 \begin{figure}[ht]
