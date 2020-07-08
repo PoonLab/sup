@@ -1,53 +1,35 @@
 \documentclass[10pt]{article}
-\usepackage{geometry}
-\geometry{letterpaper, top=2cm, right=4cm, left = 4cm} 
-\usepackage{amssymb}
-\usepackage{amsmath}
-\usepackage{hyperref}
-\usepackage{xspace}
-\usepackage{xcolor}
-\usepackage{graphicx}
-\usepackage{float} % Place figures exactly "here" (option "H")
-\usepackage[modulo]{lineno}
-\usepackage[parfill]{parskip}		
-
-\hypersetup{
-colorlinks=true,
-linkcolor = blue,
-citecolor = blue} 
 
 
-\bibliographystyle{apalike}
-
-% ==== My Macro =====
-
-
-\newcommand{\warning}[1]{\textbf{\textcolor{orange}{((#1))}}}
-\newcommand{\comment}[1]{\textsl{\textcolor{cyan}{((#1))}}}
-\newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
-\newcommand{\pr}[1]{\mathbb{P}(#1)}
-\newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
-\newcommand{\eg}{\textit{e.g.,}\xspace}
-\newcommand{\ie}{\textit{i.e.},\xspace}
-
-\newcommand{\sps}{\mathcal{B}} % sequence probability sequence
-\newcommand{\nps}{\mathcal{S}} % nucleotide probability sequence
-\newcommand{\nlps}{nucleotide-level probabilistic sequence\xspace}
-\newcommand{\slps}{sequence-level probabilistic sequence\xspace}
-
-\newcommand{\md}{\mathcal{M}} % Multinomial distribution
+\input{latex-pckg.tex}
+\input{latex-macro.tex}
 
 % ===================
 
-\title{Modelling Sequence Uncertainty}
-\author{Champredon, David \and Poon, Art}
-\date{\today}
-
 \begin{document}
-\maketitle
-\linenumbers
-\modulolinenumbers[2]
 
+\Huge
+\textsf{Modelling Sequence Uncertainty}
+
+\large
+\vspace{1cm}
+
+David Champredon and Art Poon\\
+\small
+Western University, London, Ontario, Canada.
+
+\vspace{1cm}
+\begin{center}
+\today
+\end{center}
+
+
+\linenumbers
+%\modulolinenumbers[2]
+
+
+\normalsize
+\vspace{1cm}
 \tableofcontents
 
 \newpage
@@ -76,7 +58,7 @@ But, to our knowledge, the resulting uncertainty has never been propagated and q
 \comment{Check what BALIphy does, this may be the only example of uncertainty propagation}
 In other words, genetic sequences are treated as \emph{certain} quantities.
 
-\vspace*{5mm}
+\vspace*{1ex}
 
 Here we propose a theoretical framework to represent genetic sequence uncertainty and quantify the impact of uncertainty as it is propagated through methods of phylogeny reconstruction. 
 
@@ -91,12 +73,14 @@ Here we propose a theoretical framework to represent genetic sequence uncertaint
 \section{Methods}
 
 
+In the first part of this section, we propose two simple probabilistic frameworks to represent the uncertainty of genetic sequences observations.
+The second part describes how those theoretical frameworks can be practically informed from data.
+
 
 \subsection{Probabilistic sequences}
 
-Here, we propose two simple probabilistic frameworks to represent the uncertainty of our genetic sequences observations.
-The first framework represents uncertainty at the \emph{nucleotide level}, whereas the second one is at the \emph{sequence level}.
-In both frameworks, the sequence of nucleotides from a biological sample is not treated as a certain observation anymore, but as a collection of possible sequences.
+Here, we describe two theoretical frameworks to model sequence uncertainty at the \emph{nucleotide level} or at the \emph{sequence level}.
+In both frameworks, the sequence of nucleotides from a biological sample is not treated as a certain observation, but as a collection of possible sequences.
 
 
 \subsubsection{Nucleotide-level uncertainty}
@@ -117,7 +101,7 @@ Each column represents the nucleotide position, each row one of the four nucleot
 Hence, $\nps$ is a $5\times\ell$ matrix. Its elements represent the probability that a nucleotide is at given position:
 
 \begin{equation}
-\nps_{n,j} = \pr{\text{nucleotide \sq{n} is at position }j}
+\nps_{\sq{n},j} = \pr{\text{nucleotide \sq{n} is at position }j}
 \end{equation}
 with the special case for a deletion:
 
@@ -187,7 +171,7 @@ $$
 
 \noindent Like above, there is still a 0.2694 probability that the sequence is \sq{ACATGA}, but now there is a chance that position 4 is deleted. For example, with probability 0.038 the sequence is \sq{ACA-GA}.
 
-Let's take the following example for a \slps $\sps$:
+Below is an example for a \slps $\sps$:
 \begin{table}[H]
 \begin{center}
 \begin{tabular}{lc}
@@ -216,7 +200,7 @@ Consider the following \nlps:
 \nps = 
 \bordermatrix{
 &\scriptscriptstyle{1} & \scriptscriptstyle{2}& \scriptscriptstyle{3}& \scriptscriptstyle{4} & \scriptscriptstyle{5} & \scriptscriptstyle{6} \cr
-\sq{A} & 0 & 0.   & 1 & 0    & 1 & 0\cr
+\sq{A} & 0 & 0   & 1 & 0    & 1 & 0\cr
 \sq{C} & 1 & 0    & 0 & 0    & 0 & 0\cr
 \sq{G} & 0 & 0.99 & 0 & 0    & 0 & 0\cr
 \sq{T} & 0 & 0    & 0 & 0.01 & 0 & 1\cr
@@ -242,7 +226,7 @@ The low deletion probability for position 2 is straightforward to interpret: abo
 \end{center}
 \end{table}
 
-The representation of deletions and insertions with a \slps is straightforward. 
+The representation of deletions and insertions with a \slps (not nucleotide-level) is straightforward because in this framework the sequences are explicitly written out, so are their deletions/insertions. 
 
 
 
@@ -250,24 +234,26 @@ The representation of deletions and insertions with a \slps is straightforward.
 
 
 
-Here, we suggest possible methods to populate values in probabilistic sequences from data. 
+In this section, we suggest possible methods to inform probabilistic sequences from commonly-used sources of data. 
 
-\subsubsection{Quality scores}
+
+\subsubsection{Quality scores from FASTQ files}
 Fragment sequencing error is an error that is quantified with quality (or ``Phred'') score attributed to each base call from sequencing instrument. 
-The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{xxx} (for the widespread Illumina instruments, the sequencing error probability ranges between $10^{-3.5}$ and  $10^{-1.5}$ \cite{xxx}). The FASTQ file format is the standard representation for combining sequence and observation error.
+The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{xxx} (where $Q$ typically ranges between 1 and 60). The FASTQ file format is the standard representation for combining sequence and observation error.
 Hence, the uncertainty associated to the base call is quantified by defining the probability that the observed nucleotide is the correct one: 
 \begin{equation}
 \label{eq:basecall}
-\pr{\text{observed nucleotide}=X \,\,|\,\, \text{true nucleotide} = X} = 1 - \epsilon
+\pr{\text{nucleotide}=X \,\,|\,\, \text{observed nucleotide} = X} = 1 - \epsilon
 \end{equation}
+
 Unfortunately, this base-call probability relates to only one \emph{focal} nucleotide and we have no information on the probability for the three other possible nucleotides. 
 Hence, we must make a modelling choice regarding the distribution of the remaining probabilities. 
 
-\textbf{Uniform distribution.} 
+\subsubsection*{Uniform distribution} 
 As a first simplifying step, we ignore insertions and deletions. 
 Given a base call and its associated quality score at each position, we can assume that the other bases  are all equally likely with probability $\epsilon/3$. 
 For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$. The probabilistic sequence is:
-$$
+\begin{equation}
 S = 
 \begin{pmatrix}
 1-10^{-6} & 10^{-3}/3  & 1-10^{-5} & 10^{-1}/3 & 10^{-4}/3  \\
@@ -276,14 +262,14 @@ S =
 10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 1-10^{-1} & 10^{-4}/3\\
 0&0&0&0&0 \\
 \end{pmatrix}
-$$
+\end{equation}
 
 Usually, the genetic sequence \sq{ACATG} would be considered as certain and quality scores discarded. In contrast, within the probabilistic sequence framework the probability the sequence is \sq{ACATG} is only 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
 
 Insertions and deletions (``indels'') can be included in the uniform framework. Here, we propose that the nucleotides probabilities are defined conditional on an indel but other models are possible. 
 For a given position, the error probability is $\epsilon = 10^{-Q/10}$ (that is its quality score is $Q$) and we assume the probability a deletion happens at this position is $d$.  Conditional on not being deleted, the probability to have the base called is $(1-d)(1-\epsilon)$ and the other three nucleotides can occur with probability $(1-d)\epsilon/3$. 
 Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
-$$
+\begin{equation}
 \begin{pmatrix}
 (1-d)(1-\epsilon)  \\
 (1-d)\,\epsilon / 3  \\
@@ -291,14 +277,21 @@ $$
 (1-d)\,\epsilon / 3  \\
 d\\
 \end{pmatrix}
-$$
+\end{equation}
 
 
-\textbf{Multinomial distribution.} 
+\subsubsection*{Multinomial distribution} 
 We can also assume a nucleotide-specific multinomial distribution for the remaining possibilities. For each focal nucleotide observed $X$, a multinomial distribution $\md_X(\theta)$ can be specified, where $\theta$ is the vector of probabilities for the ad-hoc nucleotides.
 For example, if the observed nucleotide is \sq{A} and its quality score implies an error probability of $\epsilon = 10^{-4}$, the probabilities that the true nucleotide at that position is actually \sq{C}, \sq{G} or \sq{T} are given by $\md_A(\theta)$ with $\theta_A(C) + \theta_A(G) + \theta_A(T) = \epsilon$ and $\theta_A(X) = p(\text{observed nucleotide} = A \,\,|\,\, \text{true nucleotide} = X )$.
 We also have to specify the distributions $\md_X$ for $X=\sq{C},\sq{G},\sq{T}$ (which will have not necessarily the same probabilities $\theta$).
 Note that the multinomial case collapses to the uniform one when the elements of $\theta$ are all equal.
+
+
+\subsubsection{Sequence as a simple string (FASTA format)}
+
+The observation error estimated by the sampling platform may not always be available and only a string of character describes the sequence (FASTA format). 
+
+\warning{TODO: describe the beta-uniform model and also the multinomial variant.}
 
 
 \subsubsection{Ambiguity codes}
@@ -387,16 +380,10 @@ where $obs_i$ represents the $N_i$ nucleotides observed at position $i$ of the a
 \end{figure}
 
 
-\subsection{Models of sequence uncertainty}
-
-Given an observed sequence, we can model sequencing uncertainty with three approaches, depending on the information available. 
-
-\subsubsection{FASTQ}
-
 
 \newpage
 
-
+\section{Examples}
 \subsection{Propagating sequence uncertainty in phylogeny reconstruction}
 
 Molecular phylogenies are tree-based models that relate common ancestors of genetic sequences. Many sophisticated statistical tools exist to reconstruct phylogenies from genetic material extracted from biological samples. Those statistical methods rely, to a varying degree, on ``truthful'' and accurate observations of molecular sequences, their main -- if not unique -- input data.
