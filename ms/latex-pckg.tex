@@ -1,0 +1,51 @@
+\usepackage[letterpaper, 
+			top    = 20mm, 
+			bottom = 25mm,
+			left   = 40mm,
+			right  = 40mm]{geometry}
+			
+\usepackage[parfill]{parskip}		% Avoids the skip at start of new paragraph
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[usenames,dvipsnames]{xcolor} % https://en.wikibooks.org/wiki/LaTeX/Colors
+\usepackage{xspace}
+
+\usepackage{float} % Place figures exactly "here" (option "H")
+
+\usepackage[useregional]{datetime2}	% \DTMnow
+\usepackage{lastpage} 				% \pageref{LastPage}
+
+\usepackage[]{hyperref}
+\hypersetup{
+    colorlinks,
+    linkcolor={black},
+    citecolor={blue!80!black},
+    urlcolor={Aquamarine}
+}
+
+\usepackage[font={small,it}]{caption} 
+\captionsetup[table]{skip=10pt}
+
+\usepackage{lineno}
+\linenumbers
+
+% Bibliography:
+% apalike: display author names
+% plain: just a number, ordered by appeareance
+\bibliographystyle{apalike}
+
+
+% ===== HEADERS / FOOTERS =====
+\usepackage{fancyhdr}
+\setlength{\headheight}{15.2pt}
+\fancyhead[L]{Modelling Sequence Uncertainty}
+\fancyhead[C]{}
+\fancyhead[R]{Champredon and Poon}
+\renewcommand{\headrulewidth}{0.8pt}
+\fancyfoot[L]{\DTMnow}
+\fancyfoot[C]{\thepage \, / \pageref{LastPage}}
+\fancyfoot[R]{ \textcolor{red}{DRAFT}}
+\renewcommand{\footrulewidth}{0.4pt}
+\pagestyle{fancy}
+% ==============================
