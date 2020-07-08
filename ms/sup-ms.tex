@@ -19,6 +19,7 @@ David Champredon and Art Poon\\
 Western University, London, Ontario, Canada.
 
 \vspace{1cm}
+\normalsize
 \begin{center}
 \today
 \end{center}
@@ -267,7 +268,7 @@ S =
 Usually, the genetic sequence \sq{ACATG} would be considered as certain and quality scores discarded. In contrast, within the probabilistic sequence framework the probability the sequence is \sq{ACATG} is only 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
 
 Insertions and deletions (``indels'') can be included in the uniform framework. Here, we propose that the nucleotides probabilities are defined conditional on an indel but other models are possible. 
-For a given position, the error probability is $\epsilon = 10^{-Q/10}$ (that is its quality score is $Q$) and we assume the probability a deletion happens at this position is $d$.  Conditional on not being deleted, the probability to have the base called is $(1-d)(1-\epsilon)$ and the other three nucleotides can occur with probability $(1-d)\epsilon/3$. 
+For a given position, the error probability is $\epsilon = 10^{-Q/10}$ ($Q$ is the quality score) and we assume the probability a deletion happens at this position is $d$.  Conditional on not being deleted, the probability to have the base called is $(1-d)(1-\epsilon)$ and the other three nucleotides can occur with probability $(1-d)\epsilon/3$. 
 Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
 \begin{equation}
 \begin{pmatrix}
@@ -277,6 +278,7 @@ Hence, if we assume the base call is \sq{A}, the column of the \nlps for that po
 (1-d)\,\epsilon / 3  \\
 d\\
 \end{pmatrix}
+\label{eq:deletion}
 \end{equation}
 
 
@@ -287,35 +289,49 @@ We also have to specify the distributions $\md_X$ for $X=\sq{C},\sq{G},\sq{T}$ (
 Note that the multinomial case collapses to the uniform one when the elements of $\theta$ are all equal.
 
 
-\subsubsection{Sequence as a simple string (FASTA format)}
+\subsubsection{Absence of uncertainty information (FASTA format)}
 
-The observation error estimated by the sampling platform may not always be available and only a string of character describes the sequence (FASTA format). 
+The observation error estimated by the sampling platform may not always be available and only a character string describes the sequence (FASTA format). 
+In this case, we can model the probabilistic sequence in a similar way as in the FASTQ case, except that additional assumptions must be made to palliate the absence of information regarding the observation error.
 
-\warning{TODO: describe the beta-uniform model and also the multinomial variant.}
+\textbf{The Beta-Uniform model.}
+The observation error probability can be modelled at the sequence level as a Beta distribution:
+\begin{equation}
+\epsilon \sim  \betadist{\alpha, \beta}
+\end{equation}
+The observation error probability for each focal nucleotide position is then drawn from that distribution. The focal nucleotide being the nucleotide given in the character string representing the sequence (\ie read in a FASTA file). Then, the probabilities for the other three nucleotides is simply distributed uniformly among them.
+For example, if the focal nucleotide is \sq{A}, we have for a given position: $\pr{\sq{A}} = 1-\epsilon$ and $\pr{\sq{C}}=\pr{\sq{G}}=\pr{\sq{T}} = \epsilon / 3$ where $\epsilon$ was drawn from the Beta distribution.
+A deletion could also be modelled as in \autoref{eq:deletion}.
+The Beta distribution is a convenient to model a range of uncertainties from complete uncertainty ($\alpha=\beta=1$) to near certainty (\eg $\alpha=10^3$ and $\beta=10^{-3}$).
+Finally, several Beta distributions can be used to reflect sections of the genomes that have different observation error probabilities or polymorphism rate.
+
+\textbf{The Beta-Multinomial model.}
+Similar to what was done with the FASTQ above, instead of distributing uniformly the remaining probabilities for the non-focal nucleotides, we can use a multinomial instead. 
 
 
 \subsubsection{Ambiguity codes}
 
 When IUPAC ambiguity codes are produced, we define $q$ as the reliability probability, that is the probability the true nucleotide is among the possibilities given by the ambiguity code. Then we can uniformly distribute $q$ to the possibilities offered by the ambiguity code and $(1-q)$ to the other nucleotides.
-For example, the ambiguity code \sq{Y} is interpreted as
+For example, for a given position, the ambiguity code \sq{Y} represents either a \sq{C} or a \sq{T} and is interpreted as:
+\begin{equation}
+\begin{pmatrix}
+(1-q)/2  \\
+q/2  \\
+(1-q)/2 \\
+q/2 \\
+0\\
+\end{pmatrix}
+\label{eq:ambiguity}
+\end{equation}
 
-\warning{review this, I think this is wrong:}
- $p(\text{observed nucleotide} = C \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = T \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =q/2$ and $p(\text{observed nucleotide} = A \,\,|\,\, \text{true nucleotide} = C\, or\, T ) = p(\text{observed nucleotide} = G \,\,|\,\, \text{true nucleotide} = C\, or\, T ) =(1-q)/2$.
-\comment{simplify those notations!}
-
-Note we could also do a multinomial distribution that distribute $q$ among all the choices offered by the ambiguity code. For simplicity, the special case of a uniform distribution was presented here. 
-
-
-\subsubsection{Absence of uncertainty information}
-
-When we have no information about the observation uncertainty of a sequence, we can specify the error probability with a Beta distribution where its parameters $\alpha$ and $\beta$ are either arbitrarily chosen or fitted to available data (see \ref{sec:zanini_poly}).
+Note we could also do a multinomial distribution that distribute $q$ among all the choices offered by the ambiguity code. For simplicity, the special case of a uniform distribution was presented here. Finally, we could consider deletions by including the conditional probability of deletion $d$ as in \autoref{eq:deletion} (but was omitted here for clarity). 
 
 
 \subsubsection{Polymorphisms data}
 Both \nlps and \slps can be generated using error-only non-polymorphic data as well as data from studies investigating polymorphisms.
 The design of the latter studies may vary but a standard data format they generate can be summarized as follow: the genetic material from several specimens of organisms of interests (e.g., a pathogen infecting a host) is sequenced and all polymorphisms encountered are recorded (after alignment). 
 After alignment, the data can be displayed in a matrix where the columns represent the nucleotide position, the rows represent the nucleotide and deletion, and the matrix elements the number of times the nucleotide was found at that position.
-If this matrix is normalized column-wise, we obtain the \nlps introduced earlier. 
+If this matrix is normalized column-wise, we obtain the \slps introduced earlier. 
 An example of such a study, that we'll use to run our simulations, can be found in \cite{Zanini:2015}. \comment{other similar examples?}
 
 \comment{Example of studies with full length sequences and their respective frequencies?}
@@ -380,6 +396,9 @@ where $obs_i$ represents the $N_i$ nucleotides observed at position $i$ of the a
 \end{figure}
 
 
+\subsubsection{Chromatograms (ABI/1 files)}
+
+
 
 \newpage
 
@@ -402,7 +421,7 @@ Briefly, this data set gives, for several patients at several time points during
 The number of nucleotide occurrences at each position can easily be transformed into the probabilities for the probabilistic sequence. The entropy can then be calculated at each position, and also for the entire genome (by simply summing up the entropies for all positions). 
 
 Entropy is a measure of uncertainty. So we can consider the distribution of entropies (for each position on the genome) as a representation of the overall genome sequencing uncertainty, that should be approximately matched by simulations deemed realistic. 
-The data from Zanini shows that $\nps_{n,j}$, the distribution of base-call probabilities for most positions is highly concentrated just under 1 (which means a high base-call probability for most positions). 
+The data from Zanini and colleagues \cite{Zanini:2015} shows that $\nps_{n,j}$, the distribution of base-call probabilities for most positions is highly concentrated just under 1 (which means a high base-call probability for most positions). 
 Hence, we choose a Beta distribution to simulate base-call probabilities, and fit the shape parameters $\alpha$ and $\beta$ on the observed entropy distribution:
 \begin{equation}
 \label{eq:beta_sampling}
