@@ -396,7 +396,13 @@ where $obs_i$ represents the $N_i$ nucleotides observed at position $i$ of the a
 \end{figure}
 
 
-\subsubsection{Chromatograms (ABI/1 files)}
+\subsubsection{Raw acquisition data}
+
+
+Although not commonly available, raw acquisition data files can be used to construct probabilistic sequences. Those files usually contain nucleotide signal intensities  as they are read along the DNA/RNA molecular chain. 
+For example, Sanger sequencing generates chromatograms (AB1/I files) from variations in fluorescence while nanopores technologies generate electrical resistance signals (FAST5 files). 
+Nucleotides are ``called'' from interpreting peaks in the signals. For all technologies, the determination of the nucleotide read from the signal relies on complex and imperfect algorithms (\eg neural networks for nanopore technologies). Rather than a dichotomous translation of the signal into one single nucleotide (potentially associated with an observation error probability using a quality score), it may be beneficial to take a probabilistic approach in calling the bases from raw signal data. 
+
 
 
 
