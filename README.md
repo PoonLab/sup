@@ -46,6 +46,7 @@ We include an application to SARS-CoV-2 data. Using a collection of SAM files fo
     - Note: `parse-sam.r` takes about 5 hours on Rei for a 200MB SAM file.
   - `sample_S.R` draws samples of sequences from the uncertainty matrices (S) in `parsed-covid`. These sequences can then be fed into [pangolin](https://github.com/cov-lineages/pangolin) using the codes found in `shell_commands.txt`
     - TODO: streamline the analisys so that I don't need to switch between R and terminal.
+    - TODO: samples from S should be based on posterior distribution (Neg Binom) to incorporate number of reads at each site.
   - `pangolin_results.r` analyses output from pangolin, especially with respect to variance.
 - `gsun`: a few files for uncertainty generation testing
 - `misc`: a few files for calculating testing RF distance
