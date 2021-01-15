@@ -1,12 +1,18 @@
 library(ggplot2)
 
-pang <- read.csv("data/SRR13020989_pangolineages.csv")
-alldata <- read.csv("data/metadata.tsv", sep = "\t")
+# read in sampled lineages
+pang <- read.csv("data/pangolineages/SRR13020989_pangolineages.csv")
+pang[1,] # The actual sequence (not sampled)
+# Compare to population
+alldata <- read.csv("data/unc_covid/metadata.tsv", sep = "\t")
 
+# Show the amount of diversity in lineage assignments
 barplot(sort(table(pang$lineage), decreasing = TRUE))
 
+# Show the most common lineages
 sort(table(pang$lineage), decreasing = TRUE)[1:10]
 
+# Compare to population ----
 pangc <- table(pang$lineage)
 pangdf <- data.frame(count = as.vector(pangc)/sum(pangc), lineage = names(pangc), df = "pang")
 pangdf <- pangdf[pangdf$count > 0.005, ]
