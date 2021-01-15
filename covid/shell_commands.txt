@@ -13,17 +13,13 @@ sam-dump ERR4619723 > myfile.sam
 echo $'\a'
 spd-say "Hey devan your code is done"
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Parsing sam files
-nohup Rscript open_seSAMe_multi.R ERR4305816.sam ERR4085809.sam ERR4204823.sam ERR4307842.sam &
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Running sequences into pangolin
 # To be run at command line (outside RStudio) in main project folder
 conda activate pangolin
 # pangolin query --outdir/outfile
-pangolin data/resample/SRR13020989_sampled.fasta --outfile data/lineage/SRR13020989_pangolineage.fasta
+pangolin data/sampled_covid/SRR13020989_sampled.fasta --outdir data/pangolineages
 
 
 
