@@ -59,3 +59,6 @@ sam-dump ERR4664555 > ERR4664555.sam
 sam-dump ERR4363387 > ERR4363387.sam
 sam-dump ERR4364007 > ERR4364007.sam
 "
+
+# TODO: sam to fasta, for comparison of results
+# samtools fasta infile.sam > outfile.fasta
