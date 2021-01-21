@@ -1,15 +1,26 @@
 # open S matrix and sample from it
-# TODO: read available lineages from a directory.
-# Will need to account for the reference sequence (possibly manually)
-# Need to access the actual sequence as well
+# TODO: 
+#   Will need to account for the reference sequence (possibly manually)
+#       On the other hand, reference is just for alignment (I think?)
+#   Need to access the actual sequence as well. 
+#       Search for sam->fasta conversion
+#   Switch to sampling from beta posterior
+#       Assumes Dirichlet prior for base probability
+#       Should sometimes include Ns (current method does not)
 library(ape)
 set.seed(2112) # \m/
 
+# Read list of files ending with .RDS
 rds_names <- list.files("data/unc_covid/", pattern = "*.RDS")
+# The "-1" indicates that it's a copy. Remove it.
 rds_names <- rds_names[!grepl("-1", rds_names)]
+
+# Prepare empty lists
 S_list <- vector(mode = "list", length = length(rds_names))
 asc_names <- c()
 header_list <- S_list
+
+# Read in uncertainty matrices and record accession names
 for(i in 1:length(rds_names)){
     asc <- substr(rds_names[i], 15, 100)
     asc_names <- c(asc_names, sub(".RDS", "", asc))
@@ -19,18 +30,23 @@ for(i in 1:length(rds_names)){
 }
 asc_names
 
+# Check coverage of each read
 hist(apply(S_list[[6]], 1, sum), breaks = 30)
 
+# Prepare empty list
 sampled_files <- list()
 
-t0 <- Sys.time()# Outer timer
+# Set up timing system
+t0 <- Sys.time() # Outer timer
 nloops <- length(S_list)
 collapsed <- estlapseds <- double(nloops)
 for(i in 1:nloops){
+    # Error checking
     if(is.null(dim(S_list[[i]]))) next
     
     t1 <- Sys.time() # Inner timer
     
+    # Normalize matrix
     S <- S_list[[i]]
     alph <- colnames(S)
     # Make columns add to 1
@@ -40,7 +56,6 @@ for(i in 1:nloops){
     
     # Sample the sequences
     n <- 1000 # number of sampled genomes
-    set.seed(1000)
     sampleseq_mat <- apply(S2, 1, function(x) {
         if(any(is.na(x))){
             return(rep("N", n))
@@ -49,6 +64,7 @@ for(i in 1:nloops){
         }
     })
     
+    # Optional code for personal interest
     if(FALSE){
         seqbin <- as.DNAbin(sampleseq_mat)
         seqdist <- dist.dna(seqbin, model = "TN93")
@@ -57,7 +73,10 @@ for(i in 1:nloops){
         hist(uppers, freq = FALSE)
         mean(uppers, na.rm = TRUE)
         sd(uppers, na.rm = TRUE)
-        curve(dnorm(x, mean(uppers, na.rm = TRUE), sd(uppers, na.rm = TRUE)), add = TRUE, col = 2)
+        curve(dnorm(x, 
+                mean(uppers, na.rm = TRUE), 
+                sd(uppers, na.rm = TRUE)), 
+            add = TRUE, col = 2)
         # Okay that is super weird how normal that is.
     }
     
