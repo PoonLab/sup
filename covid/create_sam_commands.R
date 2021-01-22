@@ -41,7 +41,7 @@ for(i in seq_along(urls)[-(1:7)]){
 cat(commands, sep = "\n")
 
 # Copying and pasting the output here to modify codes if necessary
-" 
+cat(" 
 sam-dump SRR13092001 > SRR13092001.sam # timed out
 sam-dump SRR13092002 > SRR13092002.sam
 sam-dump ERR4694498 > ERR4694498.sam
@@ -58,7 +58,7 @@ sam-dump ERR4667618 > ERR4667618.sam
 sam-dump ERR4664555 > ERR4664555.sam
 sam-dump ERR4363387 > ERR4363387.sam
 sam-dump ERR4364007 > ERR4364007.sam
-"
+")
 
 # TODO: sam to fasta, for comparison of results
 # samtools fasta infile.sam > outfile.fasta
