@@ -26,19 +26,25 @@ urls <- strsplit(urls1, split = "\n")[[1]]
 
 # Process the URLs
 commands <- c()
-for(i in seq_along(urls)[-(1:7)]){
+for(i in seq_along(urls)){
     test1 <- xml2::read_html(urls[i])
     test2 <- as.character(test1)
     # The string "run=" only appears at the accession number
     pos <- gregexpr("run=", test2)[[1]]
     # Sanity check
     print(substr(test2, pos + 3, pos + 15))
-    # accession numbers are 9-11 characters long. Requires post-processing
-    asc <- substr(test2, pos + 4, pos + 14)
+    # returns a string like: "run=SRR13092001\">SRR13092001</a></td>\n<td"
+    asc1 <- substr(test2, pos, pos + 40)
+    # separate above string by angle brackets, take second element
+    asc <- strsplit(asc1, split = "<|>")[[1]][2]
+    # Create sam command
     com <- paste0("sam-dump ", asc, " > ", asc, ".sam")
     commands <- c(commands, com)
 }
 cat(commands, sep = "\n")
+
+
+
 
 # Copying and pasting the output here to modify codes if necessary
 cat(" 
@@ -61,4 +67,4 @@ sam-dump ERR4364007 > ERR4364007.sam
 ")
 
 # TODO: sam to fasta, for comparison of results
-# samtools fasta infile.sam > outfile.fasta
+# maybe?: samtools fasta infile.sam > outfile.fasta
