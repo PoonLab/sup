@@ -33,13 +33,8 @@ for(f in seq_along(samfile)){
         thisfilename <- paste0("samTODO/", thisfilename, collapse = "")
     }
     
-    # Estimate length for timing purposes - first 4 lines are metadata
-    # This is approximate (and wrong, but close enough)
-    est.length <- length(count.fields(thisfilename)) - 4
-    print(est.length)
-    
     try({ # don't break loop if there's an error
-        test1 <- parse.sam(thisfilename, est.length = est.length, time.step = 2000, paired=FALSE)
+        test1 <- parse.sam(thisfilename)
         
         saveRDS(test1, file = paste0("samDONE/open_seSAMe-S-", thisacs, ".RDS"))
         

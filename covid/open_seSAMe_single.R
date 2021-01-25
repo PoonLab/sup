@@ -7,9 +7,7 @@ setwd("/home/dbecker7/run_sam")
 # Using a custom version of parse.sam from the sung package
 source("parse-sam.r")
 
-est.length <- length(count.fields("SRR13020989.sam")) - 4
-
-test1 <- parse.sam("SRR13020989.sam", est.length = est.length)
+test1 <- parse.sam("SRR13020989.sam")
 #test2 <- parse.sam.mp("~/PostDoc Fasta Files/sra-downloads/files/SRR13020989_2.sam",
 #    n.cores = 6)
 # The parallel version (parse.sam.mp) recalculates phred at each position. Yes,
