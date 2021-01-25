@@ -1,5 +1,6 @@
 require(parallel)
 require(stringi)
+require(dplyr)
 
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
