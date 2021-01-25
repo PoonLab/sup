@@ -192,8 +192,10 @@ parse.sam <- function(infile, verbose = TRUE){
     }))
     
     # Run all cigar values 
-    if (verbose) t1 <- Sys.time()
-    if (verbose) print("Have a cigar, you're gonna go far...")
+    if (verbose) {
+        t1 <- Sys.time()
+        print("Have a cigar, you're gonna go far...")
+    }
     mseqs <- lapply(which(s$cigar != '*'), function(i) {
         x <- s[i,]
         apply.cigar(cigar = x$cigar, seq = x$seq, 
@@ -218,8 +220,10 @@ parse.sam <- function(infile, verbose = TRUE){
     
     
     # Merge those paired neighbours mseq values
-    if (verbose) {print("Merging paired...")
-        t1 <- Sys.time()}
+    if (verbose) {
+        print("Merging paired...")
+        t1 <- Sys.time()
+    }
     mseqsPaired <- sapply(which(iPaired), function(i){
         merge.pairs(mseqs[i], mseqs[i + 1])
     })
@@ -262,6 +266,7 @@ parse.sam <- function(infile, verbose = TRUE){
         print("Finding position values...")
         t1 <- Sys.time()
     }
+    alphabet <- c('A', 'C', 'G', 'T')
     posVals <- lapply(1:length(mseqs), function(i){
         
         # aligned normally == mseq. Only changes to merged value when paired
@@ -275,13 +280,14 @@ parse.sam <- function(infile, verbose = TRUE){
         aligned <- mseqs[[i]]
         posRange <- posRanges[[i]]
         
+        
         # Calculates a matrix. 
         # By adding the values of this matrix to df, we can update it 
         res <- sapply(posRange, function(pos){
             nt <- substr(mseq, pos, pos)
             qc <- substr(attr(aligned, 'qual'), pos, pos)
             
-            if (nt == '-') { #I f a gap, then nothing is updated
+            if (nt == '-') { #If a gap, then nothing is updated
                 return(rep(0,4))
                 
             } else if (nt == 'N') { # If an 'N', then everything up by 0.25
@@ -290,7 +296,7 @@ parse.sam <- function(infile, verbose = TRUE){
             } else {# If some base than that base up by 1-p and other bases up by p/3
                 p <- 10^-((ord(qc) - 30)/10)
                 temp <- rep((p/3),4)
-                temp[which(c('A', 'C', 'G', 'T') %in% nt)] <- 1 - p
+                temp[which(alphabet %in% nt)] <- 1 - p
                 return(temp)
             }
         })
