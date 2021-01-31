@@ -30,7 +30,7 @@
     -   Some way to measure concordance
     -   Many, many sequences
 
--   [ ] New folder: covid\_src
+-   [ ] New folder: covid_src
 
     -   Populate with existing source-able scripts, ensure outputs are consistent
     -   Add error-checking steps
