@@ -24,3 +24,8 @@ paste(round(as.numeric(timeperline)*147654/60, 3), "hours")
 all.equal(test1, test2)
 
 
+
+
+# Paired read testing
+test3 <- parse.sam("data/SRR13592146_small.sam")
+
