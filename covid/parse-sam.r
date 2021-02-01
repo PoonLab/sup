@@ -221,7 +221,7 @@ parse.sam <- function(infile, verbose = TRUE){
         cat("Checking paired...\n")
     }
     t1 <- Sys.time()
-    iPaired <- sapply(1:(length(s$qname) - 1), function(i){
+    iPaired <- sapply(1:length(s$qname), function(i){
         sum(s$qname == s$qname[i]) > 1
     })
     timings["Paired"] <- difftime(Sys.time(), t1, units = "mins")
