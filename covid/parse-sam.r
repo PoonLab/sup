@@ -222,7 +222,7 @@ parse.sam <- function(infile, verbose = TRUE){
     }
     t1 <- Sys.time()
     iPaired <- sapply(1:(length(s$qname) - 1), function(i){
-        s$qname[i] == s$qname[i + 1]
+        sum(s$qname == s$qname[i]) > 1
     })
     timings["Paired"] <- difftime(Sys.time(), t1, units = "mins")
 
@@ -273,8 +273,11 @@ parse.sam <- function(infile, verbose = TRUE){
                 return(rep(0.25,4))
             } else {# If some base than that base up by 1-p and other bases up by p/3
                 p <- 10^-((ord(qc) - 30)/10)
-                temp <- rep((p/3),4)
-                temp[which(alphabet %in% nt)] <- 1 - p
+                # if paired, divide probabilities by 2
+                # a pair counts as a single obs, each read counts half.
+                # ipaired[i] == TRUE means ipaired[i] + 1 == 2.
+                temp <- rep((p/3),4) / (ipaired[i] + 1)
+                temp[which(alphabet %in% nt)] <- (1 - p) / (ipaired[i] + 1)
                 return(temp)
             }
         })
@@ -285,7 +288,7 @@ parse.sam <- function(infile, verbose = TRUE){
 
 
 
-    # Increase targetted areas
+    # Increase targeted areas
     if (verbose) {
         cat("Updating matrix...\n")
     }
