@@ -1,4 +1,4 @@
-# /bin/sh, but not actually
+# /bin/sh, but not actually so no bang
 
 # must be in the main fasta files directory
 
