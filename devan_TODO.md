@@ -1,6 +1,6 @@
 # Roadmap
 
--   [ ] Update parse.sam to divide paired reads by 2
+-   [x] Update parse.sam to divide paired reads by 2
 
 -   [ ] Validate code on paired reads
 
@@ -15,10 +15,10 @@
 
     -   Embarassingly embarassingly parallel: just run the script a few times with different directories.
 
--   [ ] Use scripts from [sam2conseq](https://github.com/PoonLab/sam2conseq/blob/master/sam2conseq.py) to find consensus sequences for sam files
+-   [x] Use scripts from [sam2conseq](https://github.com/PoonLab/sam2conseq/blob/master/sam2conseq.py) to find consensus sequences for sam files
+    -   Used samtools instead
 
-    -   Add these to the files to be sent into pangolin
-    -   Potentially, find the reported sequence (as submitted to NCBI) instead
+-   [ ] Add fasta to the files to be sent into pangolin
 
 -   [x] Ensure pangolin is working as expected
 
