@@ -257,5 +257,4 @@ spd-say "Hey devan your code is done"
 
 
 
-# TODO: sam to fasta, for comparison of results
-# maybe?: samtools fasta infile.sam > outfile.fasta
+

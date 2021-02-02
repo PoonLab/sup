@@ -22,7 +22,9 @@ conda activate pangolin
 pangolin data/sampled_covid/SRR13020989_sampled.fasta --outdir data/pangolineages
 
 
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Convert sam to fasta
+# samtools fasta infile.sam > outfile.fasta
 
 
 
