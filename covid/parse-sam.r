@@ -1,6 +1,4 @@
 require(parallel)
-require(stringi)
-require(dplyr)
 
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
@@ -59,18 +57,18 @@ apply.cigar <- function(cigar, seq, qual, pos) {
 
         if (operand == 'M') {
             # append matching substring
-            new.seq <- stri_c(new.seq,
+            new.seq <- paste0(new.seq,
                 substr(seq, left, left + len - 1), collapse = '')
-            new.qual <- stri_c(new.qual,
+            new.qual <- paste0(new.qual,
                 substr(qual, left, left + len - 1), collapse = '')
             left <- left + len
         }
         else if (operand == 'D') {
             # deletion relative to reference
-            new.seq <- stri_c(new.seq,
-                stri_c(rep('-', len), collapse = ""), collapse = "")
-            new.qual <- stri_c(new.qual,
-                stri_c(rep('!', len), collapse = ""), collapse = "")
+            new.seq <- paste0(new.seq,
+                paste0(rep('-', len), collapse = ""), collapse = "")
+            new.qual <- paste0(new.qual,
+                paste0(rep('!', len), collapse = ""), collapse = "")
         }
         else if (operand == 'I') {
             # insertion relative to reference
@@ -194,9 +192,10 @@ parse.sam <- function(infile, verbose = TRUE){
     con <- file(infile, open = 'r')
     s <- readLines(con)
     s <- s[!grepl("^@", s)]
-    s <- bind_rows(lapply(s, function(x){
-        parse.sam.line(x)
-    }))
+    s <- lapply(s, function(x){
+        as.data.frame(parse.sam.line(x))
+    })
+    s <- as.data.frame(do.call(rbind, s))
     timings["First Read"] <- difftime(Sys.time(), t1, units = "mins")
 
 
