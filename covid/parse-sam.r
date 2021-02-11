@@ -275,8 +275,8 @@ parse.sam <- function(infile, verbose = TRUE){
                 # if paired, divide probabilities by 2
                 # a pair counts as a single obs, each read counts half.
                 # ipaired[i] == TRUE means ipaired[i] + 1 == 2.
-                temp <- rep((p/3),4) / (ipaired[i] + 1)
-                temp[which(alphabet %in% nt)] <- (1 - p) / (ipaired[i] + 1)
+                temp <- rep((p/3),4) / (iPaired[i] + 1)
+                temp[which(alphabet %in% nt)] <- (1 - p) / (iPaired[i] + 1)
                 return(temp)
             }
         })
@@ -434,6 +434,115 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
     close(con)
     max.row <- which.max(cumsum(apply(df, 1, sum)))
     return(df[1:max.row, ])
+}
+
+parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
+    
+    print("Reading File")
+    #Reading data now uses this function to read by chunks
+    con <- file(inFile, open="rb")
+    
+    f <- function(x, pos) {
+        s <- x[!grepl("^@", x)]
+        s <- bind_rows(mclapply(s, function(z){
+            parse.sam.line(z)
+        }, mc.cores=nc))
+        return(as.data.table(s))
+    }
+    
+    s <- read_lines_chunked(con, callback=DataFrameCallback$new(f), chunk_size = 100)
+    
+    #Data file has now been read
+    print("File Read")
+    close(con)
+    
+    #Run all cigar values 
+    mseqs <- mclapply(which(s$cigar!='*'), function(i) {
+        x <- s[i,]
+        apply.cigar(cigar=x$cigar, seq=x$seq, 
+            qual=x$qual, pos=x$pos)
+    }, mc.cores=nc)
+    print("Cigar Strings Processed")
+    
+    print("Preparing Position Data")
+    #Check for paired neighbours
+    ###FOR TEST FILE, THIS ACTUALLY == 0?
+    ###THIS MERGED/PAIRED STUFF IS UNTESTED
+    iPaired <- sapply(1:(length(s$qname)-1), function(i){
+        s$qname[i] == s$qname[i+1]
+    })
+    
+    #Merge those paired neighbours mseq values
+    mseqsPaired <- sapply(which(iPaired), function(i){
+        merge.pairs(mseqs[i], mseqs[i+1])
+    })
+    
+    #Calculates the longest an mseq value could be
+    #Used to create matrix and prevent dynamic growth
+    maxLen <- max(sapply(mseqs, function(mseq){nchar(mseq)}))
+    m <- matrix(0, nrow=maxLen, ncol=4)
+    colnames(m) <- c('A', 'C', 'G', 'T')
+    
+    #For Targetting
+    posRanges <- mclapply(1:length(mseqs), function(i) {
+        
+        #aligned normally == mseq. Only changes to merged value when paired
+        ###UNTESTED
+        if(i%in%iPaired) {
+            mseq <- mseqsPaired[[which(iPaired==i)]]
+        } else {
+            mseq <- mseqs[[i]]
+        }
+        
+        #Range of positions in df that are effected by mseq values
+        return(len.terminal.gap(mseq):nchar(mseq))
+    }, mc.cores=nc)
+    
+    #For increasing
+    posVals <- mclapply(1:length(mseqs), function(i){
+        
+        #aligned normally == mseq. Only changes to merged value when paired
+        ###UNTESTED
+        if(i%in%iPaired) {
+            mseq <- mseqsPaired[[which(iPaired==i)]]
+        } else {
+            mseq <- mseqs[[i]]
+        }
+        
+        aligned <- mseqs[[i]]
+        posRange <- posRanges[[i]]
+        
+        #Calculates a matrix. By adding the values of this matrix to df, we can update it 
+        res <- sapply(posRange, function(pos){
+            nt <- substr(mseq, pos, pos)
+            qc <- substr(attr(aligned, 'qual'), pos, pos)
+            
+            if(nt == '-') { #If a gap, then nothing is updated
+                return(rep(0,4))
+                
+            } else if(nt == 'N') { #If an 'N', then everything up by 0.25
+                return(rep(0.25,4))
+                
+            } else { #If some base than that base up by 1-p and other bases up by p/3
+                p <- 10^-((ord(qc)-30)/10)
+                temp <- rep((p/3),4)
+                temp[which(c('A', 'C', 'G', 'T')%in%nt)] <- 1-p
+                return(temp)
+            }
+        })
+        
+        return(res)
+    }, mc.cores=nc)
+    
+    print("Final Step: Applying position Values")
+    
+    #Increase targetted areas
+    for(i in 1:length(mseqs)) {
+        #Add the Transposed values to the 
+        m[posRanges[[i]],] <- m[posRanges[[i]],] + t(posVals[[i]])
+    }
+    
+    m
 }
 
 
