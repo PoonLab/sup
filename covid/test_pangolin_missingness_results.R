@@ -7,7 +7,8 @@ par(mfrow = c(4,4))
 for(i in seq_along(finished)){
     pang <- read.csv(paste0(path, finished[i]))
     pang$taxon <- gsub("\\_", "", pang$taxon)
-    pang$missing <- as.numeric(sapply(strsplit(pang$taxon, "\\."), function(x) x[1]))
+    pang$missing <- as.numeric(sapply(strsplit(pang$taxon, "\\."), 
+        function(x) x[1]))
 
     boxplot(pang$probability ~ pang$missing, main = finished[i],
         las = 2, xlab = NULL, ylim = c(0, 1))
