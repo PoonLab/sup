@@ -67,3 +67,7 @@
 
     -   Does not need to include downloading scripts
     -   May be best to separate out parsing scripts as well (even with speedups, 30 sam files will take several days)
+
+-   [x] Investigate affect of missingness on pangolin calls
+
+    -   Analyse results
