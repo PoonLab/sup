@@ -1,16 +1,23 @@
 # Absolute path because the files are too large for github
 path <- "/mnt/BCC20BCCC20B8A3A/Fasta Files/sra-downloads/files/pangolin_results/"
 finished <- list.files(path)
-length(finished)
+#length(finished)
 
-par(mfrow = c(3,3))
+par(mfrow = c(4,4))
 for(i in seq_along(finished)){
     pang <- read.csv(paste0(path, finished[i]))
     pang$taxon <- gsub("\\_", "", pang$taxon)
     pang$missing <- as.numeric(sapply(strsplit(pang$taxon, "\\."), function(x) x[1]))
-    
-    boxplot(pang$probability ~ pang$missing, main = finished[i], 
-        las = 2, xlab = NULL)
+
+    boxplot(pang$probability ~ pang$missing, main = finished[i],
+        las = 2, xlab = NULL, ylim = c(0, 1))
 }
 
 # barplot(table(pang$probability, pang$missing))
+
+
+# TODO
+    # For ERR4693034 and ERR4692364, investigate more values
+        # Fewer replicates, more proportions
+    # Try adding a logistic regression curve
+    # Investigate: Maximum for SRR* files is less than 1? Why?
