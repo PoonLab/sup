@@ -12,5 +12,4 @@ for(i in seq_along(finished)){
     boxplot(pang$probability ~ pang$missing, main = finished[i])
 }
 
-
-
+barplot(table(pang$probability, pang$missing))
