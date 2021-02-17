@@ -1,6 +1,6 @@
 require(parallel)
 require(dplyr)
-
+require(stringr)
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
 #' re.findall
@@ -89,6 +89,7 @@ apply.cigar <- function(cigar, seq, qual, pos, mc.cores=1) {
   
   
   ###POINT OF REVIEW
+  ##-TO-DO: CONFIRM INSERTIONS FUNCTIONALITY-##
   
   for (token in tokens) {
     
