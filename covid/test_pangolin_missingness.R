@@ -74,6 +74,7 @@ for(thisfile in seq_along(sampled)){
 
 
 if(FALSE){ # testing the two extremes
+    library(stringr)
     sampled <- c("ERR4693034_sampled.fasta", "ERR4693061_sampled.fasta")
     # Import one sequence
 
@@ -108,10 +109,11 @@ if(FALSE){ # testing the two extremes
         # Step 2: Randomly add N's ----
 
         # Set up number of missing values
-        Nvals <- round(nchar(test2) * c(0.005, 0.01, 0.05, 0.1, 0.15, 0.2,
-            0.25, 0.3, 0.35, 0.4, 0.45, 0.5))
+        Nvals <- round(nchar(test2) * c(0.005, 0.01, 0.05,  
+            seq(0.05, 0.2, length.out = 40), 
+            0.25, 0.3, 0.4, 0.45, 0.5))
         # Number of samples with each amount of missingness
-        Nsamps <- 500
+        Nsamps <- 100
 
         # Prep the data frame
         samps <- expand.grid(id = 1:Nsamps, NVals = Nvals)
