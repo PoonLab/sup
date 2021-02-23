@@ -1,8 +1,6 @@
 # open S matrix and sample from it
 # TODO: 
-#   Will need to account for the reference sequence (possibly manually)
-#       On the other hand, reference is just for alignment (I think?)
-#   Need to access the actual sequence as well. 
+#   Need to access the actual sequence 
 #       Search for sam->fasta conversion
 #   Switch to sampling from beta posterior
 #       Assumes Dirichlet prior for base probability
@@ -15,6 +13,15 @@ rds_names <- list.files("data/unc_covid/", pattern = "*.RDS")
 # The "-1" indicates that it's a copy. Remove it.
 rds_names <- rds_names[!grepl("-1", rds_names)]
 
+# Avoid re-tracing my steps
+rds_done <- sapply(list.files("data/pangolineages/"), 
+    function(x) strsplit(x, "\\_")[[1]][1])
+rds_todo <- sapply(strsplit(rds_names, "-"),
+    function(x){
+        strsplit(x[3], "\\.")[[1]][1]
+    })
+rds_names <- rds_names[which(!rds_todo %in% rds_done)]
+
 # Prepare empty lists
 S_list <- vector(mode = "list", length = length(rds_names))
 asc_names <- c()
@@ -22,7 +29,7 @@ header_list <- S_list
 
 # Read in uncertainty matrices and record accession names
 for(i in 1:length(rds_names)){
-    asc <- substr(rds_names[i], 15, 100)
+    asc <- strsplit(rev(strsplit(rds_names[1], "-")[[1]])[1], "\\.")[[1]][1]
     asc_names <- c(asc_names, sub(".RDS", "", asc))
     
     S_list[[i]] <- readRDS(paste0("data/unc_covid/", rds_names[i]))
@@ -31,7 +38,7 @@ for(i in 1:length(rds_names)){
 asc_names
 
 # Check coverage of each read
-hist(apply(S_list[[6]], 1, sum), breaks = 30)
+hist(apply(S_list[[1]], 1, sum), breaks = 30)
 
 # Prepare empty list
 sampled_files <- list()
@@ -42,7 +49,10 @@ nloops <- length(S_list)
 collapsed <- estlapseds <- double(nloops)
 for(i in 1:nloops){
     # Error checking
-    if(is.null(dim(S_list[[i]]))) next
+    if(is.null(dim(S_list[[i]]))) {
+        print("Empty file")
+        next
+        }
     
     t1 <- Sys.time() # Inner timer
     
@@ -83,17 +93,12 @@ for(i in 1:nloops){
     # Convert sample letters to single string
     sampleseq <- apply(sampleseq_mat, 1, paste, collapse = "")
     
-    # Look up the reference sequence
-    #refseq <- readLines("data/MN908947-3.fasta")
-    # Add reference sequence as the first row (easy to compare to others)
-    #refseq <- paste(c(refseq[1], paste0(refseq[-1], collapse = "")), collapse = "\n")
     
     # Create well-formatted fasta file
-    con <- "data/SRR13020989_small.sam"
     name <- paste0("> ", asc_names[i], ".", 1:length(sampleseq))
     fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
     sampled_files[[i]] <- fasta
-    #writeLines(fasta, con = paste0("data/sampled_covid/", asc_names[i], "_sampled.fasta"))
+    writeLines(fasta, con = paste0("data/sampled_covid/", asc_names[i], "_sampled.fasta"))
     
     # Loop Timing
     elapsed <- difftime(Sys.time(), t1, units = "mins")
