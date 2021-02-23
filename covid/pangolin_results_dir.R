@@ -30,7 +30,17 @@ for(i in 1:length(unique(lins$taxon))){
     barplot(sort(thistab, decreasing = TRUE), las = 2)
 }
 
-
+# Info for the abstract
+summs <- lins %>% 
+    group_by(taxon) %>%
+    summarise(maxperc = mean(lineage == names(sort(table(lineage), decreasing = TRUE))[1]),
+        uniques = length(unique(lineage)),
+        minpango = min(probability),
+        maxpango = max(probability),
+        menpango = mean(probability),
+        max = names(sort(table(lineage), decreasing = TRUE))[1])
+summs
+1 - mean(summs$maxperc); 1 - mean(summs$menpango)
 
 #### Evaluate pangolin's bootstrap confidence ----
 # Find out the modal lineage, look at all of the bootstrap probability,
@@ -60,3 +70,45 @@ for(i in 1:length(taxons)){
 # The plots above would be better if I had the consensus sequence, rather
 # than modal lineage. 
 
+gglist <- list()
+for(i in 1:length(taxons)){
+    pang <- lins[lins$taxon == taxons[i], ]
+    pang2 <- lapply(unique(pang$lineage), function(x) {
+        data.frame(lineage = x, prop = mean(pang$lineage == x))
+    }) %>% 
+        bind_rows() %>% 
+        right_join(pang, by = "lineage")
+    #pang2
+    ggplot(pang2) + 
+        aes(x = prop, y = probability,
+            colour = lineage, label = lineage) + 
+        geom_point() +
+        #geom_text_repel() + 
+        theme(legend.position = "none")
+    
+    pangtab <- pang2 %>% 
+        group_by(prop, lineage) %>% 
+        summarise(y = 1, count = n(), .groups = "drop") %>% 
+        filter(prop > 0.025)
+    
+    gglist[[i]] <- pang2 %>% 
+        # round to nearest 0.5
+        #mutate(prop = round(prop*2, 1)/2,
+        #    probability = round(probability*2, 1)/2) %>% 
+        group_by(prop, probability, lineage) %>% 
+        summarise(count = n(), .groups = "drop") %>% 
+        ggplot() + theme_bw() + 
+        aes(x = prop, y = probability, colour = lineage, label = count) + 
+        geom_text() + 
+        theme(legend.position = "none") +
+        annotate("text", x = pangtab$prop, y = 1, label = pangtab$lineage,
+            hjust = 0.5, vjust = -1) +
+        labs(x = "Proportion of Lineage",
+            y = "Bootstrap Probability",
+            title = NULL) +
+        scale_x_continuous(breaks = seq(0,1,0.1)) +
+        scale_y_continuous(breaks = seq(0,1.1,0.1)) +
+        coord_cartesian(ylim = c(0, 1.1)) + 
+        geom_abline(slope = 1, intercept = 0)
+}
+cowplot::plot_grid(plotlist = gglist)
