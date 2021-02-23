@@ -6,6 +6,7 @@
 #       Assumes Dirichlet prior for base probability
 #       Should sometimes include Ns (current method does not)
 library(ape)
+library(gtools) # rdirichlet
 set.seed(2112) # \m/
 
 # Read list of files ending with .RDS
@@ -70,7 +71,8 @@ for(i in 1:nloops){
         if(any(is.na(x))){
             return(rep("N", n))
         } else {
-            return(sample(alph, size = n, prob = x, replace = TRUE))
+            newx <- rdirichlet(1, x + rep(1/4, 4))
+            return(sample(alph, size = n, prob = newx, replace = TRUE))
         }
     })
     
