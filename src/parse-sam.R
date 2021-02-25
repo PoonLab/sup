@@ -58,7 +58,7 @@ apply.cigar.old <- function(cigar, seq, qual, pos) {
     }
     else if (operand == 'I') {
       # insertion relative to reference
-      insertions[[length(new.seq)+1]] <- c(
+      insertions[[nchar(new.seq)+1]] <- c(
         substr(seq, left, left+len-1),
         substr(qual, left, left+len-1)
       )
@@ -277,12 +277,13 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
       x <- s[i,]
       apply.cigar(cigar=x$cigar, seq=x$seq, 
                   qual=x$qual, pos=x$pos)
-    }, mc.cores=nc)
+    }, mc.cores=mc.cores)
     
   }
   print("Cigar Strings Processed")
   
   print("Preparing Position Data")
+  
   #Check for paired neighbours
   ###FOR TEST FILE, THIS ACTUALLY == 0?
   ###THIS MERGED/PAIRED STUFF IS UNTESTED
@@ -294,6 +295,7 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
   mseqsPaired <- sapply(which(iPaired), function(i){
     merge.pairs(mseqs[[i]], mseqs[[i+1]])
   })
+  
   
   #Calculates the longest an mseq value could be
   #Used to create matrix and prevent dynamic growth
@@ -350,7 +352,7 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
     })
     
     return(res)
-  }, mc.cores=nc)
+  }, mc.cores=mc.cores)
   
   print("Final Step: Applying position Values")
   
@@ -359,6 +361,10 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
     #Add the Transposed values to the 
     m[posRanges[[i]],] <- m[posRanges[[i]],] + t(posVals[[i]])
   }
+  
+  print("Done")
+  print(Sys.time()-t0)
+  return(m)
 }
 
 parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
