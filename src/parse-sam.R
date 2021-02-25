@@ -93,7 +93,7 @@ apply.cigar.old <- function(cigar, seq, qual, pos) {
 #' @param qual: character, quality string
 #' @param pos: integer, first position of the read
 #' @return character vector, c(sequence, quality)
-apply.cigar <- function(cigar, seq, pos, qual, mc.cores=1) {
+apply.cigar.vectorized <- function(cigar, seq, pos, qual, mc.cores=1) {
   
   # validate CIGAR
   is.valid <- grepl("^((\\d+)([MIDNSHPX=]))*$", cigar)
@@ -142,8 +142,8 @@ apply.cigar <- function(cigar, seq, pos, qual, mc.cores=1) {
   edits[operand%in%c('M', 'I'), "qualPart" := rowFunMI(qualPart, qual, len, seqI, left), by=which(operand%in%c('M', 'I'))]
   
   #Pull sequences by seqPart row
-  new.seq <- edits[, paste0(.SD[!(operand=='I'), (seqPart)], collapse=""), by=(seqI)]$V1
-  attr(new.seq, "qual") <- edits[, paste0(.SD[!(operand=='I'), (qualPart)], collapse=""), by=(seqI)]$V1
+  new.seq <- as.list(edits[, paste0(.SD[!(operand=='I'), (seqPart)], collapse=""), by=(seqI)]$V1)
+  qual.seq <- as.list(edits[, paste0(.SD[!(operand=='I'), (qualPart)], collapse=""), by=(seqI)]$V1)
   
   #Account for insertions
   insertions <- mclapply(1:length(new.seq), function(i) {
@@ -155,7 +155,10 @@ apply.cigar <- function(cigar, seq, pos, qual, mc.cores=1) {
     return(insertions)
   }, mc.cores=mc.cores)
   
-  attr(new.seq, "insertions") <- insertions
+  for(i in 1:length(new.seq)) {
+    attr(new.seq[[i]], "qual") <- qual.seq[[i]]
+    attr(new.seq[[i]], "insertions") <- insertions[[i]]
+  }
   
   return(new.seq)
 }
@@ -234,7 +237,6 @@ is.first.read <- function(flag) {
   bitwAnd(flag, 0x40) != 0
 }
 
-
 parse.sam.line <- function(lines) {
   tokens <- sapply(lines, function(line){strsplit(line, '\t')[[1]]})
   data.table(qname = tokens[1,], flag = tokens[2,], rname = tokens[3,],
@@ -242,7 +244,7 @@ parse.sam.line <- function(lines) {
              cigar = tokens[6,], seq = tokens[10,], qual = tokens[11,])
 }
 
-parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE){
+parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectorized=T){
   
   #infile <- "~/SUP/SRR13020990_small.sam"
   
@@ -258,33 +260,39 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE){
     return(as.data.table(s))
   }
   
-  s <- read_lines_chunked(con, callback=DataFrameCallback$new(f), chunk_size = 100)
+  DT <- read_lines_chunked(con, callback=DataFrameCallback$new(f), chunk_size = 100)
   
   #Data file has now been read
   print("File Read")
   close(con)
   
-  apply.cigar(s[(cigar)!='*',])
-  
   #Run all cigar values 
-  mseqs <- mclapply(which(s$cigar!='*'), function(i) {
-    x <- s[i,]
-    apply.cigar(cigar=x$cigar, seq=x$seq, 
-                qual=x$qual, pos=x$pos)
-  }, mc.cores=nc)
+  if(vectorized){
+    subDT <- DT[DT$cigar!='*',]
+    mseqs <- apply.cigar.vectorized(cigar = subDT$cigar, seq = subDT$seq, 
+                                    qual=subDT$qual, pos = subDT$pos, mc.cores = mc.cores)
+      
+  } else {
+    mseqs <- mclapply(which(DT$cigar!='*'), function(i) {
+      x <- s[i,]
+      apply.cigar(cigar=x$cigar, seq=x$seq, 
+                  qual=x$qual, pos=x$pos)
+    }, mc.cores=nc)
+    
+  }
   print("Cigar Strings Processed")
   
   print("Preparing Position Data")
   #Check for paired neighbours
   ###FOR TEST FILE, THIS ACTUALLY == 0?
   ###THIS MERGED/PAIRED STUFF IS UNTESTED
-  iPaired <- sapply(1:(length(s$qname)-1), function(i){
-    s$qname[i] == s$qname[i+1]
+  iPaired <- sapply(1:(length(DT$qname)-1), function(i){
+    DT$qname[i] == DT$qname[i+1]
   })
   
   #Merge those paired neighbours mseq values
   mseqsPaired <- sapply(which(iPaired), function(i){
-    merge.pairs(mseqs[i], mseqs[i+1])
+    merge.pairs(mseqs[[i]], mseqs[[i+1]])
   })
   
   #Calculates the longest an mseq value could be
@@ -306,7 +314,7 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE){
     
     #Range of positions in df that are effected by mseq values
     return(len.terminal.gap(mseq):nchar(mseq))
-  }, mc.cores=nc)
+  }, mc.cores=mc.cores)
   
   #For increasing
   posVals <- mclapply(1:length(mseqs), function(i){
