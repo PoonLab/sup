@@ -25,97 +25,42 @@ re.findall <- function(pat, s) {
   })
 }
 
-
-#' Use CIGAR (Compact Idiosyncratic Gapped Alignment Report) string
-#' to apply soft clips, insertions and deletions to the read sequence.
-#' Any insertions relative to the reference sequence are removed to
-#' enforce a strict pairwise alignment.
-#'
-#' @param cigar: character, string in CIGAR format
-#' @param seq: character, read sequence
-#' @param qual: character, quality string
-#' @param pos: integer, first position of the read
-#' @return character vector, c(sequence, quality)
-apply.cigar <- function(cigar, seq, qual, pos, mc.cores=1) {
+apply.cigar.old <- function(cigar, seq, qual, pos) {
   # prepare outputs
-  new.seq <- lapply(pos, function(x) {paste0(rep('-', x), collapse = '')})
-  new.qual <- lapply(pos, function(x){paste0(rep('!', x), collapse = '')})
-  
+  new.seq <- paste0(rep('-', pos), collapse='')
+  new.qual <- paste0(rep('!', pos), collapse='')
   insertions <- list()
   
   # validate CIGAR
   is.valid <- grepl("^((\\d+)([MIDNSHPX=]))*$", cigar)
-  if (sum(!is.valid)>0) {
-    stop("Error: CIGAR strings: at", which(!is.valid))
+  if (!is.valid) {
+    stop("Error: Invalid CIGAR string: \"", cigar, "\"")
   }
   
   pat <- "\\d+[MIDNSHPX=]"
-  ltokens <- lapply(cigar, function(x){re.findall(pat, x)})
+  tokens <- re.findall(pat, cigar)
   left <- 1
   
-  edits <- bind_rows(mclapply(1:length(ltokens), function(i){
-    
-    DT <- data.table(len=sapply(ltokens[[i]], function(token) {as.integer(gsub("^(\\d+).+$", "\\1", token))}),
-                     operand=sapply(ltokens[[i]], function(token) {gsub("^\\d+([MIDNSHPX=])$", "\\1", token)}))
-    DT[,"seqI":=i] 
-    
-    rowFunLeft <- function(j) {
-      if(j==1){return(1)}
-      temp <- DT[1:(j-1),]
-      1+sum(temp[(operand%in%c("M","I","S")), (len)])
-    }
-    DT[,"left" := rowFun(.I), by=1:nrow(DT)]
-    
-    rowFunLen <- function(j) {sum(DT[1:j, (len)])+pos[[i]]}
-    DT[,"lenSeq" := rowFun(.I), by=1:nrow(DT)]
-    
-    return(DT)
-  }, mc.cores=mc.cores))
-  
-  ##DOFUN
-  #Runs through all of the left and len columns to build a list of added substrings for the sequence.
-  #Paste those together and you have the final new.seq value
-  #A similar alteration to this column should be usable on the new.qual value
-  edits[, "newSub" := ""]
-  
-  rowFunD <- function(len, ch){paste0(rep(ch, len), collapse="")}
-  edits[operand=='D', "newSub" := rowFunD(len, '-'), by=which(operand=='D')]
-  edits[operand=='D', "alt" := rowFunD(len, '!'), by=which(operand=='D')]
-  
-  
-  rowFunMI <- function(len, seqI, left){substr(seq[[seqI]], left, left + len - 1)}
-  edits[operand=='M', "newSub" := rowFunMI(len, seqI, left), by=which(operand=='M')]
-  edits[operand=='I', "alt" := rowFunMI(len, seqI, left), by=which(operand=='M')]
-  
-  
-  ###POINT OF REVIEW
-  ##-TO-DO: CONFIRM INSERTIONS FUNCTIONALITY-##
-  
   for (token in tokens) {
-    
     len <- as.integer(gsub("^(\\d+).+$", "\\1", token))
     operand <- gsub("^\\d+([MIDNSHPX=])$", "\\1", token)
     
     if (operand == 'M') {
       # append matching substring
-      new.seq <- paste0(new.seq,
-                        substr(seq, left, left + len - 1), collapse = '')
-      new.qual <- paste0(new.qual,
-                         substr(qual, left, left + len - 1), collapse = '')
+      new.seq <- paste0(new.seq, substr(seq, left, left+len-1), collapse='')
+      new.qual <- paste0(new.qual, substr(qual, left, left+len-1), collapse='')
       left <- left + len
     }
     else if (operand == 'D') {
       # deletion relative to reference
-      new.seq <- paste0(new.seq,
-                        paste0(rep('-', len), collapse = ""), collapse = "")
-      new.qual <- paste0(new.qual,
-                         paste0(rep('!', len), collapse = ""), collapse = "")
+      new.seq <- paste0(new.seq, paste0(rep('-', len), collapse=""), collapse="")
+      new.qual <- paste0(new.qual, paste0(rep('!', len), collapse=""), collapse="")
     }
     else if (operand == 'I') {
       # insertion relative to reference
-      insertions[[length(new.seq) + 1]] <- c(
-        substr(seq, left, left + len - 1),
-        substr(qual, left, left + len - 1)
+      insertions[[length(new.seq)+1]] <- c(
+        substr(seq, left, left+len-1),
+        substr(qual, left, left+len-1)
       )
       left <- left + len
     }
@@ -135,6 +80,83 @@ apply.cigar <- function(cigar, seq, qual, pos, mc.cores=1) {
   # append quality string to sequence as an attribute
   attr(new.seq, 'qual') <- new.qual
   attr(new.seq, 'insertions') <- insertions
+  return(new.seq)
+}
+
+#' Use CIGAR (Compact Idiosyncratic Gapped Alignment Report) string
+#' to apply soft clips, insertions and deletions to the read sequence.
+#' Any insertions relative to the reference sequence are removed to
+#' enforce a strict pairwise alignment.
+#'
+#' @param cigar: character, string in CIGAR format
+#' @param seq: character, read sequence
+#' @param qual: character, quality string
+#' @param pos: integer, first position of the read
+#' @return character vector, c(sequence, quality)
+apply.cigar <- function(cigar, seq, pos, qual, mc.cores=1) {
+  
+  # validate CIGAR
+  is.valid <- grepl("^((\\d+)([MIDNSHPX=]))*$", cigar)
+  if (sum(!is.valid)>0) {stop("Error: CIGAR strings: at", which(!is.valid))}
+  
+  #Tokenize
+  pat <- "\\d+[MIDNSHPX=]"
+  ltokens <- lapply(cigar, function(x){re.findall(pat, x)})
+  left <- 1
+  
+  #Begin storing edits and sequence position in data table
+  edits <- bind_rows(mclapply(1:length(ltokens), function(i){
+    
+    DT <- data.table(len=sapply(ltokens[[i]], function(token) {as.integer(gsub("^(\\d+).+$", "\\1", token))}),
+                     operand=sapply(ltokens[[i]], function(token) {gsub("^\\d+([MIDNSHPX=])$", "\\1", token)}))
+    DT[,"seqI":=i] 
+    
+    rowFunLeft <- function(j) {
+      if(j==1){return(1)}
+      temp <- DT[1:(j-1),]
+      1+sum(temp[(operand%in%c("M","I","S")), (len)])
+    }
+    DT[,"left" := rowFunLeft(.I), by=1:nrow(DT)]
+    
+    rowFunLen <- function(j) {sum(DT[1:j, (len)])+pos[[i]]}
+    DT[,"lenSeq" := rowFunLen(.I), by=1:nrow(DT)]
+    
+    DT[, "seqPart" := ""]
+    DT[1, 'seqPart' := paste0(rep('-', pos[i]), collapse="")]
+    
+    DT[, "qualPart" := ""]
+    DT[1, "qualPart" := paste0(rep('!', pos[i]), collapse="")]
+    
+    return(DT)
+  }, mc.cores=mc.cores))
+  
+  #Append sequences to a new seqPart column based on edit information
+  rowFunD <- function(part, len, ch){paste0(c(part,rep(ch, len)), collapse="")}
+  edits[operand=='D', "seqPart" := rowFunD(seqPart, len, '-'), by=which(operand=='D')]
+  edits[operand=='D', "qualPart" := rowFunD(qualPart, len, '!'), by=which(operand=='D')]
+  
+  rowFunMI <- function(part, x, len, seqI, left){
+    paste0(c(part, substr(x[seqI], left, left + len - 1)), collapse="")
+  }
+  edits[operand%in%c('M', 'I'), "seqPart" := rowFunMI(seqPart, seq, len, seqI, left), by=which(operand%in%c('M', 'I'))]
+  edits[operand%in%c('M', 'I'), "qualPart" := rowFunMI(qualPart, qual, len, seqI, left), by=which(operand%in%c('M', 'I'))]
+  
+  #Pull sequences by seqPart row
+  new.seq <- edits[, paste0(.SD[!(operand=='I'), (seqPart)], collapse=""), by=(seqI)]$V1
+  attr(new.seq, "qual") <- edits[, paste0(.SD[!(operand=='I'), (qualPart)], collapse=""), by=(seqI)]$V1
+  
+  #Account for insertions
+  insertions <- mclapply(1:length(new.seq), function(i) {
+    insertions <- list()
+    x <- edits[seqI==i,]
+    insertions[x[operand=='I',(lenSeq)]] <- lapply(which(x$operand=='I'), function(j){
+      c(x[j,(seqPart)], x[j,(qualPart)])
+    })
+    return(insertions)
+  }, mc.cores=mc.cores)
+  
+  attr(new.seq, "insertions") <- insertions
+  
   return(new.seq)
 }
 
