@@ -1,6 +1,8 @@
 require(parallel)
+require(readr)
+require(data.table)
 require(dplyr)
-require(stringr)
+
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
 #' re.findall
