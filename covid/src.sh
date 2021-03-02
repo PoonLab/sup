@@ -1,4 +1,4 @@
-# /bin/sh, but not actually so no bang
+# /bin/sh, but not actually so no she-bang
 
 # must be in the main fasta files directory
 
@@ -6,7 +6,7 @@
     # Check for existence first
     # associate the accession number with the run number
         # will be useful for posterity
-# Give full path to binary to R, export doesn't work
+    # Give full path of binary to R, export doesn't work
 Rscript ~OneDriveUWO/0postdoc/sup/create_sam_commands.R
 
 # Check if the files have the fields I need,
@@ -26,8 +26,9 @@ scp -r unpaired dbecker7@rei:run_sam
 # TODO: take input/output directories as arguments
     # Stop outputting so much to nohup.out
     # Ensure parse.sam is updated on rei (maybe with git)
-# nohup Rscript open_seSAMe_dir.R &
+nohup Rscript open_seSAMe_dir.R &
 
+# Download the files
 scp -r dbecker7@rei:run_sam/paired_DONE .
 scp -r dbecker7@rei:run_sam/unpaired_DONE .
 
