@@ -474,7 +474,7 @@ parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
     
     #Merge those paired neighbours mseq values
     mseqsPaired <- sapply(which(iPaired), function(i){
-        merge.pairs(mseqs[i], mseqs[i+1])
+        merge.pairs(mseqs[[i]], mseqs[[i+1]])
     })
     
     #Calculates the longest an mseq value could be
