@@ -19,9 +19,9 @@ rds_done <- sapply(list.files("data/pangolineages/"),
     function(x) strsplit(x, "\\_")[[1]][1])
 rds_todo <- sapply(strsplit(rds_names, "-"),
     function(x){
-        strsplit(x[3], "\\.")[[1]][1]
+        strsplit(rev(x)[1], "\\.")[[1]][1]
     })
-rds_names <- rds_names[which(!rds_todo %in% rds_done)]
+#rds_names <- rds_names[which(!rds_todo %in% rds_done)]
 
 # Prepare empty lists
 S_list <- vector(mode = "list", length = length(rds_names))
@@ -30,7 +30,7 @@ header_list <- S_list
 
 # Read in uncertainty matrices and record accession names
 for(i in 1:length(rds_names)){
-    asc <- strsplit(rev(strsplit(rds_names[1], "-")[[1]])[1], "\\.")[[1]][1]
+    asc <- strsplit(rev(strsplit(rds_names[i], "-")[[1]])[1], "\\.")[[1]][1]
     asc_names <- c(asc_names, sub(".RDS", "", asc))
     
     S_list[[i]] <- readRDS(paste0("data/unc_covid/", rds_names[i]))
@@ -59,7 +59,7 @@ for(i in 1:nloops){
     
     # Normalize matrix
     S <- S_list[[i]]
-    alph <- colnames(S)
+    alph <- toupper(colnames(S))
     # Make columns add to 1
     S2sum <- as.vector(apply(S, 1, sum))
     S2mat <- matrix(rep(S2sum, ncol(S)), ncol = ncol(S), byrow = FALSE)
@@ -105,7 +105,7 @@ for(i in 1:nloops){
     # Loop Timing
     elapsed <- difftime(Sys.time(), t1, units = "mins")
     collapsed[i] <- elapsed
-    estlapsed <- round((nloops - i)*mean(collapsed), 3)
+    estlapsed <- round((nloops - i)*mean(collapsed[collapsed > 0]), 3)
     estlapseds[i] <- estlapsed
     if(FALSE){ # Optional
         par(mfrow = c(1,2))
