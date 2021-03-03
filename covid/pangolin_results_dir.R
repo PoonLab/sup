@@ -16,7 +16,8 @@ lins <- bind_rows(lapply(csvs, read.csv))
 
 # Taxon is encoded as _ACCSESSIONNUMBER.ID, split into ACCESSIONNUMBER and ID
 lins <- lins %>% 
-    separate(col = "taxon", sep = "\\.", into = c("taxon", "sample")) %>% 
+    separate(col = "taxon", sep = "\\.", 
+        into = c("taxon", "sample")) %>% 
     mutate(taxon = str_replace(taxon, "\\_", ""))
 
 #### Visualize the uncertainty in the base calls ----
@@ -24,16 +25,29 @@ taxons <- unique(lins$taxon)
 length(taxons)
 
 # Bar plot (Pareto) for which lineages were called
-par(mfrow = c(3, 4))
+par(mfrow = c(6, 6))
 for(i in 1:length(unique(lins$taxon))){
     thistab <- table(lins$lineage[lins$taxon == taxons[i]])
-    barplot(sort(thistab, decreasing = TRUE), las = 2)
+    called <- lins$lineage[lins$taxon == taxons[i] & 
+        lins$sample == 0]
+    print(called)
+    
+    if(length(called) == 1) {
+        colours <- rep(1, length(thistab))
+        colours[names(thistab) == called] <- 2
+    } else {
+        colours <- "lightgrey"
+    }
+    
+    barplot(sort(thistab, decreasing = TRUE), 
+        las = 2, col = colours, border = NA)
 }
 
 # Info for the abstract
 summs <- lins %>% 
     group_by(taxon) %>%
-    summarise(maxperc = mean(lineage == names(sort(table(lineage), decreasing = TRUE))[1]),
+    summarise(maxperc = mean(lineage == names(sort(table(lineage), 
+        decreasing = TRUE))[1]),
         uniques = length(unique(lineage)),
         minpango = min(probability),
         maxpango = max(probability),
@@ -47,7 +61,7 @@ summs
 # then find out how many actually were that lineage
 
 boots <- vector(mode = "list", length = length(taxons))
-par(mfrow = c(3,4))
+par(mfrow = c(6,6))
 for(i in 1:length(taxons)){
     # Find modal lineage
     thistab <- table(lins$lineage[lins$taxon == taxons[i]])
@@ -57,7 +71,8 @@ for(i in 1:length(taxons)){
             lins$lineage == maxtab]
     
     # histogram of probabilities of that lineage
-    hist(boots[[i]], breaks = seq(0, 1, 0.05), xlim = c(0, 1))
+    hist(boots[[i]], breaks = seq(0, 1, 0.05), 
+        xlim = c(0, 1))
     # Add a line for the number of genomes that actually had that lineage
     abline(v = mean(lins$lineage[lins$taxon == taxons[i]] == maxtab),
         col = 2, lwd = 3)
@@ -74,7 +89,8 @@ gglist <- list()
 for(i in 1:length(taxons)){
     pang <- lins[lins$taxon == taxons[i], ]
     pang2 <- lapply(unique(pang$lineage), function(x) {
-        data.frame(lineage = x, prop = mean(pang$lineage == x))
+        data.frame(lineage = x, 
+            prop = mean(pang$lineage == x))
     }) %>% 
         bind_rows() %>% 
         right_join(pang, by = "lineage")
@@ -98,10 +114,12 @@ for(i in 1:length(taxons)){
         group_by(prop, probability, lineage) %>% 
         summarise(count = n(), .groups = "drop") %>% 
         ggplot() + theme_bw() + 
-        aes(x = prop, y = probability, colour = lineage, label = count) + 
+        aes(x = prop, y = probability, colour = lineage, 
+            label = count) + 
         geom_text() + 
         theme(legend.position = "none") +
-        annotate("text", x = pangtab$prop, y = 1, label = pangtab$lineage,
+        annotate("text", x = pangtab$prop, y = 1, 
+            label = pangtab$lineage,
             hjust = 0.5, vjust = -1) +
         labs(x = "Proportion of Lineage",
             y = "Bootstrap Probability",

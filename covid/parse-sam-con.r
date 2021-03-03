@@ -303,8 +303,8 @@ parse.sam <- function(infile, verbose = TRUE){
     print(paste0("Total time: ", as.numeric(totaltimings)))
     close(con)
     
-    cat("\nRelative time (percent):\n")
     if(verbose){
+        cat("\nRelative time (percent):\n")
         print(round(timings/as.numeric(totaltimings), 4)*100)
     }
     
@@ -526,7 +526,7 @@ parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
             } else { #If some base than that base up by 1-p and other bases up by p/3
                 p <- 10^-((ord(qc)-30)/10)
                 temp <- rep((p/3),4)
-                temp[which(c('A', 'C', 'G', 'T')%in%nt)] <- 1-p
+                temp[which(c('A', 'C', 'G', 'T') %in% nt)] <- 1-p
                 return(temp)
             }
         })

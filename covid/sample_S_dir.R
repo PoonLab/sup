@@ -21,7 +21,7 @@ rds_todo <- sapply(strsplit(rds_names, "-"),
     function(x){
         strsplit(rev(x)[1], "\\.")[[1]][1]
     })
-#rds_names <- rds_names[which(!rds_todo %in% rds_done)]
+rds_names <- rds_names[which(!rds_todo %in% rds_done)]
 
 # Prepare empty lists
 S_list <- vector(mode = "list", length = length(rds_names))
@@ -39,7 +39,7 @@ for(i in 1:length(rds_names)){
 asc_names
 
 # Check coverage of each read
-hist(apply(S_list[[1]], 1, sum), breaks = 30)
+#hist(apply(S_list[[1]], 1, sum), breaks = 30)
 
 # Prepare empty list
 sampled_files <- list()
@@ -59,7 +59,12 @@ for(i in 1:nloops){
     
     # Normalize matrix
     S <- S_list[[i]]
+    if(ncol(S) == 6) {
+        S[,5] <- S[,5] + S[,6]
+        S <- S[,1:5]
+    }
     alph <- toupper(colnames(S))
+    #print(alph)
     # Make columns add to 1
     S2sum <- as.vector(apply(S, 1, sum))
     S2mat <- matrix(rep(S2sum, ncol(S)), ncol = ncol(S), byrow = FALSE)
@@ -67,12 +72,20 @@ for(i in 1:nloops){
     
     # Sample the sequences
     n <- 1000 # number of sampled genomes
-    sampleseq_mat <- apply(S2, 1, function(x) {
+    sampleseq_mat <- apply(S, 1, function(x) {
         if(any(is.na(x))){
             return(rep("N", n))
         } else {
-            newx <- rdirichlet(1, x + rep(1/4, 4))
+            newx <- rdirichlet(1, x + rep(1/4, length(x)))
             return(sample(alph, size = n, prob = newx, replace = TRUE))
+        }
+    })
+    
+    conseq <- apply(S, 1, function(x) {
+        if(any(is.na(x)) | sum(x) < 10) {
+            return("N")
+        } else {
+            return(alph[which.max(x)])
         }
     })
     
@@ -93,11 +106,11 @@ for(i in 1:nloops){
     }
     
     # Convert sample letters to single string
-    sampleseq <- apply(sampleseq_mat, 1, paste, collapse = "")
-    
+    conseq <- paste(conseq, collapse = "", sep = "")
+    sampleseq <- c(conseq, apply(sampleseq_mat, 1, paste, collapse = ""))
     
     # Create well-formatted fasta file
-    name <- paste0("> ", asc_names[i], ".", 1:length(sampleseq))
+    name <- paste0("> ", asc_names[i], ".", 0:length(sampleseq))
     fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
     sampled_files[[i]] <- fasta
     writeLines(fasta, con = paste0("data/sampled_covid/", asc_names[i], "_sampled.fasta"))
@@ -119,19 +132,7 @@ for(i in 1:nloops){
 
 # saveRDS(sampleseq, file = "data/SRR13020989_sampled.rds")
 
-# # Commands for shell (can't be run from RStudio because RStudio uses the wrong path)
-# conda activate pangolin
-# pangolin data/SRR13020989_sampled.fasta --outfile data/SRR13020989_pangolineages.csv
-# # for 1000 sequences, took 30 seconds
 
-for(i in 1:length(asc_names)){
-    cat(paste0(
-        "pangolin data/sampled_covid/", asc_names[i], "_sampled.fasta",
-        " --outfile data/pangolineages/", asc_names[i], "_pangolineages.csv"
-    ))
-    cat("\n")
-}
-cat('spd-say "Hey devan your code is done"')
 
 
 
