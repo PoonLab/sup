@@ -246,9 +246,9 @@ parse.sam.line <- function(lines) {
              cigar = tokens[6,], seq = tokens[10,], qual = tokens[11,])
 }
 
-parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectorized=T){
+parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectorized=T, paired=F){
   
-  #infile <- "~/SUP/ERR5082711_small.txt"
+  #infile <- "~/SUP/ERR5069871.txt"
   
   t0 <- Sys.time()
   
@@ -289,9 +289,12 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
   #Check for paired sequences as repeated qname values
   tb <- table(DT$qname)
   qnameRep <- names(tb[which(tb>1)])
-  DT[, "paired":=F] 
-  DT[qname%in%qnameRep, "paired":=T]
-  mseqPaired <- which(DT[(cigar)!='*',(paired)])
+  DT[, "paired":=F]
+  
+  if(paired){
+    DT[qname%in%qnameRep, "paired":=T]
+    mseqPaired <- which(DT[(cigar)!='*',(paired)])
+  }
   
   #Calculates the longest an mseq value could be
   #Used to create matrix and prevent dynamic growth
