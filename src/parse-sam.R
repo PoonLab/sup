@@ -27,7 +27,7 @@ re.findall <- function(pat, s) {
   })
 }
 
-apply.cigar.old <- function(cigar, seq, qual, pos) {
+apply.cigar <- function(cigar, seq, qual, pos) {
   # prepare outputs
   new.seq <- paste0(rep('-', pos), collapse='')
   new.qual <- paste0(rep('!', pos), collapse='')
@@ -248,7 +248,7 @@ parse.sam.line <- function(lines) {
 
 parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectorized=T){
   
-  #infile <- "~/SUP/ERR50698711.txt"
+  #infile <- "~/SUP/ERR5082711_small.txt"
   
   t0 <- Sys.time()
   
@@ -276,7 +276,7 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
       
   } else {
     mseqs <- mclapply(which(DT$cigar!='*'), function(i) {
-      x <- s[i,]
+      x <- DT[i,]
       apply.cigar(cigar=x$cigar, seq=x$seq, 
                   qual=x$qual, pos=x$pos)
     }, mc.cores=mc.cores)
