@@ -248,7 +248,7 @@ parse.sam.line <- function(lines) {
 
 parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectorized=T){
   
-  #infile <- "~/SUP/SRR13020990_small.sam"
+  #infile <- "~/SUP/ERR50698711.txt"
   
   t0 <- Sys.time()
   
@@ -270,7 +270,7 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
   
   #Run all cigar values 
   if(vectorized){
-    subDT <- DT[DT$cigar!='*',]
+    subDT <- DT[(cigar)!='*',]
     mseqs <- apply.cigar.vectorized(cigar = subDT$cigar, seq = subDT$seq, 
                                     qual=subDT$qual, pos = subDT$pos, mc.cores = mc.cores)
       
@@ -286,18 +286,12 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
   
   print("Preparing Position Data")
   
-  #Check for paired neighbours
-  ###FOR TEST FILE, THIS ACTUALLY == 0?
-  ###THIS MERGED/PAIRED STUFF IS UNTESTED
-  iPaired <- sapply(1:(length(DT$qname)-1), function(i){
-    DT$qname[i] == DT$qname[i+1]
-  })
-  
-  #Merge those paired neighbours mseq values
-  mseqsPaired <- sapply(which(iPaired), function(i){
-    merge.pairs(mseqs[[i]], mseqs[[i+1]])
-  })
-  
+  #Check for paired sequences as repeated qname values
+  tb <- table(DT$qname)
+  qnameRep <- names(tb[which(tb>1)])
+  DT[, "paired":=F] 
+  DT[qname%in%qnameRep, "paired":=T]
+  mseqPaired <- which(DT[(cigar)!='*',(paired)])
   
   #Calculates the longest an mseq value could be
   #Used to create matrix and prevent dynamic growth
@@ -306,32 +300,14 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
   colnames(m) <- c('A', 'C', 'G', 'T')
   
   #For Targetting
-  posRanges <- mclapply(1:length(mseqs), function(i) {
-    
-    #aligned normally == mseq. Only changes to merged value when paired
-    ###UNTESTED
-    if(i%in%iPaired) {
-      mseq <- mseqsPaired[[which(iPaired==i)]]
-    } else {
-      mseq <- mseqs[[i]]
-    }
-    
-    #Range of positions in df that are effected by mseq values
-    return(len.terminal.gap(mseq):nchar(mseq))
-  }, mc.cores=mc.cores)
+  posRanges <- mclapply(mseqs, function(mseq) {len.terminal.gap(mseq):nchar(mseq)}, mc.cores=mc.cores)
   
   #For increasing
   posVals <- mclapply(1:length(mseqs), function(i){
     
-    #aligned normally == mseq. Only changes to merged value when paired
-    ###UNTESTED
-    if(i%in%iPaired) {
-      mseq <- mseqsPaired[[which(iPaired==i)]]
-    } else {
-      mseq <- mseqs[[i]]
-    }
-    
-    aligned <- mseqs[[i]]
+    #Set up sequence, alignment and position range
+    mseq <- mseqs[[i]]
+    aligned <- mseq
     posRange <- posRanges[[i]]
     
     #Calculates a matrix. By adding the values of this matrix to df, we can update it 
@@ -352,6 +328,9 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
         return(temp)
       }
     })
+    
+    #If a paired read, then divide all probs by 2
+    if(i %in% mseqPaired) {res <- res/2}
     
     return(res)
   }, mc.cores=mc.cores)
