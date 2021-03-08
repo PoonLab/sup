@@ -293,8 +293,9 @@ parse.sam <- function(infile, chunkSize=100, mc.cores=1, verbose = TRUE, vectori
   
   if(paired){
     DT[qname%in%qnameRep, "paired":=T]
-    mseqPaired <- which(DT[(cigar)!='*',(paired)])
   }
+  
+  mseqPaired <- which(DT[(cigar)!='*',(paired)])
   
   #Calculates the longest an mseq value could be
   #Used to create matrix and prevent dynamic growth
