@@ -12,12 +12,12 @@ uncsam <- list.files("data/unc_covid", pattern = "*\\.RDS")
 
 plotlist <- vector(mode = "list", length = length(uncsam))
 meaningful <- c()
-for(i in 1:length(uncsam)){
+for (i in seq_along(uncsam)) {
     thissam <- readRDS(paste0("data/unc_covid/", uncsam[[i]]))
-    if(is.null(dim(thissam))) next
+    if (is.null(dim(thissam))) next
 
     # My algorithm doesn't actually assign probabilities to gaps
-    thissam <- thissam[,1:4]
+    thissam <- thissam[, 1:4]
 
     # Find the probability of the consensus
     maxprob <- apply(thissam, 1, max)
@@ -25,16 +25,16 @@ for(i in 1:length(uncsam)){
     thissam <- apply(thissam, 2, function(x) x / (sumprob + 0.00001))
 
 
-    samdf <- data.frame(thissam) %>% 
+    samdf <- data.frame(thissam) %>%
         mutate(id = 1:n()) %>%
         slice(which(maxprob < cutoff)) %>%
         pivot_longer(cols = -id, names_to = "alph", values_to = "q") %>%
         filter(q > 0)
-    
+
     meaningful[i] <- length(unique(samdf$q)) > 2
-    plotlist[[i]] <- ggplot(samdf) + 
-        aes(x = factor(id), y = alph, fill = q) + 
-        geom_tile() + 
+    plotlist[[i]] <- ggplot(samdf) +
+        aes(x = factor(id), y = alph, fill = q) +
+        geom_tile() +
         scale_fill_viridis_c(option = "A", direction = -1) +
         labs(title = uncsam[[i]], x = "Locus", y = NULL)
 }
