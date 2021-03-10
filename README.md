@@ -11,11 +11,11 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 Sequence uncertainty can be obtained either from SAM files or from FASTQ:
 
 1. Raw short read files (e.g. SAM)
-  - Sequences are read little bits at a time. Each read is recorded, and stored in a file (along with it's alignment to a reference sequence).
+  - Sequences are read little bits at a time. Each read is recorded and stored in a file (along with it's alignment to a reference sequence).
   - The sequence reads include information on the read quality. This is encoded as a Phred score, which uses unicode characters to encode uncertainty about a given base call.
   - The called base is assigned a probability according to the Phred score. The remaining probability is assigned equally to the remaining possible bases.
     - For example, if P(T) = 0.7 from the Phred score, then P(A) = P(C) = P(G) = 0.1.
-  - Given many short reads, the probabilities for each base pair at each site are added.
+  - Given many short reads, the probabilities for each base pair at each site are added together.
     - If, say, T is always 100% certain, then the the sum of the probabilities will represent the number of reads.
 2. FASTQ Files
   - SAM files aren't always practical (or available), so often FASTQ files are used instead.
@@ -52,8 +52,15 @@ We include an application to SARS-CoV-2 data. Using a collection of SAM files fo
 - `misc`: a few files for calculating testing RF distance
 - `ms`: start of the paper
 
+# Roadmap to the Paper
 
-
-
+- [ ] WRITE
+  - Currently making LOs and first drafts by topics, will put together soon.
+- [ ] `parse.sam()` is slow. Me, Connor, and Gopi are all working on methods to make it faster. 
+- [ ] Visualizations of uncertainty matrices (covid/unc_vis.R)
+- [ ] Visualizations of Pangolin calls (covid/pangolin_results_dir.R)
+- [ ] Fixing the sampling code (covid/sample_S)
+  - Changed to multinomial posterior and now resultant samples are all 100% certain, according to pangolin
+  - Compare samples with/without posterior sampling
 
 
