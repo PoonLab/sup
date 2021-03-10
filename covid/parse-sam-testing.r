@@ -28,7 +28,7 @@ paste(round(as.numeric(timeperline)*147654/60, 3), "hours")
 all.equal(test1, test2)
 
 tn <- Sys.time()
-test2 <- parse.sam.dt(inFile)
+test2 <- parse.sam.dt(inFile, nc = 4)
 parsetime <- difftime(Sys.time(), tn, units = "mins")
 parsetime
 
