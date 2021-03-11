@@ -1,4 +1,8 @@
 require(parallel)
+library(data.table)
+library(dplyr)
+library(readr)
+library(pbmcapply)
 
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
@@ -94,6 +98,83 @@ apply.cigar <- function(cigar, seq, qual, pos) {
     # append quality string to sequence as an attribute
     attr(new.seq, 'qual') <- new.qual
     attr(new.seq, 'insertions') <- insertions
+    return(new.seq)
+}
+
+#' Use CIGAR (Compact Idiosyncratic Gapped Alignment Report) string
+#' to apply soft clips, insertions and deletions to the read sequence.
+#' Any insertions relative to the reference sequence are removed to
+#' enforce a strict pairwise alignment.
+#'
+#' @param cigar: character, string in CIGAR format
+#' @param seq: character, read sequence
+#' @param qual: character, quality string
+#' @param pos: integer, first position of the read
+#' @return character vector, c(sequence, quality)
+apply.cigar.parallel <- function(cigar, seq, pos, qual, mc.cores=1) {
+    
+    # validate CIGAR
+    is.valid <- grepl("^((\\d+)([MIDNSHPX=]))*$", cigar)
+    if (sum(!is.valid)>0) {stop("Error: CIGAR strings: at", which(!is.valid))}
+    
+    #Tokenize
+    pat <- "\\d+[MIDNSHPX=]"
+    ltokens <- lapply(cigar, function(x){re.findall(pat, x)})
+    left <- 1
+    
+    #Begin storing edits and sequence position in data table
+    edits <- bind_rows(mclapply(1:length(ltokens), function(i){
+        
+        DT <- data.table(len=sapply(ltokens[[i]], function(token) {as.integer(gsub("^(\\d+).+$", "\\1", token))}),
+            operand=sapply(ltokens[[i]], function(token) {gsub("^\\d+([MIDNSHPX=])$", "\\1", token)}))
+        DT[,"seqI":=i] 
+        
+        rowFunLeft <- function(j) {
+            if(j==1){return(1)}
+            temp <- DT[1:(j-1),]
+            1+sum(temp[(operand%in%c("M","I","S")), (len)])
+        }
+        DT[,"left" := rowFunLeft(.I), by=1:nrow(DT)]
+        
+        rowFunLen <- function(j) {sum(DT[1:j, (len)])+pos[[i]]}
+        DT[,"lenSeq" := rowFunLen(.I), by=1:nrow(DT)]
+        
+        DT[, "seqPart" := ""]
+        DT[1, 'seqPart' := paste0(rep('-', pos[i]), collapse="")]
+        
+        DT[, "qualPart" := ""]
+        DT[1, "qualPart" := paste0(rep('!', pos[i]), collapse="")]
+        
+        return(DT)
+    }, mc.cores=mc.cores))
+    
+    #Append sequences to a new seqPart column based on edit information
+    rowFunD <- function(part, len, ch){paste0(c(part,rep(ch, len)), collapse="")}
+    edits[operand=='D', "seqPart" := rowFunD(seqPart, len, '-'), by=which(operand=='D')]
+    edits[operand=='D', "qualPart" := rowFunD(qualPart, len, '!'), by=which(operand=='D')]
+    
+    rowFunMI <- function(part, x, len, seqI, left){
+        paste0(c(part, substr(x[seqI], left, left + len - 1)), collapse="")
+    }
+    edits[operand%in%c('M', 'I'), "seqPart" := rowFunMI(seqPart, seq, len, seqI, left), by=which(operand%in%c('M', 'I'))]
+    edits[operand%in%c('M', 'I'), "qualPart" := rowFunMI(qualPart, qual, len, seqI, left), by=which(operand%in%c('M', 'I'))]
+    
+    #Pull sequences by seqPart row
+    new.seq <- edits[, paste0(.SD[!(operand=='I'), (seqPart)], collapse=""), by=(seqI)]$V1
+    attr(new.seq, "qual") <- edits[, paste0(.SD[!(operand=='I'), (qualPart)], collapse=""), by=(seqI)]$V1
+    
+    #Account for insertions
+    insertions <- mclapply(1:length(new.seq), function(i) {
+        insertions <- list()
+        x <- edits[seqI==i,]
+        insertions[x[operand=='I',(lenSeq)]] <- lapply(which(x$operand=='I'), function(j){
+            c(x[j,(seqPart)], x[j,(qualPart)])
+        })
+        return(insertions)
+    }, mc.cores=mc.cores)
+    
+    attr(new.seq, "insertions") <- insertions
+    
     return(new.seq)
 }
 
@@ -303,8 +384,8 @@ parse.sam <- function(infile, verbose = TRUE){
     print(paste0("Total time: ", as.numeric(totaltimings)))
     close(con)
     
-    cat("\nRelative time (percent):\n")
     if(verbose){
+        cat("\nRelative time (percent):\n")
         print(round(timings/as.numeric(totaltimings), 4)*100)
     }
     
@@ -436,10 +517,18 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
     return(df[1:max.row, ])
 }
 
-parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
+parse.sam.dt <- function(inFile, nc = 1, verbose = TRUE){
+    # Timing Info
+    t0 <- Sys.time()
+    timings <- c("First Read" = NA, "Cigar" = NA, "Paired" = NA,
+        "PosRange" = NA, "Phred" = NA, "Update" = NA)
+    if (verbose) {
+        cat("Reading File...\n")
+    }
     
-    print("Reading File")
-    #Reading data now uses this function to read by chunks
+    
+    # Reading data now uses this function to read by chunks
+    t1 <- Sys.time()
     con <- file(inFile, open="rb")
     
     f <- function(x, pos) {
@@ -450,72 +539,72 @@ parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
         return(as.data.table(s))
     }
     
-    s <- read_lines_chunked(con, callback=DataFrameCallback$new(f), chunk_size = 100)
+    s <- read_lines_chunked(con, 
+        callback = DataFrameCallback$new(f), 
+        chunk_size = 100)
     
     #Data file has now been read
-    print("File Read")
     close(con)
+    timings["First Read"] <- difftime(Sys.time(), t1, units = "mins")
     
-    #Run all cigar values 
-    mseqs <- mclapply(which(s$cigar!='*'), function(i) {
+    
+    
+    # Run all cigar values
+    if (verbose) {
+        cat("Have a cigar, you're gonna go far...\n")
+    }
+    t1 <- Sys.time()
+    mseqs <- pbmclapply(which(s$cigar != '*'), function(i) {
         x <- s[i,]
-        apply.cigar(cigar=x$cigar, seq=x$seq, 
-            qual=x$qual, pos=x$pos)
-    }, mc.cores=nc)
-    print("Cigar Strings Processed")
+        apply.cigar(cigar = x$cigar, seq = x$seq, 
+            qual = x$qual, pos = x$pos)
+    }, mc.cores = nc)
+    timings["Cigar"] <- difftime(Sys.time(), t1, units = "mins")
     
-    print("Preparing Position Data")
-    #Check for paired neighbours
-    ###FOR TEST FILE, THIS ACTUALLY == 0?
-    ###THIS MERGED/PAIRED STUFF IS UNTESTED
-    iPaired <- sapply(1:(length(s$qname)-1), function(i){
-        s$qname[i] == s$qname[i+1]
-    })
     
-    #Merge those paired neighbours mseq values
-    mseqsPaired <- sapply(which(iPaired), function(i){
-        merge.pairs(mseqs[i], mseqs[i+1])
+    
+    # Check for paired neighbours
+    if(verbose) cat("Checking Paired Reads\n")
+    t1 <- Sys.time()
+    iPaired <- sapply(1:length(s$qname), function(i){
+        sum(s$qname == s$qname[i]) > 1
     })
+    timings["Paired"] <- difftime(Sys.time(), t1, units = "mins")
+    
     
     #Calculates the longest an mseq value could be
     #Used to create matrix and prevent dynamic growth
     maxLen <- max(sapply(mseqs, function(mseq){nchar(mseq)}))
-    m <- matrix(0, nrow=maxLen, ncol=4)
+    m <- matrix(0, nrow = maxLen, ncol = 4)
     colnames(m) <- c('A', 'C', 'G', 'T')
     
     #For Targetting
-    posRanges <- mclapply(1:length(mseqs), function(i) {
-        
-        #aligned normally == mseq. Only changes to merged value when paired
-        ###UNTESTED
-        if(i%in%iPaired) {
-            mseq <- mseqsPaired[[which(iPaired==i)]]
-        } else {
-            mseq <- mseqs[[i]]
-        }
-        
+    if (verbose) {
+        cat("Finding position ranges...\n")
+    }
+    t1 <- Sys.time()
+    posRanges <- pbmclapply(1:length(mseqs), function(i) {
+        mseq <- mseqs[[i]]
         #Range of positions in df that are effected by mseq values
         return(len.terminal.gap(mseq):nchar(mseq))
     }, mc.cores=nc)
+    timings["PosRange"] <- difftime(Sys.time(), t1, units = "mins")
     
     #For increasing
-    posVals <- mclapply(1:length(mseqs), function(i){
+    if (verbose) {
+        cat("Calculating/Translating Phred scores...\n")
+    }
+    t1 <- Sys.time()
+    alphabet <- c('A', 'C', 'G', 'T')
+    posVals <- pbmclapply(1:length(mseqs), function(i){
+        mseq <- mseqs[[i]]
         
-        #aligned normally == mseq. Only changes to merged value when paired
-        ###UNTESTED
-        if(i%in%iPaired) {
-            mseq <- mseqsPaired[[which(iPaired==i)]]
-        } else {
-            mseq <- mseqs[[i]]
-        }
-        
-        aligned <- mseqs[[i]]
         posRange <- posRanges[[i]]
         
         #Calculates a matrix. By adding the values of this matrix to df, we can update it 
         res <- sapply(posRange, function(pos){
             nt <- substr(mseq, pos, pos)
-            qc <- substr(attr(aligned, 'qual'), pos, pos)
+            qc <- substr(attr(mseq, 'qual'), pos, pos)
             
             if(nt == '-') { #If a gap, then nothing is updated
                 return(rep(0,4))
@@ -526,21 +615,37 @@ parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
             } else { #If some base than that base up by 1-p and other bases up by p/3
                 p <- 10^-((ord(qc)-30)/10)
                 temp <- rep((p/3),4)
-                temp[which(c('A', 'C', 'G', 'T')%in%nt)] <- 1-p
+                temp[which(alphabet %in% nt)] <- 1-p
                 return(temp)
             }
         })
         
         return(res)
     }, mc.cores=nc)
+    timings["Phred"] <- difftime(Sys.time(), t1, units = "mins")
     
-    print("Final Step: Applying position Values")
-    
+    if (verbose) {
+        cat("Updating matrix...\n")
+    }
+    t1 <- Sys.time()
     #Increase targetted areas
     for(i in 1:length(mseqs)) {
         #Add the Transposed values to the 
         m[posRanges[[i]],] <- m[posRanges[[i]],] + t(posVals[[i]])
     }
+    timings["Update"] <- difftime(Sys.time(), t1, units = "mins")
+    
+    
+    
+    # Timing info
+    totaltimings <- difftime(Sys.time(), t0, units = "mins")
+    print(paste0("Total time: ", as.numeric(totaltimings)))
+    
+    if(verbose){
+        cat("\nRelative time (percent):\n")
+        print(round(timings/as.numeric(totaltimings), 4)*100)
+    }
+    
     
     m
 }
