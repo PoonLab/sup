@@ -179,138 +179,6 @@ parse.sam.line <- function(line) {
         cigar = tokens[6], seq = tokens[10], qual = tokens[11])
 }
 
-parse.sam <- function(infile, verbose = TRUE){
-    t0 <- Sys.time()
-    
-    timings <- c("First Read" = NA, "Cigar" = NA, "Paired" = NA, "PosRange" = NA,
-        "Phred" = NA, "Update" = NA)
-    # All lines as Tibble
-    if (verbose) {
-        cat("First Read...\n")
-    }
-    t1 <- Sys.time()
-    con <- file(infile, open = 'r')
-    s <- readLines(con)
-    s <- s[!grepl("^@", s)]
-    s <- lapply(s, function(x){
-        as.data.frame(parse.sam.line(x))
-    })
-    s <- as.data.frame(do.call(rbind, s))
-    timings["First Read"] <- difftime(Sys.time(), t1, units = "mins")
-    
-    
-    # Run all cigar values
-    if (verbose) {
-        cat("Have a cigar, you're gonna go far...\n")
-    }
-    t1 <- Sys.time()
-    mseqs <- lapply(which(s$cigar != '*'), function(i) {
-        x <- s[i,]
-        apply.cigar(cigar = x$cigar, seq = x$seq,
-            qual = x$qual, pos = x$pos)
-    })
-    timings["Cigar"] <- difftime(Sys.time(), t1, units = "mins")
-    
-    
-    
-    # Check for paired neighbours
-    ###FOR TEST FILE, THIS ACTUALLY == 0?
-    ###THIS MERGED/PAIRED STUFF IS UNTESTED
-    if (verbose) {
-        cat("Checking paired...\n")
-    }
-    t1 <- Sys.time()
-    iPaired <- sapply(1:length(s$qname), function(i){
-        sum(s$qname == s$qname[i]) > 1
-    })
-    timings["Paired"] <- difftime(Sys.time(), t1, units = "mins")
-    
-    
-    
-    
-    # Calculates the longest an mseq value could be
-    # Used to create matrix and prevent dynamic growth
-    maxLen <- max(sapply(mseqs, function(mseq){nchar(mseq)}))
-    m <- matrix(0, nrow = maxLen, ncol = 4)
-    colnames(m) <- c('A', 'C', 'G', 'T')
-    
-    
-    
-    # For Targetting
-    if (verbose) {
-        cat("Finding position ranges...\n")
-    }
-    t1 <- Sys.time()
-    posRanges <- lapply(1:length(mseqs), function(i) {
-        # Range of positions in df that are effected by mseq values
-        return(len.terminal.gap(mseqs[[i]]):nchar(mseqs[[i]]))
-    })
-    timings["PosRange"] <- difftime(Sys.time(), t1, units = "mins")
-    
-    
-    
-    # For increasing
-    if (verbose) {
-        cat("Calculating/Translating Phred scores...\n")
-    }
-    t1 <- Sys.time()
-    alphabet <- c('A', 'C', 'G', 'T')
-    posVals <- lapply(1:length(mseqs), function(i){
-        
-        mseq <- mseqs[[i]]
-        posRange <- posRanges[[i]]
-        
-        # Calculates a matrix.
-        # By adding the values of this matrix to df, we can update it
-        res <- sapply(posRange, function(pos){
-            nt <- substr(mseq, pos, pos)
-            qc <- substr(attr(mseq, 'qual'), pos, pos)
-            
-            if (nt == '-') { #If a gap, then nothing is updated
-                return(rep(0,4))
-            } else if (nt == 'N') { # If an 'N', then everything up by 0.25
-                return(rep(0.25,4))
-            } else {# If some base than that base up by 1-p and other bases up by p/3
-                p <- 10^-((ord(qc) - 30)/10)
-                # if paired, divide probabilities by 2
-                # a pair counts as a single obs, each read counts half.
-                # ipaired[i] == TRUE means ipaired[i] + 1 == 2.
-                temp <- rep((p/3),4) / (iPaired[i] + 1)
-                temp[which(alphabet %in% nt)] <- (1 - p) / (iPaired[i] + 1)
-                return(temp)
-            }
-        })
-        
-        return(res)
-    })
-    timings["Phred"] <- difftime(Sys.time(), t1, units = "mins")
-    
-    
-    
-    # Increase targeted areas
-    if (verbose) {
-        cat("Updating matrix...\n")
-    }
-    t1 <- Sys.time()
-    for (i in 1:length(mseqs)) {
-        # Add the Transposed values to the
-        m[posRanges[[i]],] <- m[posRanges[[i]],] + t(posVals[[i]])
-    }
-    timings["Update"] <- difftime(Sys.time(), t1, units = "mins")
-    
-    #print(t0)
-    totaltimings <- difftime(Sys.time(), t0, units = "mins")
-    print(paste0("Total time: ", as.numeric(totaltimings)))
-    close(con)
-    
-    cat("\nRelative time (percent):\n")
-    if(verbose){
-        print(round(timings/as.numeric(totaltimings), 4)*100)
-    }
-    
-    m
-}
-
 parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
     save.partial=TRUE, est.length=NULL, time.step=20) {
     df <- matrix(0, nrow=1000, ncol=6)
@@ -436,7 +304,7 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
     return(df[1:max.row, ])
 }
 
-parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
+parse.sam.dt <- function(inFile, nc = 1){
     # Timing Info
     t0 <- Sys.time()
     timings <- c("First Read" = NA, "Cigar" = NA, "Paired" = NA,
