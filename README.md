@@ -1,14 +1,22 @@
-# sup - dev branch (dev is short for devan, not development)
+### Specific to this branch - con branch (Following naming convention)
+Primarily working on rewriting the parse-sam.R code to increase speed and memory management. This makes 4 general changes... 
+1. Initially read in files by chunks, using `stringr::read_lines_chunked()` (see `parse.sam()`)
+2. Use data tables to store results (including data read from sam) and use data table row operations whenever possible.
+3. Vecotrize functions where possible (see - `parse.sam.line()`, `apply.cigar() )
+4. Make use of parallel capabilities through `parallel::mclapply()` for file reading and vectorized functions.
 
+# Original README
+# sup
 Sequencing Uncertainty Propagation
 
-## Objectives/Overview
+## Objectives
 
-Propagate sequencing uncertainty in phylogenetic analysis, with an application to SARS-CoV-2 lineage assignment.
+Propagate sequencing uncertainty in phylogenetic analysis.
 
 Sequencing is a multi-step process which is prone to errors. If the output for the sequencing of a biological sample gives `ATTGCTATGC`, what is the error probability associated with this result, at each position (for example, what is the probability that the second base is indeed a `T`)? How can we propagate this uncertainty in downstream phylogenic analysis?
 
-Sequence uncertainty can be obtained either from SAM files or from FASTQ:
+## Directories
+
 
 1. Raw short read files (e.g. SAM)
     - Sequences are read little bits at a time. Each read is recorded and stored in a file (along with it's alignment to a reference sequence).
@@ -23,11 +31,12 @@ Sequence uncertainty can be obtained either from SAM files or from FASTQ:
 3. FASTA files
     - Contain no information about sequence uncertainty.
 
-In this study, we show that using sequences from FASTA files leads to underestimation of the variance, which has ripple effects throughout the rest of the analysis. We demonstrate techniques for propagating sequence uncertainty into further analysis, but this inevitably comes at the expense of computation time.
 
-We include an application to SARS-CoV-2 data. Using a collection of SAM files for the SARS-CoV-2 virus from [NCBI's short read archive](https://www.ncbi.nlm.nih.gov/sra), we produce uncertainty estimates at each site on the genome. Instead of choosing the most likely base at each site to create a single nucleotide (as in FASTA files), we sample a collection of sequences based on the uncertainty. [Pangolin](https://github.com/cov-lineages/pangolin) is used to assign each sequence to a lineage.
+`doc`: Documentation of the methods
 
-## Directory/Analysis Structure
+`src`: source code for uncertainty propagation analysis
+
+`reads-seq-err`: Estimation of the sequencing error of DNA fragment by Illumina instruments using simulations from from the software *InSilicoSeq*.
 
 - `data`: Data related to sequencing uncertainty.
     - `seqs`: fasta sequence data for HIV data.
@@ -82,5 +91,7 @@ We include an application to SARS-CoV-2 data. Using a collection of SAM files fo
 - Visualizations of Pangolin calls (`covid/pangolin_results_dir.R`)
     - Needs a lot of work.
 
+The type of sequence and phylogeny simulated is defined in `prm.csv`.
 
 
+### Fragment sequencing eror
