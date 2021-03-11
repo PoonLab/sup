@@ -1,4 +1,5 @@
-# sup
+# sup - dav branch (dav is short for daveleped by david)
+
 Sequencing Uncertainty Propagation
 
 ## Objectives
