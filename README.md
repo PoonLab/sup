@@ -1,4 +1,4 @@
-# sup - dav branch (dav is short for daveleped by david)
+# sup - dav branch (dav is short for daveloped by david champredon)
 
 Sequencing Uncertainty Propagation
 
