@@ -531,7 +531,7 @@ parse.sam.dt <- function(inFile, nc = 1, cs = 5000){
                 return(rep(0,4))
                 
             } else if(nt == 'N') { #If an 'N', then everything up by 0.25
-                return(rep(0.25,4))
+                return(rep(0.25,4) / (iPaired[i] + 1))
                 
             } else { #If some base than that base up by 1-p and other bases up by p/3
                 p <- 10^-((ord(qc)-30)/10)
