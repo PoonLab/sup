@@ -1,0 +1,37 @@
+---
+title: "Visualizing Pangolin Uncertainty (a.k.a. Pangoluncertainty)"
+author: "Devan Becker"
+date: "2021-02-10"
+font: 13pt
+output: pdf_document
+---
+
+```{r setup}
+library(here)
+library(ggplot2)
+library(dplyr)
+```
+
+# Goal
+
+Visualize/summarize the results of sending resampled uncertainty matrices through pangolin.
+
+# Vis Setup
+
+Each row in the dataset represents a single sample from one uncertainty matrix (only dealing with one accession number for now). The columns are as folows:
+
+- `taxon`: the accession name, followed by ".0" for the consensus sequence and "0.1" to "0.1000" for the 1,000 samples from the matrix.
+- `lineage`: The called lineage from pangolin
+- `probability`: the bootstrap support for this lineage call
+- `pangoLEARN_version`, `status`, and `note`: extra info from pangolin
+
+```{r}
+unc1 <- read.csv(here("data/pangolineages/", "ERR4085809_pangolineages.csv"))
+head(unc1)
+```
+
+To prep the data, I calculate another column called ""
+
+
+
+
