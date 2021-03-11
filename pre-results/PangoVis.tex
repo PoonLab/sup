@@ -116,6 +116,8 @@
 \KeywordTok{library}\NormalTok{(here)}
 \KeywordTok{library}\NormalTok{(ggplot2)}
 \KeywordTok{library}\NormalTok{(dplyr)}
+\KeywordTok{library}\NormalTok{(tidyr)}
+\KeywordTok{library}\NormalTok{(stringr)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -138,6 +140,14 @@ as folows:
   \texttt{taxon}: the accession name, followed by ``.0'' for the
   consensus sequence and ``0.1'' to ``0.1000'' for the 1,000 samples
   from the matrix.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    This is split into \texttt{taxon}, which is all identical for one
+    file, and \texttt{sample}, which is 0 for the conseq and 1:1000 for
+    the 1,000 samples.
+  \end{itemize}
 \item
   \texttt{lineage}: The called lineage from pangolin
 \item
@@ -150,20 +160,76 @@ as folows:
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{unc1 <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\KeywordTok{here}\NormalTok{(}\StringTok{"data/pangolineages/"}\NormalTok{, }\StringTok{"ERR4085809_pangolineages.csv"}\NormalTok{))}
+\NormalTok{unc1 <-}\StringTok{ }\NormalTok{unc1 }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{separate}\NormalTok{(}\DataTypeTok{col =} \StringTok{"taxon"}\NormalTok{, }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, }
+        \DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"taxon"}\NormalTok{, }\StringTok{"sample"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{taxon =} \KeywordTok{str_replace}\NormalTok{(taxon, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{_"}\NormalTok{, }\StringTok{""}\NormalTok{))}
 \KeywordTok{head}\NormalTok{(unc1)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-##           taxon lineage probability pangoLEARN_version    status note
-## 1 _ERR4085809.0     B.1           1         2021-02-21 passed_qc   NA
-## 2 _ERR4085809.1     A.2           1         2021-02-21 passed_qc   NA
-## 3 _ERR4085809.2       B           1         2021-02-21 passed_qc   NA
-## 4 _ERR4085809.3       B           1         2021-02-21 passed_qc   NA
-## 5 _ERR4085809.4  B.1.98           1         2021-02-21 passed_qc   NA
-## 6 _ERR4085809.5       B           1         2021-02-21 passed_qc   NA
+##        taxon sample lineage probability pangoLEARN_version    status note
+## 1 ERR4085809      0     B.1           1         2021-02-21 passed_qc   NA
+## 2 ERR4085809      1     A.2           1         2021-02-21 passed_qc   NA
+## 3 ERR4085809      2       B           1         2021-02-21 passed_qc   NA
+## 4 ERR4085809      3       B           1         2021-02-21 passed_qc   NA
+## 5 ERR4085809      4  B.1.98           1         2021-02-21 passed_qc   NA
+## 6 ERR4085809      5       B           1         2021-02-21 passed_qc   NA
 \end{verbatim}
 
-To prep the data, I calculate another column called ""
+To prep the data, I calculate another column called ``prop'', which
+represents the number of samples that were assigned the sam lineage as
+the one in that row. So, for a lineage assigned B.1, prop would be the
+total number of B.1s in the sampled lineages divided by 1000.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{unc2 <-}\StringTok{ }\NormalTok{unc1 }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(lineage) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{prop =} \KeywordTok{n}\NormalTok{() }\OperatorTok{/}\StringTok{ }\NormalTok{(}\KeywordTok{nrow}\NormalTok{(unc1) }\OperatorTok{-}\StringTok{ }\DecValTok{1}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{right_join}\NormalTok{(unc1, }\DataTypeTok{by =} \StringTok{"lineage"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{arrange}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(sample))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `summarise()` ungrouping output (override with `.groups` argument)
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(unc2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 6 x 8
+##   lineage    prop taxon     sample probability pangoLEARN_version status   note 
+##   <chr>     <dbl> <chr>     <chr>        <dbl> <chr>              <chr>    <lgl>
+## 1 B.1     0.186   ERR40858~ 0                1 2021-02-21         passed_~ NA   
+## 2 A.2     0.00694 ERR40858~ 1                1 2021-02-21         passed_~ NA   
+## 3 B       0.204   ERR40858~ 2                1 2021-02-21         passed_~ NA   
+## 4 B       0.204   ERR40858~ 3                1 2021-02-21         passed_~ NA   
+## 5 B.1.98  0.00231 ERR40858~ 4                1 2021-02-21         passed_~ NA   
+## 6 B       0.204   ERR40858~ 5                1 2021-02-21         passed_~ NA
+\end{verbatim}
+
+Now we can view the differences between the pangolin bootstrap support
+and the actual proportion of samples with that lineage designation!
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(unc2) }\OperatorTok{+}\StringTok{ }
+\StringTok{    }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prop, }\DataTypeTok{y =}\NormalTok{ probability) }\OperatorTok{+}\StringTok{ }
+\StringTok{    }\KeywordTok{geom_point}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{PangoVis_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+Right now it's not very interesting because all of the pangolin
+probabilities are 1. I changed something in my code, and I don't know
+why this broke it. It's on my TODO.
 
 \end{document}
