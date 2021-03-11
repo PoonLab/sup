@@ -16,7 +16,7 @@ re.findall <- function(pat, s) {
     matches <- gregexpr(pat, s)
     index <- as.integer(matches[[1]])
     match.length <- attr(matches[[1]], 'match.length')
-
+    
     sapply(1:length(index), function(i) {
         start <- index[i]
         stop <- start + match.length[i] - 1
@@ -40,21 +40,21 @@ apply.cigar <- function(cigar, seq, qual, pos) {
     new.seq <- paste0(rep('-', pos), collapse = '')
     new.qual <- paste0(rep('!', pos), collapse = '')
     insertions <- list()
-
+    
     # validate CIGAR
     is.valid <- grepl("^((\\d+)([MIDNSHPX=]))*$", cigar)
     if (!is.valid) {
         stop("Error: Invalid CIGAR string: \"", cigar, "\"")
     }
-
+    
     pat <- "\\d+[MIDNSHPX=]"
     tokens <- re.findall(pat, cigar)
     left <- 1
-
+    
     for (token in tokens) {
         len <- as.integer(gsub("^(\\d+).+$", "\\1", token))
         operand <- gsub("^\\d+([MIDNSHPX=])$", "\\1", token)
-
+        
         if (operand == 'M') {
             # append matching substring
             new.seq <- paste0(new.seq,
@@ -90,7 +90,7 @@ apply.cigar <- function(cigar, seq, qual, pos) {
             stop("Error in apply.cigar: unsupported token ", token)
         }
     }
-
+    
     # append quality string to sequence as an attribute
     attr(new.seq, 'qual') <- new.qual
     attr(new.seq, 'insertions') <- insertions
@@ -138,7 +138,7 @@ merge.pairs <- function(seq1, seq2, qcutoff = 10, min.q.delta = 5) {
     if (is.null(attr(seq1, "qual")) || is.null(attr(seq1, "qual"))) {
         stop("Error: merge.pairs() requires seq1 and seq2 to be processed by apply.cigar()")
     }
-
+    
     v1 <- atomize(seq1, qcutoff)
     v2 <- atomize(seq2, qcutoff)
     ldiff <- length(v1) - length(v2)
@@ -181,7 +181,7 @@ parse.sam.line <- function(line) {
 
 parse.sam <- function(infile, verbose = TRUE){
     t0 <- Sys.time()
-
+    
     timings <- c("First Read" = NA, "Cigar" = NA, "Paired" = NA, "PosRange" = NA,
         "Phred" = NA, "Update" = NA)
     # All lines as Tibble
@@ -197,8 +197,8 @@ parse.sam <- function(infile, verbose = TRUE){
     })
     s <- as.data.frame(do.call(rbind, s))
     timings["First Read"] <- difftime(Sys.time(), t1, units = "mins")
-
-
+    
+    
     # Run all cigar values
     if (verbose) {
         cat("Have a cigar, you're gonna go far...\n")
@@ -210,9 +210,9 @@ parse.sam <- function(infile, verbose = TRUE){
             qual = x$qual, pos = x$pos)
     })
     timings["Cigar"] <- difftime(Sys.time(), t1, units = "mins")
-
-
-
+    
+    
+    
     # Check for paired neighbours
     ###FOR TEST FILE, THIS ACTUALLY == 0?
     ###THIS MERGED/PAIRED STUFF IS UNTESTED
@@ -224,18 +224,18 @@ parse.sam <- function(infile, verbose = TRUE){
         sum(s$qname == s$qname[i]) > 1
     })
     timings["Paired"] <- difftime(Sys.time(), t1, units = "mins")
-
-
-
-
+    
+    
+    
+    
     # Calculates the longest an mseq value could be
     # Used to create matrix and prevent dynamic growth
     maxLen <- max(sapply(mseqs, function(mseq){nchar(mseq)}))
     m <- matrix(0, nrow = maxLen, ncol = 4)
     colnames(m) <- c('A', 'C', 'G', 'T')
-
-
-
+    
+    
+    
     # For Targetting
     if (verbose) {
         cat("Finding position ranges...\n")
@@ -246,9 +246,9 @@ parse.sam <- function(infile, verbose = TRUE){
         return(len.terminal.gap(mseqs[[i]]):nchar(mseqs[[i]]))
     })
     timings["PosRange"] <- difftime(Sys.time(), t1, units = "mins")
-
-
-
+    
+    
+    
     # For increasing
     if (verbose) {
         cat("Calculating/Translating Phred scores...\n")
@@ -256,16 +256,16 @@ parse.sam <- function(infile, verbose = TRUE){
     t1 <- Sys.time()
     alphabet <- c('A', 'C', 'G', 'T')
     posVals <- lapply(1:length(mseqs), function(i){
-
+        
         mseq <- mseqs[[i]]
         posRange <- posRanges[[i]]
-
+        
         # Calculates a matrix.
         # By adding the values of this matrix to df, we can update it
         res <- sapply(posRange, function(pos){
             nt <- substr(mseq, pos, pos)
             qc <- substr(attr(mseq, 'qual'), pos, pos)
-
+            
             if (nt == '-') { #If a gap, then nothing is updated
                 return(rep(0,4))
             } else if (nt == 'N') { # If an 'N', then everything up by 0.25
@@ -280,13 +280,13 @@ parse.sam <- function(infile, verbose = TRUE){
                 return(temp)
             }
         })
-
+        
         return(res)
     })
     timings["Phred"] <- difftime(Sys.time(), t1, units = "mins")
-
-
-
+    
+    
+    
     # Increase targeted areas
     if (verbose) {
         cat("Updating matrix...\n")
@@ -297,17 +297,17 @@ parse.sam <- function(infile, verbose = TRUE){
         m[posRanges[[i]],] <- m[posRanges[[i]],] + t(posVals[[i]])
     }
     timings["Update"] <- difftime(Sys.time(), t1, units = "mins")
-
+    
     #print(t0)
     totaltimings <- difftime(Sys.time(), t0, units = "mins")
     print(paste0("Total time: ", as.numeric(totaltimings)))
     close(con)
-
+    
     cat("\nRelative time (percent):\n")
     if(verbose){
         print(round(timings/as.numeric(totaltimings), 4)*100)
     }
-
+    
     m
 }
 
@@ -315,7 +315,7 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
     save.partial=TRUE, est.length=NULL, time.step=20) {
     df <- matrix(0, nrow=1000, ncol=6)
     colnames(df) <- c('A', 'C', 'G', 'T', 'N', 'gap')
-
+    
     con <- file(infile, open='r')
     read.next <- TRUE
     i <- 0
@@ -326,7 +326,7 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
         if (i %% time.step == 0) {
             dt <- difftime(Sys.time(), t0, units = "secs")
             cat(paste0(i, " ", round(dt/i, 5), " s/line\n"))
-
+            
             if(!is.null(est.length)) {
                 dt_hr <- dt
                 units(dt_hr) <- "hours"
@@ -335,7 +335,7 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
             }
             if(save.partial) saveRDS(df, file = "sam_partial.RDS")
         }
-
+        
         if (read.next) {
             line <- readLines(con, n=1, warn=FALSE)
             if (length(line) == 0) {
@@ -346,13 +346,13 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
         else {
             read.next <- TRUE
         }
-
+        
         if (grepl("^@", line)) {
             # skip header line
             next
         }
         row1 <- parse.sam.line(line)
-
+        
         # look ahead for second read of pair
         if (paired) {
             line <- readLines(con, n=1, warn=FALSE)
@@ -371,10 +371,10 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
                     # unmapped
                     next
                 }
-
+                
                 seq1 <- apply.cigar(cigar=row1$cigar, seq=row1$seq,
                     qual=row1$qual, pos=row1$pos)
-
+                
                 if (row2$qname == row1$qname) {
                     seq2 <- apply.cigar(cigar=row2$cigar, seq=row2$seq,
                         qual=row2$qual, pos=row2$pos)
@@ -400,7 +400,7 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
             mseq <- apply.cigar(cigar=row1$cigar, seq=row1$seq,
                 qual=row1$qual, pos=row1$pos)
         }
-
+        
         # update data frame
         start <- len.terminal.gap(mseq)
         aligned <- apply.cigar(cigar=row1$cigar, seq=row1$seq,
@@ -430,7 +430,7 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
             }
         }
     }
-
+    
     close(con)
     max.row <- which.max(cumsum(apply(df, 1, sum)))
     return(df[1:max.row, ])
@@ -570,7 +570,7 @@ parse.sam.mp_deprecated <- function(infile, n.cores=2) {
         }
     }
     close(con)
-
+    
     # load the entire file contents
     cat("Loading SAM file...\n")
     sam <- read.table(infile, sep='\t', skip=skip, quote="", fill=TRUE,
@@ -578,7 +578,7 @@ parse.sam.mp_deprecated <- function(infile, n.cores=2) {
     sam <- sam[,1:11]  # strip optional fields
     names(sam) <- c('qname', 'flag', 'rname', 'pos', 'mapq', 'cigar',
         'rnext', 'pnext', 'tlen', 'seq', 'qual')
-
+    
     cat("Launching processes...\n")
     res <- mclapply(1:n.cores, function(i) {
         df <- data.frame(matrix(0, nrow=tot.len, ncol=6))
