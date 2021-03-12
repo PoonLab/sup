@@ -4,8 +4,8 @@
     # Need to access the actual sequence as well
 library(ape)
 
-asc <- "ERR4085809"
-S <- readRDS(paste0("data/S/open_seSAMe-S-", asc, ".RDS"))
+asc <- "ERR4363387"
+S <- readRDS(paste0("data/unc_covid/open_seSAMe-S-", asc, ".RDS"))
 alph <- names(S)
 
 hist(apply(S, 1, sum))

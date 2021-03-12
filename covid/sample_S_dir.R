@@ -9,24 +9,36 @@ library(ape)
 library(gtools) # rdirichlet
 set.seed(2112) # \m/
 
+args <- commandArgs(TRUE)
+# --overwrite: Resample ALL
+# -N number of resamples
+# -d dirichlet prior
+N = 10
+if("-N" %in% args){
+    N = args[which(args == "-N") + 1]
+    N = as.numeric(N)
+} 
+dirich <- "-d" %in% args
+
 # Read list of files ending with .RDS
 rds_names <- list.files("data/unc_covid/", pattern = "*.RDS")
 # The "-1" indicates that it's a copy. Remove it.
 rds_names <- rds_names[!grepl("-1", rds_names)]
 
 # Avoid re-tracing my steps
-rds_done <- sapply(list.files("data/pangolineages/"), 
+rds_done <- sapply(list.files("data/pangolineages/", pattern=ifelse(dirich, "*_d.csv", "*.csv")), 
     function(x) strsplit(x, "\\_")[[1]][1])
 rds_todo <- sapply(strsplit(rds_names, "-"),
     function(x){
         strsplit(rev(x)[1], "\\.")[[1]][1]
     })
-rds_names <- rds_names[which(!rds_todo %in% rds_done)]
+if(!"--overwrite" %in% args) rds_names <- rds_names[which(!rds_todo %in% rds_done)]
 
 # Prepare empty lists
 S_list <- vector(mode = "list", length = length(rds_names))
 asc_names <- c()
 header_list <- S_list
+print(rds_names)
 
 # Read in uncertainty matrices and record accession names
 for(i in 1:length(rds_names)){
@@ -73,11 +85,16 @@ for(i in 1:nloops){
     # Sample the sequences
     n <- 1000 # number of sampled genomes
     sampleseq_mat <- apply(S, 1, function(x) {
-        if(any(is.na(x))){
-            return(rep("N", n))
+        if(any(is.na(x)) | sum(x) < 1){
+            return(rep("N", N))
         } else {
-            newx <- rdirichlet(1, x + rep(1/4, length(x)))
-            return(sample(alph, size = n, prob = newx, replace = TRUE))
+            if (dirich){
+                newx <- rdirichlet(1, x + rep(1/4, length(x)))
+                return(sample(alph, size = N, prob = newx, replace = TRUE))
+            } else {
+                return(sample(alph, size = N, prob = x, replace = TRUE))
+            }
+
         }
     })
     
@@ -89,22 +106,6 @@ for(i in 1:nloops){
         }
     })
     
-    # Optional code for personal interest
-    if(FALSE){
-        seqbin <- as.DNAbin(sampleseq_mat)
-        seqdist <- dist.dna(seqbin, model = "TN93")
-        
-        uppers <- as.numeric(seqdist)[which(upper.tri(seqdist))]
-        hist(uppers, freq = FALSE)
-        mean(uppers, na.rm = TRUE)
-        sd(uppers, na.rm = TRUE)
-        curve(dnorm(x, 
-                mean(uppers, na.rm = TRUE), 
-                sd(uppers, na.rm = TRUE)), 
-            add = TRUE, col = 2)
-        # Okay that is super weird how normal that is.
-    }
-    
     # Convert sample letters to single string
     conseq <- paste(conseq, collapse = "", sep = "")
     sampleseq <- c(conseq, apply(sampleseq_mat, 1, paste, collapse = ""))
@@ -113,7 +114,8 @@ for(i in 1:nloops){
     name <- paste0("> ", asc_names[i], ".", 0:length(sampleseq))
     fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
     sampled_files[[i]] <- fasta
-    writeLines(fasta, con = paste0("data/sampled_covid/", asc_names[i], "_sampled.fasta"))
+    writeLines(fasta, con = paste0("data/sampled_covid/", asc_names[i], 
+        "_sampled", ifelse(dirich, "_d", ""), ".fasta"))
     
     # Loop Timing
     elapsed <- difftime(Sys.time(), t1, units = "mins")
@@ -130,7 +132,7 @@ for(i in 1:nloops){
         " hours) remaining"))
 }
 
-# saveRDS(sampleseq, file = "data/SRR13020989_sampled.rds")
+writeLines(asc_names, con = "data/sampled_covid/ascnames.txt")
 
 
 

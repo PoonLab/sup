@@ -1,19 +1,36 @@
+---
+title: "Results of PangoVis"
+author: "Devan Becker"
+date: "`r Sys.Date()`"
+output:
+    pdf_document:
+      citation_package: natbib
+params:
+    dirich: FALSE
+---
+
+
+# Load Packages and Data
+
+```{r load}
 # Packages that Art hates
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(stringr)
+library(here)
 
-args <- commandArgs(TRUE)
-dirich <- "-d" %in% args
+dirich <- params$dirich
 
 # Read in CSV files
-csvs <- list.files("data/pangolineages/", 
-    pattern = ifelse(dirich, "*_d.csv", "*.csv"))
+csvs <- list.files("../data/pangolineages", 
+    pattern = ifelse(dirich, "*_d.csv", "*.csv"), 
+    full.names = TRUE)
+
 # Remove any copies
 csvs <- csvs[!grepl("-1", csvs)]
 # Proper names
-csvs <- paste0("data/pangolineages/", csvs)
+#csvs <- paste0("../data/pangolineages/", csvs)
 
 # Bring them into one data frame
 lins <- bind_rows(lapply(csvs, read.csv))
@@ -28,9 +45,29 @@ lins <- lins %>%
 taxons <- unique(lins$taxon)
 length(taxons)
 
-# Bar plot (Pareto) for which lineages were called
-png(ifelse(dirich, "figures/pareto_d.png", "figures/pareto.png"), 
-    height = 1000, width = 1000, units = "px")
+```
+
+# Abstract Info
+
+```{r abstract}
+summs <- lins %>% 
+    group_by(taxon) %>%
+    summarise(maxperc = mean(lineage == names(sort(table(lineage), 
+        decreasing = TRUE))[1]),
+        uniques = length(unique(lineage)),
+        minpango = min(probability),
+        maxpango = max(probability),
+        menpango = mean(probability),
+        max = names(sort(table(lineage), decreasing = TRUE))[1])
+
+print("summary info")
+print(summs)
+1 - mean(summs$maxperc); 1 - mean(summs$menpango)
+```
+
+# As a Pareto plot
+
+```{r pareto, fig.height=10, fig.width=10}
 par(mfrow = c(6, 6))
 for(i in 1:length(unique(lins$taxon))){
     thistab <- table(lins$lineage[lins$taxon == taxons[i]])
@@ -48,29 +85,11 @@ for(i in 1:length(unique(lins$taxon))){
     barplot(sort(thistab, decreasing = TRUE), 
         las = 2, col = colours, border = NA)
 }
-dev.off()
+```
 
-# Info for the abstract
-summs <- lins %>% 
-    group_by(taxon) %>%
-    summarise(maxperc = mean(lineage == names(sort(table(lineage), 
-        decreasing = TRUE))[1]),
-        uniques = length(unique(lineage)),
-        minpango = min(probability),
-        maxpango = max(probability),
-        menpango = mean(probability),
-        max = names(sort(table(lineage), decreasing = TRUE))[1])
+# Probability Bars
 
-print("summary info")
-print(summs)
-print(1 - mean(summs$maxperc); 1 - mean(summs$menpango))
-
-#### Evaluate pangolin's bootstrap confidence ----
-# Find out the modal lineage, look at all of the bootstrap probability,
-# then find out how many actually were that lineage
-
-png(ifelse(dirich, "figures/bar_d.png", "figures/bar.png"), 
-    height = 1000, width = 1000, units = "px")
+```{r probbars, fig.height=10, fig.width=10}
 boots <- vector(mode = "list", length = length(taxons))
 par(mfrow = c(6,6))
 for(i in 1:length(taxons)){
@@ -88,14 +107,11 @@ for(i in 1:length(taxons)){
     abline(v = mean(lins$lineage[lins$taxon == taxons[i]] == maxtab),
         col = 2, lwd = 3)
 }
-dev.off()
-# Conclusions:
-#   The "probability" does NOT account for sequence uncertainty
-#   Many sequences had 100% probability for a given lineage,
-#       but this is entirely unconnected to the actual probability
+```
 
-# The plots above would be better if I had the consensus sequence, rather
-# than modal lineage. 
+# Scatterplot
+
+```{r ggscatter, fig.height=10, fig.width=10}
 
 gglist <- list()
 for(i in 1:length(taxons)){
@@ -142,4 +158,4 @@ for(i in 1:length(taxons)){
         geom_abline(slope = 1, intercept = 0)
 }
 cowplot::plot_grid(plotlist = gglist)
-ggsave(ifelse(dirich, "figures/ggscatter_p.png", "figures/ggscatter.png"))
+```
