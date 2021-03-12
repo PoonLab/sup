@@ -1,5 +1,13 @@
 #! bin/sh
 
+# Arguments
+    # -N 10
+        # Number of samples to take
+    # -d
+        # Dirichlet prior for sampling
+    # --overwrite
+        # Re-sample existing files
+
 # I'm bad at arg parsing
 N=10
 dirich=false
