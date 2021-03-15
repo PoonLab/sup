@@ -32,23 +32,27 @@ rds_todo <- sapply(strsplit(rds_names, "-"),
     function(x){
         strsplit(rev(x)[1], "\\.")[[1]][1]
     })
+
+# Record accession names
+asc_names <- c()
+for(i in 1:length(rds_names)){
+    asc <- strsplit(rev(strsplit(rds_names[i], "-")[[1]])[1], "\\.")[[1]][1]
+    asc_names <- c(asc_names, sub(".RDS", "", asc))
+}
+print(asc_names)
+
 if(!"--overwrite" %in% args) rds_names <- rds_names[which(!rds_todo %in% rds_done)]
 
 # Prepare empty lists
 S_list <- vector(mode = "list", length = length(rds_names))
-asc_names <- c()
 header_list <- S_list
-print(rds_names)
+#print(rds_names)
 
-# Read in uncertainty matrices and record accession names
+# Read in uncertainty matrices 
 for(i in 1:length(rds_names)){
-    asc <- strsplit(rev(strsplit(rds_names[i], "-")[[1]])[1], "\\.")[[1]][1]
-    asc_names <- c(asc_names, sub(".RDS", "", asc))
-    
     S_list[[i]] <- readRDS(paste0("data/unc_covid/", rds_names[i]))
     names(S_list)[i] <- asc_names[i]
 }
-asc_names
 
 # Check coverage of each read
 #hist(apply(S_list[[1]], 1, sum), breaks = 30)
@@ -132,6 +136,7 @@ for(i in 1:nloops){
         " hours) remaining"))
 }
 
+print(asc_names)
 writeLines(asc_names, con = "data/sampled_covid/ascnames.txt")
 
 
