@@ -1,19 +1,20 @@
 library(dplyr)
+library(here)
 library(tidyr)
 library(ggplot2)
+library(ggthemes)
 theme_set(theme_bw())
 
 # Cutoff - anything above this is basically certain
-cutoff <- 0.99
+cutoff <- 0.999
 
 # Load data
-#thissam <- readRDS("data/unc_covid/open_seSAMe-S-ERR4364007-1.RDS")
-uncsam <- list.files("data/unc_covid", pattern = "*\\.RDS")
+uncsam <- list.files(here("data", "unc_covid"), pattern = "*\\.RDS")
 
 plotlist <- vector(mode = "list", length = length(uncsam))
 meaningful <- c()
 for (i in seq_along(uncsam)) {
-    thissam <- readRDS(paste0("data/unc_covid/", uncsam[[i]]))
+    thissam <- readRDS(here("data", "unc_covid", uncsam[[i]]))
     if (is.null(dim(thissam))) next
 
     # My algorithm doesn't actually assign probabilities to gaps
@@ -35,8 +36,13 @@ for (i in seq_along(uncsam)) {
     plotlist[[i]] <- ggplot(samdf) +
         aes(x = factor(id), y = alph, fill = q) +
         geom_tile() +
-        scale_fill_viridis_c(option = "A", direction = -1) +
-        labs(title = uncsam[[i]], x = "Locus", y = NULL)
+        scale_fill_gradient2(low = "#276419", mid = "#f7f7f7", 
+            high = "#8e0152", midpoint = 0.5,
+            limits = c(0, 1)) +
+        labs(title = uncsam[[i]], x = NULL, y = NULL) +
+        theme(axis.text.x = element_text(angle = 90, size = 7))
 }
 
-cowplot::plot_grid(plotlist = plotlist[meaningful], ncol = 2)
+meaningful[is.na(meaningful)] <- FALSE
+print(patchwork::wrap_plots(plotlist[meaningful], 
+    ncol = 2, guides = "collect"))
