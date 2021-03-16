@@ -66,32 +66,35 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 - WRITE
     - Currently making LOs and first drafts by topics, will put it all together soon.
     - Intro
-        - [ ] Intro paras
+        - [ ] Intro paragraphss
         - [ ] Relevant literature
-        - [ ] Description of SAM files (with and without paired reads)
         - [ ] Sources of uncertainty
+        - [ ] Description of SAM files (with and without paired reads)
+        - [ ] Description of InSilicoSeq (and other things from David's work)
     - Methods
-        - [ ] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods)
-        - [ ] Sampling from multinomial (justification)
+        - [ ] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods; largely re-used from David's work)
+        - [ ] Sampling from normalized probabilities or from multinomial posteriors (justification)
+        - [ ] Sequence-level uncertainty measures, and their use in analysis of genetic data
     - Application
-        - [ ] Covid Data
-        - [ ] Example of an uncertainty matrix
+        - [ ] Description of Covid Data
+        - [ ] Example of an uncertainty matrix from actual covid data
         - [ ] Pangolin description (incl. bootstrap support)
-        - [ ] Pangolin results
+        - [ ] Pangolin results summary/vis
     - Conclusions
         - [ ] For phylogenies in general (Lean heavily on David's work)
         - [ ] For Covid data
 - `parse.sam()` is slow and unreasonable for our purposes. 
     - Me, Connor, and Gopi are all working on methods to make it faster. 
-- Visualizations of uncertainty matrices (`covid/unc_vis.R`)
+- [x] Visualizations of uncertainty matrices (`covid/unc_vis.R`)
     - Mostly done, but needs some annotations.
-- Fixing the sampling code (`covid/sample_S`)
+- [ ] Fixing the sampling code (`covid/sample_S`)
     - Changed to multinomial posterior and now resultant samples are all 100% certain, according to pangolin
     - Compare samples with/without posterior sampling
-- Visualizations of Pangolin calls (`covid/pangolin_results_dir.R`)
+- [ ] Visualizations of Pangolin calls (`covid/pangolin_results_dir.R`)
     - Needs a lot of work.
 
-The type of sequence and phylogeny simulated is defined in `prm.csv`.
 
 
-### Fragment sequencing eror
+
+
+
