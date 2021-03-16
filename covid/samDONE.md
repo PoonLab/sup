@@ -29,42 +29,69 @@ DoneList
     - [x] ERR5077618.sam 611
     - [ ] ERR5082477.sam 77
 - blocku4
-    - [ ] ERR5069584.sam 318
-    - [ ] ERR5069616.sam 254
-    - [ ] ERR5069624.sam 384
-    - [ ] ERR5069871.sam 103
-    - [ ] ERR5070060.sam 133
+    - [x] ERR5069584.sam 318
+    - [x] ERR5069616.sam 254
+    - [x] ERR5069624.sam 384
+    - [x] ERR5069871.sam 103
+    - [x] ERR5070060.sam 133
     - [ ] ERR5070294.sam 513
+- blocku5
+    - [ ] ERR5062004.sam
+    - [ ] ERR5062514.sam
+    - [ ] ERR5062729.sam
+    - [ ] ERR5063165.sam
+    - [ ] ERR5063813.sam
+    - [ ] ERR5064294.sam
+    - [ ] ERR5064811.sam
+    - [ ] ERR5062062.sam
+    - [ ] ERR5062571.sam
+    - [ ] ERR5062935.sam
+    - [ ] ERR5063539.sam
+    - [ ] ERR5063922.sam
+    - [ ] ERR5064346.sam
+    - [ ] ERR5064972.sam
+    - [ ] ERR5062388.sam
+    - [ ] ERR5062648.sam
+    - [ ] ERR5063143.sam
+    - [ ] ERR5063807.sam
+    - [ ] ERR5064166.sam
+    - [ ] ERR5064787.sam
+- blocku6
+    - [ ] ERR4891711.sam  
+    - [ ] ERR4891898.sam  
+    - [ ] ERR4892152.sam  
+    - [ ] ERR4892339.sam  
+    - [ ] ERR4893033.sam  
+    - [ ] ERR4893197.sam
+    - [ ] ERR4891715.sam  
+    - [ ] ERR4891916.sam  
+    - [ ] ERR4892200.sam  
+    - [ ] ERR4892386.sam  
+    - [ ] ERR4893037.sam  
+    - [ ] ERR4893242.sam
+    - [ ] ERR4891805.sam  
+    - [ ] ERR4891988.sam  
+    - [ ] ERR4892203.sam  
+    - [ ] ERR4892392.sam  
+    - [ ] ERR4893080.sam  
+    - [ ] ERR4893353.sam
+    - [ ] ERR4891841.sam  
+    - [ ] ERR4892048.sam  
+    - [ ] ERR4892206.sam  
+    - [ ] ERR4892423.sam  
+    - [ ] ERR4893138.sam  
+    - [ ] ERR4893393.sam
+    - [ ] ERR4891863.sam  
+    - [ ] ERR4892066.sam  
+    - [ ] ERR4892230.sam  
+    - [ ] ERR4893013.sam  
+    - [ ] ERR4893184.sam  
+    - [ ] ERR5060778.sam
+    - [ ] ERR4891889.sam  
+    - [ ] ERR4892112.sam  
+    - [ ] ERR4892293.sam  
+    - [ ] ERR4893031.sam  
+    - [ ] ERR4893186.sam  
+    - [ ] ERR5060810.sam
 
-pangolin --version
 
-pangolin data/sampled_covid/ERR4363387_sampled.fasta --outfile data/pangolineages/ERR4363387_pangolineages.csv
-pangolin data/sampled_covid/ERR4364007_sampled.fasta --outfile data/pangolineages/ERR4364007_pangolineages.csv
-pangolin data/sampled_covid/ERR4664555_sampled.fasta --outfile data/pangolineages/ERR4664555_pangolineages.csv
-pangolin data/sampled_covid/ERR4667618_sampled.fasta --outfile data/pangolineages/ERR4667618_pangolineages.csv
-pangolin data/sampled_covid/ERR4692364_sampled.fasta --outfile data/pangolineages/ERR4692364_pangolineages.csv
-pangolin data/sampled_covid/ERR4693034_sampled.fasta --outfile data/pangolineages/ERR4693034_pangolineages.csv
-pangolin data/sampled_covid/ERR4693061_sampled.fasta --outfile data/pangolineages/ERR4693061_pangolineages.csv
-pangolin data/sampled_covid/ERR4693079_sampled.fasta --outfile data/pangolineages/ERR4693079_pangolineages.csv
-pangolin data/sampled_covid/ERR4693537_sampled.fasta --outfile data/pangolineages/ERR4693537_pangolineages.csv
-pangolin data/sampled_covid/ERR4693605_sampled.fasta --outfile data/pangolineages/ERR4693605_pangolineages.csv
-pangolin data/sampled_covid/ERR4758772_sampled.fasta --outfile data/pangolineages/ERR4758772_pangolineages.csv
-pangolin data/sampled_covid/SRR12762573_sampled.fasta --outfile data/pangolineages/SRR12762573_pangolineages.csv
-pangolin data/sampled_covid/SRR13092002_sampled.fasta --outfile data/pangolineages/SRR13092002_pangolineages.csv
-pangolin data/sampled_covid/ERR4085809_sampled.fasta --outfile data/pangolineages/ERR4085809_pangolineages.csv
-pangolin data/sampled_covid/ERR4204823_sampled.fasta --outfile data/pangolineages/ERR4204823_pangolineages.csv
-pangolin data/sampled_covid/ERR5074314_sampled.fasta --outfile data/pangolineages/ERR5074314_pangolineages.csv
-pangolin data/sampled_covid/ERR5076163_sampled.fasta --outfile data/pangolineages/ERR5076163_pangolineages.csv
-pangolin data/sampled_covid/ERR5076748_sampled.fasta --outfile data/pangolineages/ERR5076748_pangolineages.csv
-pangolin data/sampled_covid/ERR5077151_sampled.fasta --outfile data/pangolineages/ERR5077151_pangolineages.csv
-pangolin data/sampled_covid/ERR5077411_sampled.fasta --outfile data/pangolineages/ERR5077411_pangolineages.csv
-pangolin data/sampled_covid/ERR5077618_sampled.fasta --outfile data/pangolineages/ERR5077618_pangolineages.csv
-pangolin data/sampled_covid/ERR5082664_sampled.fasta --outfile data/pangolineages/ERR5082664_pangolineages.csv
-pangolin data/sampled_covid/SRR13021027_sampled.fasta --outfile data/pangolineages/SRR13021027_pangolineages.csv
-pangolin data/sampled_covid/SRR13021032_sampled.fasta --outfile data/pangolineages/SRR13021032_pangolineages.csv
-pangolin data/sampled_covid/SRR13021033_sampled.fasta --outfile data/pangolineages/SRR13021033_pangolineages.csv
-pangolin data/sampled_covid/SRR13021035_sampled.fasta --outfile data/pangolineages/SRR13021035_pangolineages.csv
-pangolin data/sampled_covid/SRR13021038_sampled.fasta --outfile data/pangolineages/SRR13021038_pangolineages.csv
-pangolin data/sampled_covid/SRR13021042_sampled.fasta --outfile data/pangolineages/SRR13021042_pangolineages.csv
-pangolin data/sampled_covid/SRR13021047_sampled.fasta --outfile data/pangolineages/SRR13021047_pangolineages.csv
-pangolin data/sampled_covid/SRR13021097_sampled.fasta --outfile data/pangolineages/SRR13021097_pangolineages.csv
