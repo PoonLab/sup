@@ -28,7 +28,7 @@ for(f in seq_along(samfile)){
     if(file.exists(thisRDS)) next
     
     try({ # don't break loop if there's an error
-        test1 <- parse.sam(thisfilename)
+        test1 <- parse.sam.dt(thisfilename, nc = 1)
         
         saveRDS(test1, file = thisRDS)
         
