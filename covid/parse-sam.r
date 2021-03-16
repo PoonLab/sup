@@ -1,4 +1,8 @@
-require(parallel)
+library(parallel)
+library(dplyr)
+library(data.table)
+library(readr)
+
 
 # adapted from http://github.com/PoonLab/MiCall-Lite
 
@@ -304,7 +308,7 @@ parse.sam_deprecated <- function(infile, paired=FALSE, chunk.size=1000,
     return(df[1:max.row, ])
 }
 
-parse.sam.dt <- function(inFile, nc = 1){
+parse.sam.dt <- function(inFile, nc = 1, verbose = TRUE){
     # Timing Info
     t0 <- Sys.time()
     timings <- c("First Read" = NA, "Cigar" = NA, "Paired" = NA,
