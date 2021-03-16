@@ -89,7 +89,7 @@ for(i in 1:nloops){
     # Sample the sequences
     n <- 1000 # number of sampled genomes
     sampleseq_mat <- apply(S, 1, function(x) {
-        if(any(is.na(x)) | (sum(x) < 1)){
+        if(any(is.na(x)) | (sum(x) < 10)){
             return(rep("N", N))
         } else {
             if (dirich){
