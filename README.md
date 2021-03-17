@@ -88,10 +88,12 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 - [x] Visualizations of uncertainty matrices (`covid/unc_vis.R`)
     - Mostly done, but needs some annotations.
 - [ ] Fixing the sampling code (`covid/sample_S`)
-    - Changed to multinomial posterior and now resultant samples are all 100% certain, according to pangolin
-    - Compare samples with/without posterior sampling
+    - Changed to multinomial posterior and now resultant samples are all 100% certain according to pangolin. 
+        - Possible fixes: Higher coverage cutoff (so that there are more Ns)
+    - [ ] Compare samples with/without posterior sampling
 - [ ] Visualizations of Pangolin calls (`covid/pangolin_results_dir.R`)
     - Needs a lot of work.
+        - Want: Find genetic distance between conseq and other sequences (to validate my sampling)
 
 
 
