@@ -397,7 +397,7 @@ parse.sam.dt <- function(inFile, nc = 1, verbose = TRUE){
         #Calculates a matrix. By adding the values of this matrix to df, we can update it 
         res <- sapply(posRange, function(pos){
             nt <- substr(mseq, pos, pos)
-            qc <- substr(attr(aligned, 'qual'), pos, pos)
+            qc <- substr(attr(mseq, 'qual'), pos, pos)
             
             if(nt == '-') { #If a gap, then nothing is updated
                 return(rep(0,4))
