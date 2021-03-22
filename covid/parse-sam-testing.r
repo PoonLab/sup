@@ -1,6 +1,6 @@
-source("covid/parse-sam-con.r")
+source("covid/parse-sam.r")
 
-inFile <- "data/SRR13020990_small.sam" # unpaired
+inFile <- "data/ERR5082711_small.sam" # unpaired
 inFile <- "data/ERR5069871.sam" # Paired
 inFile <- "/media/devan/Seagate Basic/PostDoc/files/unpaired/blocku1/ERR4085809.sam"
 
@@ -35,9 +35,13 @@ parsetime
 timeperline <- parsetime/500 # this file has 500 lines
 
 
+# From Gopi's function
+test4 <- read.csv("matrix.csv")
+test4 <- as.matrix(test4)[,-1]
 
+str(test2)
+str(test4)
 
-
-# Paired read testing
-test3 <- parse.sam(inFile)
-
+all.equal(test2, test4)
+test4
+test4 - test2
