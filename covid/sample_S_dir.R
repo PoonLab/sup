@@ -93,7 +93,7 @@ for(i in 1:nloops){
             return(rep("N", N))
         } else {
             if (dirich){
-                newx <- rdirichlet(1, x + rep(1/4, length(x)))
+                newx <- rdirichlet(1, x + c(rep(1/4, 4), rep(0, length(x) - 4)))
                 return(sample(alph, size = N, prob = newx, replace = TRUE))
             } else {
                 return(sample(alph, size = N, prob = x, replace = TRUE))
