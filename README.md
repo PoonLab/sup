@@ -32,12 +32,9 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
     - Contain no information about sequence uncertainty.
 
 
-`doc`: Documentation of the methods
-
-`src`: source code for uncertainty propagation analysis
-
-`reads-seq-err`: Estimation of the sequencing error of DNA fragment by Illumina instruments using simulations from from the software *InSilicoSeq*.
-
+- `doc`: Documentation of the methods
+- `src`: source code for uncertainty propagation analysis
+- `reads-seq-err`: Estimation of the sequencing error of DNA fragment by Illumina instruments using simulations from from the software *InSilicoSeq*.
 - `data`: Data related to sequencing uncertainty.
     - `seqs`: fasta sequence data for HIV data.
     - `zanini`: HIV patient data for Zanini et. al (2015). Population Genomics of Intrapatient HIV-1 Evolution. doi: https://doi.org/10.7554/eLife.11282.
@@ -64,7 +61,6 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 # Roadmap to the Paper
 
 - WRITE
-    - Currently making LOs and first drafts by topics, will put it all together soon.
     - Intro
         - [ ] Intro paragraphss
         - [ ] Relevant literature
@@ -87,13 +83,13 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
     - Me, Connor, and Gopi are all working on methods to make it faster. 
 - [x] Visualizations of uncertainty matrices (`covid/unc_vis.R`)
     - Mostly done, but needs some annotations.
-- [ ] Fixing the sampling code (`covid/sample_S`)
+- [x] Fixing the sampling code (`covid/sample_S`)
     - Changed to multinomial posterior and now resultant samples are all 100% certain according to pangolin. 
         - Possible fixes: Higher coverage cutoff (so that there are more Ns)
-    - [ ] Compare samples with/without posterior sampling
+        - Update: I realized that I also updated Pangolearn, which could account for the change.
+    - [x] Compare samples with/without posterior sampling - `sample_S_testing.R`
 - [ ] Visualizations of Pangolin calls (`covid/pangolin_results_dir.R`)
     - Needs a lot of work.
-        - Want: Find genetic distance between conseq and other sequences (to validate my sampling)
 
 
 
