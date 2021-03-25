@@ -35,9 +35,9 @@ calc_genlLik <- function(S, seq){
 
     sum(sapply(1:nrow(S), function(x) {
         if(sum(S[x,]) > 10){
-            return(log(S[x, seq[x]] / sum(S[x, ])))
+            return(log10(S[x, seq[x]] / sum(S[x, ])))
         } else {
-            return(log(1)) # TODO: Is there a better way?
+            return(log10(1)) # TODO: Is there a better way?
         }
     }))
 }
