@@ -1,0 +1,96 @@
+\begin{thebibliography}{9}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Beerenwinkel and
+  Zagordi(2011)]{beerenwinkelUltradeepSequencingAnalysis2011}
+Niko Beerenwinkel and Osvaldo Zagordi.
+\newblock Ultra-deep sequencing for the analysis of viral populations.
+\newblock \emph{Current Opinion in Virology}, 1\penalty0 (5):\penalty0
+  413--418, November 2011.
+\newblock ISSN 1879-6257.
+\newblock \doi{10.1016/j.coviro.2011.07.008}.
+
+\bibitem[DePristo et~al.(2011)DePristo, Banks, Poplin, Garimella, Maguire,
+  Hartl, Philippakis, {del Angel}, Rivas, Hanna, McKenna, Fennell, Kernytsky,
+  Sivachenko, Cibulskis, Gabriel, Altshuler, and
+  Daly]{depristoFrameworkVariationDiscovery2011}
+Mark~A DePristo, Eric Banks, Ryan Poplin, Kiran~V Garimella, Jared~R Maguire,
+  Christopher Hartl, Anthony~A Philippakis, Guillermo {del Angel}, Manuel~A
+  Rivas, Matt Hanna, Aaron McKenna, Tim~J Fennell, Andrew~M Kernytsky, Andrey~Y
+  Sivachenko, Kristian Cibulskis, Stacey~B Gabriel, David Altshuler, and Mark~J
+  Daly.
+\newblock A framework for variation discovery and genotyping using
+  next-generation {{DNA}} sequencing data.
+\newblock \emph{Nature Genetics}, 43\penalty0 (5):\penalty0 491--498, May 2011.
+\newblock ISSN 1061-4036, 1546-1718.
+\newblock \doi{10.1038/ng.806}.
+
+\bibitem[Doronina(2005)]{doroninaPhylogeneticPositionEmended2005}
+N.~V. Doronina.
+\newblock Phylogenetic position and emended description of the genus
+  {{Methylovorus}}.
+\newblock \emph{INTERNATIONAL JOURNAL OF SYSTEMATIC AND EVOLUTIONARY
+  MICROBIOLOGY}, 55\penalty0 (2):\penalty0 903--906, March 2005.
+\newblock ISSN 1466-5026, 1466-5034.
+\newblock \doi{10.1099/ijs.0.63111-0}.
+
+\bibitem[Ewing and Green(1998)]{ewingBaseCallingAutomatedSequencer1998}
+Brent Ewing and Phil Green.
+\newblock Base-{{Calling}} of {{Automated Sequencer Traces Using}}
+  {{{\emph{Phred}}}}{\emph{.}} {{II}}. {{Error Probabilities}}.
+\newblock \emph{Genome Research}, 8\penalty0 (3):\penalty0 186--194, March
+  1998.
+\newblock ISSN 1088-9051, 1549-5469.
+\newblock \doi{10.1101/gr.8.3.186}.
+
+\bibitem[Li et~al.(2004)Li, Nordborg, and Li]{liAdjustQualityScores2004}
+Ming Li, Magnus Nordborg, and Lei~M. Li.
+\newblock Adjust quality scores from alignment and improve sequencing accuracy.
+\newblock \emph{Nucleic Acids Research}, 32\penalty0 (17):\penalty0 5183--5191,
+  2004.
+\newblock ISSN 0305-1048.
+\newblock \doi{10.1093/nar/gkh850}.
+
+\bibitem[Li et~al.(2009)Li, Li, Fang, Yang, Wang, Kristiansen, and
+  Wang]{liSNPDetectionMassively2009}
+Ruiqiang Li, Yingrui Li, Xiaodong Fang, Huanming Yang, Jian Wang, Karsten
+  Kristiansen, and Jun Wang.
+\newblock {{SNP}} detection for massively parallel whole-genome resequencing.
+\newblock \emph{Genome Research}, 19\penalty0 (6):\penalty0 1124--1132, January
+  2009.
+\newblock ISSN 1088-9051, 1549-5469.
+\newblock \doi{10.1101/gr.088013.108}.
+
+\bibitem[O'Rawe et~al.(2015)O'Rawe, Ferson, and
+  Lyon]{oraweAccountingUncertaintyDNA2015}
+Jason~A. O'Rawe, Scott Ferson, and Gholson~J. Lyon.
+\newblock Accounting for uncertainty in {{DNA}} sequencing data.
+\newblock \emph{Trends in Genetics}, 31\penalty0 (2):\penalty0 61--66, February
+  2015.
+\newblock ISSN 0168-9525.
+\newblock \doi{10.1016/j.tig.2014.12.002}.
+
+\bibitem[Richterich(1998)]{richterichEstimationErrorsRaw1998}
+Peter Richterich.
+\newblock Estimation of {{Errors}} in ``{{Raw}}'' {{DNA Sequences}}: {{A
+  Validation Study}}.
+\newblock \emph{Genome Research}, 8\penalty0 (3):\penalty0 251--259, January
+  1998.
+\newblock ISSN 1088-9051, 1549-5469.
+\newblock \doi{10.1101/gr.8.3.251}.
+
+\bibitem[Robasky et~al.(2014)Robasky, Lewis, and
+  Church]{robaskyRoleReplicatesError2014}
+Kimberly Robasky, Nathan~E. Lewis, and George~M. Church.
+\newblock The role of replicates for error mitigation in next-generation
+  sequencing.
+\newblock \emph{Nature Reviews Genetics}, 15\penalty0 (1):\penalty0 56--62,
+  January 2014.
+\newblock ISSN 1471-0064.
+\newblock \doi{10.1038/nrg3655}.
+
+\end{thebibliography}

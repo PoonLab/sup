@@ -1,0 +1,299 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdftitle={Propagating Sequence Uncertainty into Downstream Analyses},
+            pdfauthor={David Champredon, Devan Becker, Art Poon, Connor Chato},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+
+% ==== GENERAL ====
+
+\newcommand{\warning}[1]{\textbf{\textcolor{orange}{((#1))}}}
+\newcommand{\comment}[1]{\textsl{\textcolor{cyan}{((#1))}}}
+\newcommand{\eg}{\textit{e.g.,}\xspace}
+\newcommand{\ie}{\textit{i.e.},\xspace}
+
+% ==== SPECIFIC ====
+
+\newcommand{\sq}[1]{\texttt{\textcolor{brown}{#1}}}
+
+\newcommand{\sps}{\mathcal{B}} % sequence probability sequence
+\newcommand{\nps}{\mathcal{S}} % nucleotide probability sequence
+\newcommand{\nlps}{nucleotide-level probabilistic sequence\xspace}
+\newcommand{\slps}{sequence-level probabilistic sequence\xspace}
+
+\newcommand{\pr}[1]{\mathbb{P}(#1)}
+
+\newcommand{\md}{\mathcal{M}} % Multinomial distribution
+\newcommand{\pois}[1]{\mathrm{Poisson}\left(#1\right)}
+\newcommand{\betadist}[1]{\mathrm{Beta}\left(#1\right)}
+\usepackage{xspace}
+\usepackage[]{natbib}
+\bibliographystyle{plainnat}
+
+\title{Propagating Sequence Uncertainty into Downstream Analyses}
+\author{David Champredon, Devan Becker, Art Poon, Connor Chato}
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Genetic sequencing is subject to many different types of errors, but
+most analyses treat the resultant sequences as if they are perfect.
+Since the process of sequencing is very difficult, modern machines rely
+on significantly larger numbers of reads rather than making each read
+significantly more accurate. Still, the coverage of such machines is
+imperfect and leaves uncertainty in many of the base calls. Furthermore,
+there are circumstances around the sequencing that can induce further
+problems. In this work, we demonstrate that the uncertainty in
+sequencing techniques will affect downstream analysis and propose a
+straightforward (if computationally expensive) method to propagate the
+uncertainty.\\
+Our method uses a probabilistic matrix representation of individual
+sequences which incorporates base quality scores and makes various
+uncertainty propagation methods obvious and easy. With the matrix
+representation, resampling possible base calls according to quality
+scores provides a bootstrap- or prior distribution-like first step
+towards genetic analysis. Analyses based on these re-sampled sequences
+will include an honest evaluation of the error involved in such
+analyses.\\
+We demonstrate our resampling method on HIV and SARS-CoV-2 data. The
+resampling procedures adds computational cost to the analyses, but the
+large impact on the variance in downstream estimates makes it clear that
+ignoring this uncertainty leads to invalid conclusions. For HIV data, we
+show that phylogenetic reconstructions are much more sensitive to
+sequence error uncertainty than previously believed, and for SARS-CoV-2
+data we show that lineage designations via Pangolin are much less
+certain than the bootstrap support would imply.
+\end{abstract}
+
+\hypertarget{intro}{%
+\section{Intro}\label{intro}}
+
+Genetic sequencing is subject to many different types of errors, but
+most analyses treat the resultant sequences as if they are perfect.
+Since the process of sequencing is very difficult, modern machines rely
+on significantly larger numbers of reads rather than making each read
+significantly more accurate. Still, the coverage of such machines is
+imperfect and leaves uncertainty in many of the base calls. Furthermore,
+there are circumstances around the sequencing that can induce further
+problems. In this work, we demonstrate that the uncertainty in
+sequencing techniques will affect downstream analysis and propose a
+straightforward (if computationally expensive) method to propagate the
+uncertainty.
+
+Extracting DNA/RNA from biological samples is a complex process that
+involves several steps: extraction of the genetic material of interest
+(avoiding contamination with foreign/unwanted genetic material); reverse
+transcription (if RNA); DNA fragmentation of the genome into smaller
+segments; amplification of the fragmented sequences using PCR;
+sequencing the fragments (\eg with fluorescent techniques); putting back
+the small fragments together by aligning them (de novo) or mapping them
+to benchmark libraries. Errors can be introduced at each of these steps
+for various reasons \cite{beerenwinkelUltradeepSequencingAnalysis2011}
+and some errors can be quantified (\eg sequencing quality scores from
+chromatographs).
+
+When the phylogenic tree to infer is based on pathogen sequences
+infecting hosts, the potential genetic diversity of the infection adds a
+complexity in phylogeny reconstruction. Typical examples are
+epidemiological studies reconstructing transmission trees from viral
+genetic sequences (\eg HIV, HepC) sampled from infected patients.
+
+The different sources of uncertainty described above impact our
+observations of the actual genetic sequences. There are standard
+approaches to deal with identifiable observation errors. Base calls that
+are ambiguous (from equivocal chromatograph curves or because of genuine
+polymorphisms) are assigned ambiguity codes (\eg Y for C or T, R for A
+or G, etc.). Alignment methods are heuristic methods based on similarity
+scores that generally do not quantify the uncertainty of
+alignment.Methods to reconstruct phylogenies usually leave out the
+uncertainty complexity and settle for sequences composed of the most
+frequent nucleotides and/or ignore ambiguity codes (with some
+exceptions, e.g.~\citet{depristoFrameworkVariationDiscovery2011}).
+
+In 1998, \citet{ewingBaseCallingAutomatedSequencer1998} and
+\citet{richterichEstimationErrorsRaw1998} both showed that estimates of
+the base call error probability (called Phred scores) can be an accurate
+estimate of the number of errors that the machines at the time would
+make. Modern machines still report these Phred scores, but methods for
+adjusting/recalibrating these scores for greater accuracy have been
+proposed \citep[\citet{depristoFrameworkVariationDiscovery2011},
+\citet{liSNPDetectionMassively2009}]{liAdjustQualityScores2004} For most
+analyses, these scores are used to censor the base calls (i.e., label
+them ``N'' rather than A, T, C, or G) if the base call error probability
+is too high or there are too few reads and a given location. It is
+commonplace to remove the sequence from analysis if the total sequence
+error probability is too high \citep[see,
+e.g.,][\citet{robaskyRoleReplicatesError2014},
+\citet{oraweAccountingUncertaintyDNA2015}]{doroninaPhylogeneticPositionEmended2005}.
+The error probability is deemed too high based on a strict threshold
+(e.g.~1\% chance of error), but these thresholds aren't necessarily
+standard across studies.
+
+TODO: - Studies that incorporate the genome likelihood -
+\citet{oraweAccountingUncertaintyDNA2015}: suggests propogation methods
+- Also, fumagalliQuantifyingPopulationGenetic2013a and the studies they
+cite, which use Bayesian methods to get a posterior on the genome
+likelihoods. - Conclusion for this section
+
+\hypertarget{methods}{%
+\section{Methods}\label{methods}}
+
+\hypertarget{probabilistic-representation-of-sequences}{%
+\subsection{Probabilistic Representation of
+Sequences}\label{probabilistic-representation-of-sequences}}
+
+Here, we describe two theoretical frameworks to model sequence
+uncertainty at the \emph{nucleotide level} or at the
+\emph{sequence level}. In both frameworks, the sequence of nucleotides
+from a biological sample is not treated as a certain observation, but as
+a collection of possible sequences.
+
+\hypertarget{constructing-the-uncertainty-matrix}{%
+\subsubsection{Constructing The Uncertainty
+Matrix}\label{constructing-the-uncertainty-matrix}}
+
+(measureUnc)
+
+(pairedReads)
+
+\emph{Copy from David.}
+
+\hypertarget{insertions-and-deletions}{%
+\subsubsection{Insertions and
+Deletions}\label{insertions-and-deletions}}
+
+\hypertarget{missingnessproblem}{%
+\subsubsection{(missingnessProblem)}\label{missingnessproblem}}
+
+\hypertarget{propogation-of-uncertainty-via-resampling}{%
+\subsection{Propogation of Uncertainty via
+Resampling}\label{propogation-of-uncertainty-via-resampling}}
+
+\hypertarget{sequence-level-uncertainty-seqleveluncertaint}{%
+\subsection{Sequence-level Uncertainty
+(seqLevelUncertaint)}\label{sequence-level-uncertainty-seqleveluncertaint}}
+
+\hypertarget{reducing-computational-burden-via-sequence-level-uncertainty}{%
+\subsubsection{Reducing Computational Burden via Sequence-level
+Uncertainty}\label{reducing-computational-burden-via-sequence-level-uncertainty}}
+
+\hypertarget{application-to-sars-cov-2}{%
+\section{Application to SARS-CoV-2}\label{application-to-sars-cov-2}}
+
+\hypertarget{data}{%
+\subsection{Data}\label{data}}
+
+The data for this application were downloaded from NCBI's SRA web
+interface. Results were filtered to only include runs that had bam
+files. To select which runs to download, a selection of 5-10 files from
+each of 20 non-sequential search result pages was chosen. Once
+collecting the run accession numbers from the search results, an R
+script was run to download the relevant files and check that all
+information was complete. 23 out of 300 files were labelled incomplete
+due to having too few reads (possibly because the download timed out) or
+not containing a CIGAR string.
+
+There was no particular reason for choosing any given file, but the
+resulting data should not be viewed as a random sample. Each result page
+likely includes several runs from the same study, and runs were chosen
+arbitrarily within each result page. We were not attempting a completely
+random sampling strategy, we simply wanted a collection of runs on which
+to demonstrate our methods.
+
+\hypertarget{pangolearn}{%
+\subsection{PANGOlearn}\label{pangolearn}}
+
+\hypertarget{possibly-constructing-trees}{%
+\subsection{(Possibly) constructing
+trees}\label{possibly-constructing-trees}}
+
+\hypertarget{variant-hypothesis-testing-via-mc}{%
+\subsection{Variant hypothesis testing via
+MC}\label{variant-hypothesis-testing-via-mc}}
+
+\hypertarget{conclusions}{%
+\section{Conclusions}\label{conclusions}}
+
+\hypertarget{for-pangolin}{%
+\subsection{For Pangolin}\label{for-pangolin}}
+
+\hypertarget{for-phylogenetics-in-general}{%
+\subsection{For phylogenetics in
+general}\label{for-phylogenetics-in-general}}
+
+\hypertarget{for-analysis-of-genetic-data}{%
+\subsection{For analysis of genetic
+data}\label{for-analysis-of-genetic-data}}
+
+\begin{itemize}
+\tightlist
+\item
+  Our method does not preclude tertiary analyses to test for systematic
+  errors or deviations from a Mendelian inheritance pattern assumption.
+\end{itemize}
+
+\bibliography{supbib.bib}
+
+\end{document}
