@@ -1,4 +1,4 @@
-\begin{thebibliography}{9}
+\begin{thebibliography}{14}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -46,6 +46,53 @@ Brent Ewing and Phil Green.
   1998.
 \newblock ISSN 1088-9051, 1549-5469.
 \newblock \doi{10.1101/gr.8.3.186}.
+
+\bibitem[Fumagalli et~al.(2013)Fumagalli, Vieira, Korneliussen, Linderoth,
+  {Huerta-S{\'a}nchez}, Albrechtsen, and
+  Nielsen]{fumagalliQuantifyingPopulationGenetic2013a}
+Matteo Fumagalli, Filipe~G Vieira, Thorfinn~Sand Korneliussen, Tyler Linderoth,
+  Emilia {Huerta-S{\'a}nchez}, Anders Albrechtsen, and Rasmus Nielsen.
+\newblock Quantifying {{Population Genetic Differentiation}} from
+  {{Next}}-{{Generation Sequencing Data}}.
+\newblock \emph{Genetics}, 195\penalty0 (3):\penalty0 979--992, November 2013.
+\newblock ISSN 1943-2631.
+\newblock \doi{10.1534/genetics.113.154740}.
+
+\bibitem[Gompert and Buerkle(2011)]{gompertHierarchicalBayesianModel2011}
+Zachariah Gompert and C.~Alex Buerkle.
+\newblock A {{Hierarchical Bayesian Model}} for {{Next}}-{{Generation
+  Population Genomics}}.
+\newblock \emph{Genetics}, 187\penalty0 (3):\penalty0 903--917, March 2011.
+\newblock ISSN 0016-6731, 1943-2631.
+\newblock \doi{10.1534/genetics.110.124693}.
+
+\bibitem[Keith et~al.(2002)Keith, Adams, Bryant, Kroese, Mitchelson, Coachran,
+  and Lala]{keithSimulatedAnnealingAlgorithm2002}
+Jonathan~M. Keith, Peter Adams, Darryn Bryant, Dirk~P. Kroese, Keith~R.
+  Mitchelson, Duncan A.~E. Coachran, and Gita~H. Lala.
+\newblock A simulated annealing algorithm for finding consensus sequences.
+\newblock \emph{Bioinformatics}, 18\penalty0 (11):\penalty0 1494--1499,
+  November 2002.
+\newblock ISSN 1367-4803.
+\newblock \doi{10.1093/bioinformatics/18.11.1494}.
+
+\bibitem[Kuo et~al.(2018)Kuo, Frith, Sese, and
+  Horton]{kuoEAGLEExplicitAlternative2018}
+Tony Kuo, Martin~C. Frith, Jun Sese, and Paul Horton.
+\newblock {{EAGLE}}: {{Explicit Alternative Genome Likelihood Evaluator}}.
+\newblock \emph{BMC Medical Genomics}, 11\penalty0 (2):\penalty0 28, April
+  2018.
+\newblock ISSN 1755-8794.
+\newblock \doi{10.1186/s12920-018-0342-1}.
+
+\bibitem[Li et~al.(2008)Li, Ruan, and Durbin]{liMappingShortDNA2008}
+Heng Li, Jue Ruan, and Richard Durbin.
+\newblock Mapping short {{DNA}} sequencing reads and calling variants using
+  mapping quality scores.
+\newblock \emph{Genome Research}, 18\penalty0 (11):\penalty0 1851--1858,
+  January 2008.
+\newblock ISSN 1088-9051, 1549-5469.
+\newblock \doi{10.1101/gr.078212.108}.
 
 \bibitem[Li et~al.(2004)Li, Nordborg, and Li]{liAdjustQualityScores2004}
 Ming Li, Magnus Nordborg, and Lei~M. Li.

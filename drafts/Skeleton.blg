@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Skeleton.aux
 The style file: plainnat.bst
 Database file #1: supbib.bib
-You've used 9 entries,
+You've used 14 entries,
             2773 wiz_defined-function locations,
-            679 strings with 7520 characters,
-and the built_in function-call counts, 5466 in all, are:
-= -- 505
-> -- 383
-< -- 4
-+ -- 129
-- -- 120
-* -- 531
-:= -- 874
-add.period$ -- 45
-call.type$ -- 9
-change.case$ -- 67
-chr.to.int$ -- 9
-cite$ -- 18
-duplicate$ -- 185
-empty$ -- 366
-format.name$ -- 133
-if$ -- 1102
+            727 strings with 9031 characters,
+and the built_in function-call counts, 8519 in all, are:
+= -- 785
+> -- 605
+< -- 5
++ -- 203
+- -- 189
+* -- 837
+:= -- 1359
+add.period$ -- 70
+call.type$ -- 14
+change.case$ -- 105
+chr.to.int$ -- 14
+cite$ -- 28
+duplicate$ -- 289
+empty$ -- 569
+format.name$ -- 209
+if$ -- 1721
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 9
-newline$ -- 71
-num.names$ -- 36
-pop$ -- 100
+missing$ -- 14
+newline$ -- 106
+num.names$ -- 56
+pop$ -- 156
 preamble$ -- 1
-purify$ -- 58
+purify$ -- 91
 quote$ -- 0
-skip$ -- 145
+skip$ -- 225
 stack$ -- 0
-substring$ -- 243
-swap$ -- 17
+substring$ -- 371
+swap$ -- 27
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 99
+type$ -- 154
 warning$ -- 0
-while$ -- 45
+while$ -- 69
 width$ -- 0
-write$ -- 160
+write$ -- 245
