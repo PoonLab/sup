@@ -446,7 +446,7 @@ file representation.
 The nucleotide-level probabilistic sequence can be constructed from this
 alignment. The algorithm that we suggest is as follows.
 
-We begin by initializing an empty \(5\times\ell\) matrix \(\nps`\). Each
+We begin by initializing an empty \(5\times\ell\) matrix \(\nps'\). Each
 label in Figure \ref{fig:sam} has an associated probability score. These
 labels denote a row in \(\nps\), and their location on the genome
 denotes the columns, say (\(\sq{A}, j\)). At this entry, we add the
@@ -455,10 +455,11 @@ corresponding quality score to whatever was there before.
 By this construction, the sum of each column represents the coverage at
 that location. Dividing each entry of \(\nps'\) by the sum of that
 column results in \(\nps\). For our proposed propagation methods, it is
-convenient to work with \(\nps`\) until probabilities are necessary.
+convenient to work with \(\nps'\) until probabilities are necessary.
 
-\hypertarget{fastq-files}{%
-\subsubsection{FASTQ files}\label{fastq-files}}
+\hypertarget{consensus-sequence-fastq-files}{%
+\subsubsection{Consensus sequence FASTQ
+files}\label{consensus-sequence-fastq-files}}
 
 For most published genome sequences, the short read files are not
 available. It is common to find the so-called consensus sequence, which
@@ -471,19 +472,208 @@ consensus FASTQ differ by software
 involve a computation that includes all of the Phred scores of the bases
 that agree with the consensus (\eg if the short reads have \sq{A} with
 Phred of 30, \sq{A} with a Phred of 31, and \sq{C} with phred of 15,
-then the Phred scores of 30 and 31 are combined).
+then the Phred scores of 30 and 31 are combined in software-defined way,
+usually incorporating extra information on top of the Phred score).
 
-\hypertarget{propogation-of-uncertainty-via-resampling}{%
-\subsection{Propogation of Uncertainty via
-Resampling}\label{propogation-of-uncertainty-via-resampling}}
+As a first simplifying step, we ignore insertions and deletions. Given a
+base call and its associated quality score at each position, we can
+assume that the other bases are all equally likely with probability
+\(\epsilon/3\). For example, let's assume the output sequence after
+fragment sequencing and alignment is \sq{ACATG} and its associated
+quality scores are respectively \(Q=60,30,50,10,40\). The probabilistic
+sequence is: \begin{equation}
+S = 
+\begin{pmatrix}
+1-10^{-6} & 10^{-3}/3  & 1-10^{-5} & 10^{-1}/3 & 10^{-4}/3  \\
+10^{-6}/3 & 1-10^{-3}  & 10^{-5}/3 & 10^{-1}/3 & 10^{-4}/3  \\
+10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 10^{-1}/3 & 1-10^{-4} \\
+10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 1-10^{-1} & 10^{-4}/3\\
+0&0&0&0&0 \\
+\end{pmatrix}
+\end{equation}
+
+Usually, the genetic sequence \sq{ACATG} would be considered as certain
+and quality scores discarded. In contrast, within the probabilistic
+sequence framework the probability the sequence is \sq{ACATG} is only
+0.899
+\({\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}\).
+
+Insertions and deletions (``indels'\,') can be included in the uniform
+framework. Here, we propose that the nucleotides probabilities are
+defined conditional on an indel but other models are possible. For a
+given position, the error probability is \(\epsilon = 10^{-Q/10}\)
+(\(Q\) is the quality score) and we assume the probability a deletion
+happens at this position is \(d\). Conditional on not being deleted, the
+probability to have the base called is \((1-d)(1-\epsilon)\) and the
+other three nucleotides can occur with probability \((1-d)\epsilon/3\).
+Hence, if we assume the base call is \sq{A}, the column of the \nlps for
+that position is \begin{equation}
+\begin{pmatrix}
+(1-d)(1-\epsilon)  \\
+(1-d)\,\epsilon / 3  \\
+(1-d)\,\epsilon / 3  \\
+(1-d)\,\epsilon / 3  \\
+d\\
+\end{pmatrix}
+\label{eq:deletion}
+\end{equation}
+
+\hypertarget{consensus-sequence-fasta-files}{%
+\subsubsection{Consensus sequence FASTA
+files}\label{consensus-sequence-fasta-files}}
+
+\begin{itemize}
+\tightlist
+\item
+  Analysis will not draw any firm conclusions, but\ldots{}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    stress testing for your analysis, e.g.~could resample genomes at
+    different overall error rates, then simulate error rates from
+    overall rate at each location, then see how much it F's up your
+    analysis.
+  \end{itemize}
+\end{itemize}
+
+In the absense of any measured uncertainty we are constrained with what
+we can do. Any uncertainty that we impose upon the data will be a
+principled assumption. However, imposing our assumptions can still be
+very useful as a ``stress test'' of our analysis; we can assume
+different levels/types of uncertainty and quantify the stability of our
+results.
+
+The error probability at any given nucleotide location can be simulated
+as a beta distribution, i.e.~
+
+\[
+\epsilon_j \sim\text{Beta}(\alpha, \beta)
+\]
+
+The called base at position \(j\) will be assigned \(1- \epsilon\) as
+the probability, then the remaining bases (not includeing a gap) will be
+assigned \(\epsilon_j/3\). To incorporate gaps, another probability
+\(d\) can be generated as the ``gap probability''. With these defiend,
+the nucleotide-level uncertainty sequence at the \(j\)th column
+(supposing the base call at location \(j\) was \(\sq{A}\)) can be
+generated as:
+
+\[
+\nps = 
+\bordermatrix{
+&\scriptscriptstyle{j}  \cr
+\sq{A} & (1 - d/4)(1-\epsilon_j) \cr
+\sq{C} & (1 - d/4)\epsilon_j/3 \cr
+\sq{G} & (1 - d/4)\epsilon_j/3 \cr
+\sq{T} & (1 - d/4)\epsilon_j/3 \cr
+\sq{-} & d \cr
+}
+\]
+
+This uncertainty sequence is completely fabricated, but downstream
+analyses can be evaluated by choosing values of \(\alpha\), \(\beta\),
+and \(d\) based on previous studies and propagating these uncertainties
+into downstream analysis.
+
+\hypertarget{propagation-of-uncertainty-via-resampling}{%
+\subsection{Propagation of uncertainty via
+resampling}\label{propagation-of-uncertainty-via-resampling}}
+
+\begin{itemize}
+\tightlist
+\item
+  Works in any analysis
+\item
+  provides something like bootstrapped variance or an extra prior
+  sampling step
+\end{itemize}
+
+The most general way to propagate uncertainty is through resampling.
+Given \(\nps\) and assuming that locations are independent (or
+pre-defining biologically-reasonable sequences and calculating their
+probabilities), uncertainty can be propagated by re-sampling the
+sequences according to their probability and re-running the analysis on
+each set of sampled sequences (I don't have a citation for this, but I
+believe Peter Piper sampled a set of sampled sequences).
+
+Re-sampling can either be done simply based on the nucleotide-level
+uncertainty as a multinomial distribution. If the \(j\)th column of
+\(\nps\) is (0.5, 0.2,0.2,0.09.0.01), then we could sample \(\sq{A}\)
+with 50\% probability, \(\sq{C}\) with 20\%, etc. However, this
+disregards the coverage at each location, thereby disregarding the
+variance of the error probabilities.
+
+To incorporate the variance of the errors, a Dirichlet-Multinomial
+sampling scheme can be derived by assuming that the error probabilities
+follow a Dirichlet prior and the bases follow a multinomial likelihood.
+For each base at each location, the entry for \(\nps'\) is defined as
+the sum of the probabilities (one minus the error probabilities). Thes
+values can be used as the parameters in the Dirichlet prior, from which
+probabilities can be sampled.
+
+For example, if the \(j\)th column of \(\nps'\) is (1200.45, 200.09,
+100.74, 121.11, 0), then possible base probabilities could be (0.743,
+0.126, 0.062, 0.070, 0), (0.739, 0.121, 0.066, 0.074, 0), or (0.744,
+0.128, 0.056, 0.071, 0). In contrast, if the \(j\)th column of \(\nps'\)
+were (12.4, 1.2, 0.4, 1.7, 0), then some samples from the Dirichlet
+distribution might be (0.759, 0.059, 0.029, 0.153, 0), (0.916, 0.065,
+0.009, 0.009, 0), or (0.779, 0.117, 0, 0.104, 0). The lower coverage is
+incorporated into the analysis by the increase in the variance of the
+Dirichlet distribution.
+
+In a maximum likelihood framework, this is similar to bootstrapping. In
+fact, the ultimate effect of this would be to decrease the bootstrap
+confidence to a level that is more in line with the actual uncertainty
+in the data.
+
+In a Bayesian framework, this could be incorporated as prior
+distribution on each nucleotide. For large collections of large
+sequences, this increases the dimensionality dramatically. In the next
+section, we provide a proposal for reducing the number of sequences that
+must be sampled.
+
+\hypertarget{reducing-the-re-sampling-space}{%
+\subsubsection{Reducing the re-sampling
+space}\label{reducing-the-re-sampling-space}}
+
+In the worst case scenario, every base at every location in every genome
+has a non-zero probability of being sampled. This potentially leads to
+\(5^{\ell+n}\) possible sets of sequences. Bootstrap samples will need
+to be very large to accommodate such a sample size, and Bayesian methods
+will take a staggering amount of samples to fully explore the space.
+
+Instead, we propose a simplification of the sample space. For a given
+sequence,
 
 \hypertarget{sequence-level-uncertainty-seqleveluncertaint}{%
 \subsection{Sequence-level Uncertainty
 (seqLevelUncertaint)}\label{sequence-level-uncertainty-seqleveluncertaint}}
 
+\begin{itemize}
+\tightlist
+\item
+  If small enough, only sample the top 90\% or 50\% of genomes to reduce
+  computational complexity
+\end{itemize}
+
 \hypertarget{reducing-computational-burden-via-sequence-level-uncertainty}{%
 \subsubsection{Reducing Computational Burden via Sequence-level
 Uncertainty}\label{reducing-computational-burden-via-sequence-level-uncertainty}}
+
+\begin{itemize}
+\tightlist
+\item
+  If the analysis allows, estimators can be weighted by sequence
+  probability.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Iteratively: start with most likely, see what second likely changes,
+    see what third likely changes, \ldots, until things stop changing.
+  \end{itemize}
+\end{itemize}
 
 \hypertarget{application-to-sars-cov-2}{%
 \section{Application to SARS-CoV-2}\label{application-to-sars-cov-2}}
