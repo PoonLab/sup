@@ -1,7 +1,7 @@
 #! bin/sh
 
 # Suggested usage:
-# time bash covid/src_sample-pangolin-vis.sh -d --overwrite -N 5000 > dtime.out; time bash covid/src_sample-pangolin-vis.sh -d --overwrite -N 5000 > time.out
+# /usr/bin/time -v --outfilebash covid/src_sample-pangolin-vis.sh -d --overwrite -N 5000; /usr/bin/time -v bash covid/src_sample-pangolin-vis.sh -d --overwrite -N 5000
 
 
 # Arguments

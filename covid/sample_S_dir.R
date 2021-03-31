@@ -97,11 +97,11 @@ for(i in 1:nloops){
     filename <- paste0("data/sampled_covid/", 
         asc_names[i], "_sampled", 
         ifelse(dirich, "_d", ""), ".fasta")
-    system(paste0("echo ", name, " > ", filename)
-    system(paste0("echo ", conseq, " >> ", filename))
+    system(paste0("echo '", name, "' > ", filename))
+    system(paste0("echo '", conseq, "' >> ", filename))
 
     for (ii in 1:N) {
-        sampleseq1 <- apply(S, 1, function(x) {
+        sampleseq <- apply(S, 1, function(x) {
             if(any(is.na(x)) | (sum(x) < 10)){
                 return("N")
             } else {
@@ -116,14 +116,14 @@ for(i in 1:nloops){
                         prob = x, replace = TRUE))
                 }
             }
-        }
+        })
 
-        sampleseq <- paste0(conseq, collapse = "")
+        sampleseq <- paste0(sampleseq, collapse = "")
         name <- paste0("> ", asc_names[i], ".", 
             ii, collapse = "")
 
-        system(paste0("echo ", name, " >> ", filename)
-        system(paste0("echo ", sampleseq, " >> ",
+        system(paste0("echo '", name, "' >> ", filename))
+        system(paste0("echo '", sampleseq, "' >> ",
             filename))
 
     }
