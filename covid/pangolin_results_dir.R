@@ -143,3 +143,75 @@ for(i in 1:length(taxons)){
 }
 cowplot::plot_grid(plotlist = gglist)
 ggsave(ifelse(dirich, "figures/ggscatter_p.png", "figures/ggscatter.png"))
+
+
+
+
+
+
+
+
+
+
+
+
+# Temp testing code
+pang <- lins[lins$taxon == taxons[1], ]
+called <- pang$lineage[pang$sample == 0][1]
+pangtab <- sort(table(pang$lineage), decreasing = TRUE)
+colvec <- rep("grey", length(pangtab))
+colvec[which(names(pangtab) == called)] <- "red"
+n <- sum(pangtab > 200)
+barlabx <- c(0, cumsum(pangtab[1:(n-1)])) + pangtab[1:n]/2
+barplot(as.matrix(pangtab), col = colvec, hori = TRUE)
+text(barlabx, 0.7, names(pangtab_small))
+
+
+#par.old <- par()
+png("figures/stacked-lineages.png", 
+    width = 4, height = 8, units = "in", res = 300)
+par(mfrow = c(15, 1), mar = c(1, 0.5, 1.5, 0.5))
+for (i in 1:38) {
+    pang <- lins[lins$taxon == taxons[i], ]
+    called <- pang$lineage[pang$sample == 0][1]
+    pangtab <- sort(table(pang$lineage), decreasing = TRUE)
+
+    colvec <- rep("grey", length(pangtab))
+    colvec[which(names(pangtab) == called)] <- "red"
+
+    n <- sum(pangtab > 50)
+    if (n > 1) {
+        barlabx <- c(0, cumsum(pangtab[1:(n-1)])) + 
+            pangtab[1:n]/2
+
+        barplot(as.matrix(pangtab), 
+            col = colvec, hori = TRUE, axes = FALSE)
+        text(barlabx, 0.7, names(pangtab)[1:n])
+        mtext(side = 3, text = taxons[i], cex = 0.75, las = 1)
+        pretty_labels = seq(0, sum(pangtab),
+                by = ifelse(sum(pangtab) < 2000, 100, 1000))
+        mtext(side = 1, 
+            at = pretty_labels,
+            text = pretty_labels,
+            line = 0,
+            cex = 0.75
+        )
+    } else {
+        cat("Taxon", taxons[i], "had", length(pangtab),
+            "unique calls, with largest accounting for", 
+            pangtab[1], "lineage calls, with second place", 
+            pangtab[2], ". First place was",
+            ifelse(names(pangtab)[1] == called, "", "not"),
+            "the conseq call.\n")
+    }
+}
+dev.off()
+
+
+
+
+
+
+
+
+

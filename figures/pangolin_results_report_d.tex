@@ -1,39 +1,46 @@
-\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 %
-\documentclass[]{article}
+\documentclass[
+]{article}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provides euro and other symbols
-\else % if luatex or xelatex
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
   \usepackage{unicode-math}
-  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
-% use upquote if available, for straight quotes in verbatim environments
+% Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{%
-\usepackage[]{microtype}
-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\IfFileExists{parskip.sty}{%
-\usepackage{parskip}
-}{% else
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
-\usepackage{hyperref}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-            pdftitle={Results of PangoVis},
-            pdfauthor={Devan Becker},
-            pdfborder={0 0 0},
-            breaklinks=true}
-\urlstyle{same}  % don't use monospace font for urls
+  pdftitle={Results of PangoVis},
+  pdfauthor={Devan Becker},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=1in]{geometry}
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -75,7 +82,7 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\usepackage{graphicx,grffile}
+\usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -84,31 +91,20 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{0}
-% Redefines (sub)paragraphs to behave more like sections
-\ifx\paragraph\undefined\else
-\let\oldparagraph\paragraph
-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
-\fi
-\ifx\subparagraph\undefined\else
-\let\oldsubparagraph\subparagraph
-\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
-\fi
-
-% set default figure placement to htbp
+% Set default figure placement to htbp
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
-
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 \usepackage[]{natbib}
 \bibliographystyle{plainnat}
 
 \title{Results of PangoVis}
 \author{Devan Becker}
-\date{2021-03-16}
+\date{2021-03-31}
 
 \begin{document}
 \maketitle
@@ -118,7 +114,7 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# Packages that Art hates}
+\CommentTok{\# Packages that Art hates}
 \KeywordTok{library}\NormalTok{(dplyr)}
 \end{Highlighting}
 \end{Shaded}
@@ -155,29 +151,29 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{dirich <-}\StringTok{ }\NormalTok{params}\OperatorTok{$}\NormalTok{dirich}
+\NormalTok{dirich \textless{}{-}}\StringTok{ }\NormalTok{params}\OperatorTok{$}\NormalTok{dirich}
 
-\CommentTok{# Read in CSV files}
-\NormalTok{csvs <-}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\StringTok{"../data/pangolineages"}\NormalTok{, }
-    \DataTypeTok{pattern =} \KeywordTok{ifelse}\NormalTok{(dirich, }\StringTok{"*_d.csv"}\NormalTok{, }\StringTok{"*.csv"}\NormalTok{), }
+\CommentTok{\# Read in CSV files}
+\NormalTok{csvs \textless{}{-}}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\StringTok{"../data/pangolineages"}\NormalTok{, }
+    \DataTypeTok{pattern =} \KeywordTok{ifelse}\NormalTok{(dirich, }\StringTok{"*\_d.csv"}\NormalTok{, }\StringTok{"*.csv"}\NormalTok{), }
     \DataTypeTok{full.names =} \OtherTok{TRUE}\NormalTok{)}
 
-\CommentTok{# Remove any copies}
-\NormalTok{csvs <-}\StringTok{ }\NormalTok{csvs[}\OperatorTok{!}\KeywordTok{grepl}\NormalTok{(}\StringTok{"-1"}\NormalTok{, csvs)]}
-\CommentTok{# Proper names}
-\CommentTok{#csvs <- paste0("../data/pangolineages/", csvs)}
+\CommentTok{\# Remove any copies}
+\NormalTok{csvs \textless{}{-}}\StringTok{ }\NormalTok{csvs[}\OperatorTok{!}\KeywordTok{grepl}\NormalTok{(}\StringTok{"{-}1"}\NormalTok{, csvs)]}
+\CommentTok{\# Proper names}
+\CommentTok{\#csvs \textless{}{-} paste0("../data/pangolineages/", csvs)}
 
-\CommentTok{# Bring them into one data frame}
-\NormalTok{lins <-}\StringTok{ }\KeywordTok{bind_rows}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(csvs, read.csv))}
+\CommentTok{\# Bring them into one data frame}
+\NormalTok{lins \textless{}{-}}\StringTok{ }\KeywordTok{bind\_rows}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(csvs, read.csv))}
 
-\CommentTok{# Taxon is encoded as _ACCSESSIONNUMBER.ID, split into ACCESSIONNUMBER and ID}
-\NormalTok{lins <-}\StringTok{ }\NormalTok{lins }\OperatorTok{%>%}\StringTok{ }
+\CommentTok{\# Taxon is encoded as \_ACCSESSIONNUMBER.ID, split into ACCESSIONNUMBER and ID}
+\NormalTok{lins \textless{}{-}}\StringTok{ }\NormalTok{lins }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
 \StringTok{    }\KeywordTok{separate}\NormalTok{(}\DataTypeTok{col =} \StringTok{"taxon"}\NormalTok{, }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, }
-        \DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"taxon"}\NormalTok{, }\StringTok{"sample"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{taxon =} \KeywordTok{str_replace}\NormalTok{(taxon, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{_"}\NormalTok{, }\StringTok{""}\NormalTok{))}
+        \DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"taxon"}\NormalTok{, }\StringTok{"sample"}\NormalTok{)) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{taxon =} \KeywordTok{str\_replace}\NormalTok{(taxon, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{\_"}\NormalTok{, }\StringTok{""}\NormalTok{))}
 
-\CommentTok{#### Visualize the uncertainty in the base calls ----}
-\NormalTok{taxons <-}\StringTok{ }\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)}
+\CommentTok{\#\#\#\# Visualize the uncertainty in the base calls {-}{-}{-}{-}}
+\NormalTok{taxons \textless{}{-}}\StringTok{ }\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)}
 \KeywordTok{length}\NormalTok{(taxons)}
 \end{Highlighting}
 \end{Shaded}
@@ -191,8 +187,8 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{summs <-}\StringTok{ }\NormalTok{lins }\OperatorTok{%>%}\StringTok{ }
-\StringTok{    }\KeywordTok{group_by}\NormalTok{(taxon) }\OperatorTok{%>%}
+\NormalTok{summs \textless{}{-}}\StringTok{ }\NormalTok{lins }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{    }\KeywordTok{group\_by}\NormalTok{(taxon) }\OperatorTok{\%\textgreater{}\%}
 \StringTok{    }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{maxperc =} \KeywordTok{mean}\NormalTok{(lineage }\OperatorTok{==}\StringTok{ }\KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage), }
         \DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{))[}\DecValTok{1}\NormalTok{]),}
         \DataTypeTok{uniques =} \KeywordTok{length}\NormalTok{(}\KeywordTok{unique}\NormalTok{(lineage)),}
@@ -227,27 +223,27 @@
 ## # A tibble: 36 x 7
 ##    taxon      maxperc uniques minpango maxpango menpango max      
 ##    <chr>        <dbl>   <int>    <dbl>    <dbl>    <dbl> <chr>    
-##  1 ERR4085809   0.349      78        1        1        1 A        
-##  2 ERR4204823   0.632      11        1        1        1 A        
-##  3 ERR4363387   0.921      14        1        1        1 B.1.222  
-##  4 ERR4364007   0.753      47        1        1        1 B.1.1.29 
-##  5 ERR4664555   0.965      12        1        1        1 B.1.1.253
-##  6 ERR4667618   0.994       5        1        1        1 B.1.1.315
-##  7 ERR4692364   0.922      26        1        1        1 B.1      
-##  8 ERR4693034   0.886      28        1        1        1 B.1.1.310
-##  9 ERR4693061   0.955       7        1        1        1 B.23     
-## 10 ERR4693079   0.865      36        1        1        1 B.1.1.310
+##  1 ERR4085809   0.337     168        1        1        1 A        
+##  2 ERR4204823   0.686      23        1        1        1 A        
+##  3 ERR4363387   0.931      20        1        1        1 B.1.222  
+##  4 ERR4364007   0.842      78        1        1        1 B.1.1.29 
+##  5 ERR4664555   0.970      17        1        1        1 B.1.1.253
+##  6 ERR4667618   0.991       8        1        1        1 B.1.1.315
+##  7 ERR4692364   0.915      38        1        1        1 B.1      
+##  8 ERR4693034   0.905      60        1        1        1 B.1.1.310
+##  9 ERR4693061   0.954      18        1        1        1 B.23     
+## 10 ERR4693079   0.876      94        1        1        1 B.1.1.310
 ## # ... with 26 more rows
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{maxperc); }\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{menpango)}
+\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{maxperc); }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{menpango)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 0.1488491
+## [1] 0.147237
 \end{verbatim}
 
 \begin{verbatim}
@@ -261,16 +257,16 @@
 \begin{Highlighting}[]
 \KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{))}
 \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(}\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)))\{}
-\NormalTok{    thistab <-}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]])}
-\NormalTok{    called <-}\StringTok{ }\NormalTok{lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i] }\OperatorTok{&}\StringTok{ }
+\NormalTok{    thistab \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]])}
+\NormalTok{    called \textless{}{-}}\StringTok{ }\NormalTok{lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i] }\OperatorTok{\&}\StringTok{ }
 \StringTok{        }\NormalTok{lins}\OperatorTok{$}\NormalTok{sample }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{]}
     \KeywordTok{print}\NormalTok{(called)}
     
     \ControlFlowTok{if}\NormalTok{(}\KeywordTok{length}\NormalTok{(called) }\OperatorTok{==}\StringTok{ }\DecValTok{1}\NormalTok{) \{}
-\NormalTok{        colours <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{length}\NormalTok{(thistab))}
-\NormalTok{        colours[}\KeywordTok{names}\NormalTok{(thistab) }\OperatorTok{==}\StringTok{ }\NormalTok{called] <-}\StringTok{ }\DecValTok{2}
+\NormalTok{        colours \textless{}{-}}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{length}\NormalTok{(thistab))}
+\NormalTok{        colours[}\KeywordTok{names}\NormalTok{(thistab) }\OperatorTok{==}\StringTok{ }\NormalTok{called] \textless{}{-}}\StringTok{ }\DecValTok{2}
 \NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{        colours <-}\StringTok{ "lightgrey"}
+\NormalTok{        colours \textless{}{-}}\StringTok{ "lightgrey"}
 \NormalTok{    \}}
     
     \KeywordTok{barplot}\NormalTok{(}\KeywordTok{sort}\NormalTok{(thistab, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{), }
@@ -430,20 +426,20 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{boots <-}\StringTok{ }\KeywordTok{vector}\NormalTok{(}\DataTypeTok{mode =} \StringTok{"list"}\NormalTok{, }\DataTypeTok{length =} \KeywordTok{length}\NormalTok{(taxons))}
+\NormalTok{boots \textless{}{-}}\StringTok{ }\KeywordTok{vector}\NormalTok{(}\DataTypeTok{mode =} \StringTok{"list"}\NormalTok{, }\DataTypeTok{length =} \KeywordTok{length}\NormalTok{(taxons))}
 \KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{,}\DecValTok{6}\NormalTok{))}
 \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(taxons))\{}
-    \CommentTok{# Find modal lineage}
-\NormalTok{    thistab <-}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]])}
-\NormalTok{    maxtab <-}\StringTok{ }\KeywordTok{names}\NormalTok{(thistab)[}\KeywordTok{which.max}\NormalTok{(thistab)]}
-    \CommentTok{# Record "probability" for all sequences labelled with this lineage}
-\NormalTok{    boots[[i]] <-}\StringTok{ }\NormalTok{lins}\OperatorTok{$}\NormalTok{probability[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i] }\OperatorTok{&}\StringTok{ }
+    \CommentTok{\# Find modal lineage}
+\NormalTok{    thistab \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]])}
+\NormalTok{    maxtab \textless{}{-}}\StringTok{ }\KeywordTok{names}\NormalTok{(thistab)[}\KeywordTok{which.max}\NormalTok{(thistab)]}
+    \CommentTok{\# Record "probability" for all sequences labelled with this lineage}
+\NormalTok{    boots[[i]] \textless{}{-}}\StringTok{ }\NormalTok{lins}\OperatorTok{$}\NormalTok{probability[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i] }\OperatorTok{\&}\StringTok{ }
 \StringTok{            }\NormalTok{lins}\OperatorTok{$}\NormalTok{lineage }\OperatorTok{==}\StringTok{ }\NormalTok{maxtab]}
     
-    \CommentTok{# histogram of probabilities of that lineage}
+    \CommentTok{\# histogram of probabilities of that lineage}
     \KeywordTok{hist}\NormalTok{(boots[[i]], }\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\FloatTok{0.05}\NormalTok{), }
         \DataTypeTok{xlim =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{))}
-    \CommentTok{# Add a line for the number of genomes that actually had that lineage}
+    \CommentTok{\# Add a line for the number of genomes that actually had that lineage}
     \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v =} \KeywordTok{mean}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]] }\OperatorTok{==}\StringTok{ }\NormalTok{maxtab),}
         \DataTypeTok{col =} \DecValTok{2}\NormalTok{, }\DataTypeTok{lwd =} \DecValTok{3}\NormalTok{)}
 \NormalTok{\}}
@@ -457,51 +453,51 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{gglist <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{gglist \textless{}{-}}\StringTok{ }\KeywordTok{list}\NormalTok{()}
 \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(taxons))\{}
-\NormalTok{    pang <-}\StringTok{ }\NormalTok{lins[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i], ]}
-\NormalTok{    pang2 <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(}\KeywordTok{unique}\NormalTok{(pang}\OperatorTok{$}\NormalTok{lineage), }\ControlFlowTok{function}\NormalTok{(x) \{}
+\NormalTok{    pang \textless{}{-}}\StringTok{ }\NormalTok{lins[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i], ]}
+\NormalTok{    pang2 \textless{}{-}}\StringTok{ }\KeywordTok{lapply}\NormalTok{(}\KeywordTok{unique}\NormalTok{(pang}\OperatorTok{$}\NormalTok{lineage), }\ControlFlowTok{function}\NormalTok{(x) \{}
         \KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{lineage =}\NormalTok{ x, }
             \DataTypeTok{prop =} \KeywordTok{mean}\NormalTok{(pang}\OperatorTok{$}\NormalTok{lineage }\OperatorTok{==}\StringTok{ }\NormalTok{x))}
-\NormalTok{    \}) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{bind_rows}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{right_join}\NormalTok{(pang, }\DataTypeTok{by =} \StringTok{"lineage"}\NormalTok{)}
-    \CommentTok{#pang2}
+\NormalTok{    \}) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\KeywordTok{bind\_rows}\NormalTok{() }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\KeywordTok{right\_join}\NormalTok{(pang, }\DataTypeTok{by =} \StringTok{"lineage"}\NormalTok{)}
+    \CommentTok{\#pang2}
     \KeywordTok{ggplot}\NormalTok{(pang2) }\OperatorTok{+}\StringTok{ }
 \StringTok{        }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prop, }\DataTypeTok{y =}\NormalTok{ probability,}
             \DataTypeTok{colour =}\NormalTok{ lineage, }\DataTypeTok{label =}\NormalTok{ lineage) }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
-\StringTok{        }\CommentTok{#geom_text_repel() + }
+\StringTok{        }\KeywordTok{geom\_point}\NormalTok{() }\OperatorTok{+}
+\StringTok{        }\CommentTok{\#geom\_text\_repel() + }
 \StringTok{        }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{)}
     
-\NormalTok{    pangtab <-}\StringTok{ }\NormalTok{pang2 }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{group_by}\NormalTok{(prop, lineage) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{y =} \DecValTok{1}\NormalTok{, }\DataTypeTok{count =} \KeywordTok{n}\NormalTok{(), }\DataTypeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{filter}\NormalTok{(prop }\OperatorTok{>}\StringTok{ }\FloatTok{0.025}\NormalTok{)}
+\NormalTok{    pangtab \textless{}{-}}\StringTok{ }\NormalTok{pang2 }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\KeywordTok{group\_by}\NormalTok{(prop, lineage) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{y =} \DecValTok{1}\NormalTok{, }\DataTypeTok{count =} \KeywordTok{n}\NormalTok{(), }\DataTypeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\KeywordTok{filter}\NormalTok{(prop }\OperatorTok{\textgreater{}}\StringTok{ }\FloatTok{0.025}\NormalTok{)}
     
-\NormalTok{    gglist[[i]] <-}\StringTok{ }\NormalTok{pang2 }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\CommentTok{# round to nearest 0.5}
-\StringTok{        }\CommentTok{#mutate(prop = round(prop*2, 1)/2,}
-\StringTok{        }\CommentTok{#    probability = round(probability*2, 1)/2) %>% }
-\StringTok{        }\KeywordTok{group_by}\NormalTok{(prop, probability, lineage) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{count =} \KeywordTok{n}\NormalTok{(), }\DataTypeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_bw}\NormalTok{() }\OperatorTok{+}\StringTok{ }
+\NormalTok{    gglist[[i]] \textless{}{-}}\StringTok{ }\NormalTok{pang2 }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\CommentTok{\# round to nearest 0.5}
+\StringTok{        }\CommentTok{\#mutate(prop = round(prop*2, 1)/2,}
+\StringTok{        }\CommentTok{\#    probability = round(probability*2, 1)/2) \%\textgreater{}\% }
+\StringTok{        }\KeywordTok{group\_by}\NormalTok{(prop, probability, lineage) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{count =} \KeywordTok{n}\NormalTok{(), }\DataTypeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{        }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{theme\_bw}\NormalTok{() }\OperatorTok{+}\StringTok{ }
 \StringTok{        }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prop, }\DataTypeTok{y =}\NormalTok{ probability, }\DataTypeTok{colour =}\NormalTok{ lineage, }
             \DataTypeTok{label =}\NormalTok{ count) }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{geom_text}\NormalTok{() }\OperatorTok{+}\StringTok{ }
+\StringTok{        }\KeywordTok{geom\_text}\NormalTok{() }\OperatorTok{+}\StringTok{ }
 \StringTok{        }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{) }\OperatorTok{+}
 \StringTok{        }\KeywordTok{annotate}\NormalTok{(}\StringTok{"text"}\NormalTok{, }\DataTypeTok{x =}\NormalTok{ pangtab}\OperatorTok{$}\NormalTok{prop, }\DataTypeTok{y =} \DecValTok{1}\NormalTok{, }
             \DataTypeTok{label =}\NormalTok{ pangtab}\OperatorTok{$}\NormalTok{lineage,}
-            \DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{vjust =} \DecValTok{-1}\NormalTok{) }\OperatorTok{+}
+            \DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{vjust =} \DecValTok{{-}1}\NormalTok{) }\OperatorTok{+}
 \StringTok{        }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Proportion of Lineage"}\NormalTok{,}
             \DataTypeTok{y =} \StringTok{"Bootstrap Probability"}\NormalTok{,}
             \DataTypeTok{title =} \OtherTok{NULL}\NormalTok{) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.1}\NormalTok{)) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\FloatTok{1.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{)) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{coord_cartesian}\NormalTok{(}\DataTypeTok{ylim =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{1.1}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{geom_abline}\NormalTok{(}\DataTypeTok{slope =} \DecValTok{1}\NormalTok{, }\DataTypeTok{intercept =} \DecValTok{0}\NormalTok{)}
+\StringTok{        }\KeywordTok{scale\_x\_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{scale\_y\_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\FloatTok{1.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{coord\_cartesian}\NormalTok{(}\DataTypeTok{ylim =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{1.1}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
+\StringTok{        }\KeywordTok{geom\_abline}\NormalTok{(}\DataTypeTok{slope =} \DecValTok{1}\NormalTok{, }\DataTypeTok{intercept =} \DecValTok{0}\NormalTok{)}
 \NormalTok{\}}
-\NormalTok{cowplot}\OperatorTok{::}\KeywordTok{plot_grid}\NormalTok{(}\DataTypeTok{plotlist =}\NormalTok{ gglist)}
+\NormalTok{cowplot}\OperatorTok{::}\KeywordTok{plot\_grid}\NormalTok{(}\DataTypeTok{plotlist =}\NormalTok{ gglist)}
 \end{Highlighting}
 \end{Shaded}
 
