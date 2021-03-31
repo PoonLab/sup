@@ -64,7 +64,7 @@ sampled_files <- list()
 t0 <- Sys.time() # Outer timer
 nloops <- length(S_list)
 collapsed <- estlapseds <- double(nloops)
-for (i in 1:2){#nloops) {
+for(i in 1:nloops){
     # Error checking
     if(is.null(dim(S_list[[i]]))) {
         print("Empty file")
@@ -80,7 +80,28 @@ for (i in 1:2){#nloops) {
         S <- S[,1:5]
     }
     alph <- toupper(colnames(S))
+    #print(alph)
+    # Make columns add to 1
+    S2sum <- as.vector(apply(S, 1, sum))
+    S2mat <- matrix(rep(S2sum, ncol(S)), ncol = ncol(S), byrow = FALSE)
+    S2 <- S / S2mat
+    
+    # Sample the sequences
+    #n <- 1000 # number of sampled genomes
+    sampleseq_mat <- apply(S, 1, function(x) {
+        if(any(is.na(x)) | (sum(x) < 10)){
+            return(rep("N", N))
+        } else {
+            if (dirich){
+                newx <- rdirichlet(1, x + c(rep(1/4, 4), rep(0, length(x) - 4)))
+                return(sample(alph, size = N, prob = newx, replace = TRUE))
+            } else {
+                return(sample(alph, size = N, prob = x, replace = TRUE))
+            }
 
+        }
+    })
+    
     conseq <- apply(S, 1, function(x) {
         if(any(is.na(x)) | sum(x) < 10) {
             return("N")
@@ -88,50 +109,18 @@ for (i in 1:2){#nloops) {
             return(alph[which.max(x)])
         }
     })
-
+    
     # Convert sample letters to single string
-    conseq <- paste0(conseq, collapse = "")
-    name <- paste0("> ", asc_names[i], ".", 0, 
-        collapse = "")
-
-    filename <- paste0("data/sampled_covid/", 
-        asc_names[i], "_sampled", 
-        ifelse(dirich, "_d", ""), ".fasta", 
-        collapse = "")
-    system(paste0("echo '", name, "' > ", filename, 
-        collapse = ""))
-    system(paste0("echo '", conseq, "' >> ", filename, 
-        collapse = ""))
-
-    for (ii in 1:N) {
-        sampleseq <- apply(S, 1, function(x) {
-            if(any(is.na(x)) | (sum(x) < 10)){
-                return("N")
-            } else {
-                if (dirich){
-                    newx <- rdirichlet(1, x + 
-                        c(rep(1/4, 4), 
-                            rep(0, length(x) - 4)))
-                    return(sample(alph, size = 1,
-                        prob = newx, replace = TRUE))
-                } else {
-                    return(sample(alph, size = 1, 
-                        prob = x, replace = TRUE))
-                }
-            }
-        })
-
-        sampleseq <- paste0(sampleseq, collapse = "")
-        name <- paste0("> ", asc_names[i], ".", 
-            ii, collapse = "")
-
-        system(paste0("echo '", name, "' >> ", filename, 
-            collapse = ""))
-        system(paste0("echo '", sampleseq, "' >> ",
-            filename,  collapse = ""))
-
-    }
-
+    conseq <- paste(conseq, collapse = "", sep = "")
+    sampleseq <- c(conseq, apply(sampleseq_mat, 1, paste, collapse = ""))
+    
+    # Create well-formatted fasta file
+    name <- paste0("> ", asc_names[i], ".", 0:length(sampleseq))
+    fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
+    sampled_files[[i]] <- fasta
+    writeLines(fasta, con = paste0("data/sampled_covid/", asc_names[i], 
+        "_sampled", ifelse(dirich, "_d", ""), ".fasta"))
+    
     # Loop Timing
     elapsed <- difftime(Sys.time(), t1, units = "mins")
     collapsed[i] <- elapsed
@@ -147,12 +136,8 @@ for (i in 1:2){#nloops) {
         " hours) remaining"))
 }
 
-
-
-
-
-
-
+print(asc_names)
+writeLines(asc_names, con = "data/sampled_covid/ascnames.txt")
 
 
 
