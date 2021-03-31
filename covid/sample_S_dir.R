@@ -64,7 +64,7 @@ sampled_files <- list()
 t0 <- Sys.time() # Outer timer
 nloops <- length(S_list)
 collapsed <- estlapseds <- double(nloops)
-for(i in 1:nloops){
+for (i in 1:2){#nloops) {
     # Error checking
     if(is.null(dim(S_list[[i]]))) {
         print("Empty file")
@@ -96,9 +96,12 @@ for(i in 1:nloops){
 
     filename <- paste0("data/sampled_covid/", 
         asc_names[i], "_sampled", 
-        ifelse(dirich, "_d", ""), ".fasta")
-    system(paste0("echo '", name, "' > ", filename))
-    system(paste0("echo '", conseq, "' >> ", filename))
+        ifelse(dirich, "_d", ""), ".fasta", 
+        collapse = "")
+    system(paste0("echo '", name, "' > ", filename, 
+        collapse = ""))
+    system(paste0("echo '", conseq, "' >> ", filename, 
+        collapse = ""))
 
     for (ii in 1:N) {
         sampleseq <- apply(S, 1, function(x) {
@@ -122,9 +125,10 @@ for(i in 1:nloops){
         name <- paste0("> ", asc_names[i], ".", 
             ii, collapse = "")
 
-        system(paste0("echo '", name, "' >> ", filename))
+        system(paste0("echo '", name, "' >> ", filename, 
+            collapse = ""))
         system(paste0("echo '", sampleseq, "' >> ",
-            filename))
+            filename,  collapse = ""))
 
     }
 
