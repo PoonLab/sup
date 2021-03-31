@@ -62,17 +62,17 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 
 - WRITE
     - Intro
-        - [ ] Intro paragraphss
-        - [ ] Relevant literature
-        - [ ] Sources of uncertainty
+        - [x] Intro paragraphss
+        - [x] Relevant literature
+        - [x] Sources of uncertainty
         - [ ] Description of SAM files (with and without paired reads)
         - [ ] Description of InSilicoSeq (and other things from David's work)
     - Methods
-        - [ ] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods; largely re-used from David's work)
-        - [ ] Sampling from normalized probabilities or from multinomial posteriors (justification)
-        - [ ] Sequence-level uncertainty measures, and their use in analysis of genetic data
+        - [x] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods; largely re-used from David's work)
+        - [x] Sampling from normalized probabilities or from multinomial posteriors (justification)
+        - [x] Sequence-level uncertainty measures, and their use in analysis of genetic data
     - Application
-        - [ ] Description of Covid Data
+        - [x] Description of Covid Data
         - [ ] Example of an uncertainty matrix from actual covid data
         - [ ] Pangolin description (incl. bootstrap support)
         - [ ] Pangolin results summary/vis
