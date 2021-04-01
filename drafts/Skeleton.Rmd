@@ -34,6 +34,8 @@ TODO
     - Genome likelihood is used in other contexts; their formulations are model-based but have the same interpretation.
 - I'm really bad at tense.
 - Nomenclature: Nucleotide position, location, or locus?
+- Ensure I'm using pangolin/pangoLEARN in proper contexts
+    - Right now, I'm using them as synonyms (bad)
 
 # Intro
 
@@ -363,18 +365,19 @@ For this analysis we use the most basic resampling strategy. We simply draw prob
 
 Locations with 0 reads were discarded. This is a somewhat arbitrary choice since random draws from the Dirichlet distribution when the sum of the parameters (which, in this case, corresponds to the coverage) is small are essentially draws from the uniform distribution. 
 
-In \ref{fig:covidcalls}, each row represents one SAM file. Each bar represents one lineage assignment from pangolin. The width of the bars represents the sum of the weights (genome likelihoods) of sampled sequences. Bars are subdivided to visualize these weights.
 
-**Figure 1: Best and worst case scenario bar plots, conseq coloured.**
+In \ref{fig:covidcalls}, each row represents resamples from one SAM file. Each bar represents one lineage assignment from pangolin. The width of the bars represents the sum of the weights (genome likelihoods) of sampled sequences. Bars are subdivided to visualize these weights.
+
+\begin{figure}
+\includegraphics[width = 0.47\textwidth]{../figures/stacked-lineages.png}
+\label{fig:covidcalls}
+\caption{Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence.}
+\end{figure}
+
+Initial analyses used pangolin version 2.0.8, which used multinomial logistic regression, rather than decision trees, to assign lineages. This procedure resulted in bootstrap support values that varied from 0.6 to 1. After upgrading to pangolin version 2.3.2, which uses a decision tree model, all bootstrap probabilities are reported as 1. 
 
 
-### Results
-
-
-
-
-
-Initial analyses used pangolin version 2.0.8, which used multinomial logistic regression, rather than decision trees, to assign lineages. This procedure resulted in bootstrap support below 1. 
+### Sequential re-analysis with genome likelihoods
 
 
 

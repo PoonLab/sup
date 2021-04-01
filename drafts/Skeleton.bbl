@@ -1,4 +1,4 @@
-\begin{thebibliography}{14}
+\begin{thebibliography}{15}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -120,6 +120,16 @@ Jason~A. O'Rawe, Scott Ferson, and Gholson~J. Lyon.
   2015.
 \newblock ISSN 0168-9525.
 \newblock \doi{10.1016/j.tig.2014.12.002}.
+
+\bibitem[Rambaut et~al.(2020)Rambaut, Holmes, O'Toole, Hill, McCrone, Ruis, {du
+  Plessis}, and Pybus]{rambautDynamicNomenclatureProposal2020}
+Andrew Rambaut, Edward~C. Holmes, {\'A}ine O'Toole, Verity Hill, John~T.
+  McCrone, Christopher Ruis, Louis {du Plessis}, and Oliver~G. Pybus.
+\newblock A dynamic nomenclature proposal for {{SARS}}-{{CoV}}-2 lineages to
+  assist genomic epidemiology.
+\newblock \emph{Nature Microbiology}, July 2020.
+\newblock ISSN 2058-5276.
+\newblock \doi{10.1038/s41564-020-0770-5}.
 
 \bibitem[Richterich(1998)]{richterichEstimationErrorsRaw1998}
 Peter Richterich.
