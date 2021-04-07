@@ -36,7 +36,7 @@ table(to_sample)
 
 non0 <- sam2[to_sample, ] %>%
     `colnames<-`(1:5) %>%
-    as.data.frame() %>% 
+    as.data.frame() %>%
     tibble::rowid_to_column(var = "row_id") %>%
     tidyr::pivot_longer(cols = -row_id, names_to = "col_id") %>%
     mutate(order = order(value))
@@ -44,4 +44,3 @@ non0 <- sam2[to_sample, ] %>%
 # Next steps:
     # 1. Fix everything
     # 2, Figure it out from there.
-
