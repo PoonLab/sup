@@ -60,6 +60,7 @@ void read_input_file(char *file, in_file *in, int n) {
         }
     }
     fclose(fp);
+    free(line);
 }
 
 int get_number_rows(char *file) {
@@ -81,12 +82,19 @@ int get_number_rows(char *file) {
         }
     }
     fclose(fp);
-
+    free(line);
     return num_lines;
 }
 
-void write_matrix(double m[][4], int maxLen) {
-    FILE *fp = fopen("matrix.csv", "w+");
+void write_matrix(double** m, int maxLen, char *filename) {
+    char *tok;
+    const char delim[2] = ".";
+    tok = strtok(basename(filename), delim);
+
+    char outputFile[strlen(tok) + 5];
+    snprintf(outputFile, sizeof(outputFile), "%s.csv", tok);
+
+    FILE *fp = fopen(outputFile, "w+");
     fprintf(fp, " , A, C, G, T\n");
     for (int i = 0; i < maxLen; i++) {
         fprintf(fp, "%d, %f, %f, %f, %f\n", (i+1), m[i][0], m[i][1], m[i][2], m[i][3]);

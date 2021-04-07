@@ -14,30 +14,11 @@ typedef struct in_file
 } in_file;
 
 
-typedef struct timings
-{
-    double first_read;
-    double cigar;
-    double paired;
-    double posrange;    
-    double phred;
-    double update;
-} timings;
-
 typedef struct tokens
 {
 	char *value;
 	struct tokens *next;
 } tokens;
-
-typedef struct list_tokens
-{
-    struct tokens *toks;
-    int pos;
-    char *seq;
-    char *qual;
-    struct list_tokens *next;
-} list_tokens;
 
 typedef struct edits {
     int len;
@@ -50,19 +31,11 @@ typedef struct edits {
     struct edits *next;
 } edits;
 
-typedef struct insertions {
-    int lenSeq;
-    char *seq;
-    char *qual;
-    struct insertions *next;
-} insertions;
-
 typedef struct newSeq {
     char *seq;
     char *qualseq;
-    struct insertions *insertions;
+    // struct insertions *insertions;
     struct newSeq *next;
 } newSeq;
-
 
 #endif

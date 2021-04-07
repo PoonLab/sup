@@ -1,3 +1,7 @@
+# Dependencies
+
+glib - GHashTable from https://developer.gnome.org/
+
 # Running the program
 `make` will compile the program and build output to `sam2main`
 
