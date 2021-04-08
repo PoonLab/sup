@@ -328,15 +328,26 @@ In a Bayesian framework, this could be incorporated as prior distribution on eac
 
 Suppose we wish to use a single sequence to estimate some parameter $\theta$ (for instance, the p-value for whether a sequence is a particular variant or the lineage assignment for grafting to a pre-computed tree) and we are interested in the effect that uncertainty has on this estimate. Computational burden can be partially alleviated by incorporating sequence-level uncertainty. 
 
-To start with, a cut-off probability can be set for the nucleotide uncertainty. Any base that has a 1/1000 error rate (its entry in $\nps$ is larger than 99.9%) can be set to a 0% error rate. With this change, the sequence uncertainty for all possible sequences (or all bioligically feasible sequences) can be calculated. Label these uncertainties $a_i$. 
+<!---To start with, a cut-off probability can be set for the nucleotide uncertainty. Any base that has a 1/1000 error rate (its entry in $\nps$ is larger than 99.9%) can be set to a 0% error rate. With this change, the sequence uncertainty for all possible sequences (or all bioligically feasible sequences) can be calculated. Label these uncertainties $a_i$. 
+--->
 
-The sequences can be ordered according to their uncertainty, with the most likely sequence having uncertainty $a_{(1)}$, the second-most likely sequence $a_{(i)}$, etc. The analysis can be performed using the most likely sequence, resulting in an estimate $\theta_{(1)}$. The analysis can be re-run with the second-most likely sequence, $\theta_{(2)}$. Given just these two estimates, a weighted estimate of $\theta$ given the 2 most likely sequences could be found as:
+To start with, the most likely sequences must be calculated. This could be done by calculating all of the sequences, comparing their likelihoods (labelled $a_i$), and putting them in order ($a_{(i)}$), but this is not necessary. Instead, the most likely sequence is already known (the consensus sequence). The second most likely sequence can be found by substituting the base call that was least likely (but still called) with the second most likely base call. 
+
+The calculation of the likelihood will be identical in these two cases except for the one substitution. Instead of calculating the entire likelihood (which can be numerically unstable since there are nearly 30,000 base pairs), the difference in the likelihood can be calculated. 
+
+Consider the two vectors $M$ and $m$, where $M_j$ represents the largest value in the $j$th column of $\nps$ and $m_j$ represents the second largest value. The likelihood of the consensus sequence is $a_{(0)} = \prod_{j=1}^NM_j$. Let $k$ be the index of the smallest value in $M$, then the second most likely sequence has likelihood $a_{(1)} = \prod_{j\ne k}M_jm_k$. The change in likelihood is $a_{(0)} - a_{(1)} = \prod_{j\ne k}(M_k - m_k)$.
+
+This process does not necessarily continue in a straightforward manner. At some point, it will be uncertain whether making a different substitution will have a larger effect on the likelihood than adding a substitution than one made in another sequence. The differences in likelihood derived above provide a very fast comparison of likelihoods, though, so it is not expensive to calculate both possible situations. Because of this speed-up, it is computationally feasible to simply calculate the likelihood for all substitutions involving the $d$ least likely base calls that made it into the conseq and then sort them out later. There are $d*2^d$ possible combinations of substitutions for $d$ bases, which means that $d=9$ will provide the 4,608 most likely sequences/
+
+Suppose we are using these sequences to estimate some parameter $\theta$. The sequences can be ordered according to their uncertainty, with the most likely sequence having uncertainty $a_{(1)}$, the second-most likely sequence $a_{(i)}$, etc. The analysis can be performed using the most likely sequence, resulting in an estimate $\theta_{(0)}$. The analysis can be re-run with the second-most likely sequence, $\theta_{(1)}$. Given just these two estimates, a weighted estimate of $\theta$ given the 2 most likely sequences could be found as:
+
+DEVAN! BAD! $a_{(0)}$ has already been used! Maybe use prime.
 
 $$
-\hat\theta_{(2)} \approx \theta_{(1)} \tilde a_{(1)} + \theta_{(2)}\tilde a_{(2)}\text{, where }\tilde a_{(j)}=a_{(j)}/\sum_{i=1}^2a_{(i)}
+\hat\theta_{(1)} \approx \theta_{(0)} \tilde a_{(0)} + \theta_{(1)}\tilde a_{(1)}\text{, where }\tilde a_{(j)}=a_{(j)}/\sum_{i=1}^2a_{(i)}
 $$
 
-The third-most likely sequence can be analysed, resulting in $\hat\theta_{(3)}$. This process can be repeated until new estimates do not have any impact on the results (conversion criteria could be set, but a graphical representation of $\theta_{(i)}$ would be more informative). If convergence is not clearly met, the cut-off can be reduced until enough sequences are obtained. 
+The third-most likely sequence can be analysed, resulting in $\hat\theta_{(2)}$. This process can be repeated until new estimates do not have any impact on the results (conversion criteria could be set, but a graphical representation of $\theta_{(i)}$ would be more informative). If convergence is not clearly met, the $d$ can be increased until enough sequences are obtained. 
 
 With this algorithm, the computational burden is separated into calculating the sequence liklihood for the most likely sequences and running the analysis enough times to be confident convergence is acheived.
 
