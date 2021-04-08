@@ -3,7 +3,12 @@
 #include <regex.h>
 #include <stdbool.h>
 #include <math.h>
-#include <glib.h>
+#include <pthread.h>
+
+static const bool paired = true;
+int maxLength;
+pthread_mutex_t lock;
+double **m;
 
 int len_terminal_gap(char *seq) {
     bool prefix = true;
@@ -271,17 +276,212 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
     return sequences_list;
 }
 
+void *processLines(void *args)
+{
+    threadArg *arg = (threadArg *)args;
+    char *filename = arg->filename;
+    GHashTable *hash = arg->hash;
+    int start = arg->start_line;
+    int end = arg->end_line;
+    // double **m = arg->m;
+    int numLines = 0;
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL)
+    {
+        perror(filename);
+        exit(-1);
+    }
+    char *line = NULL;
+    size_t line_buf_size = 0;
+    ssize_t line_size;
+
+    char *tok;
+    char *context = NULL;
+    const char delim[2] = "\t";
+    while((line_size = getline(&line, &line_buf_size, fp)) != -1)
+    {
+        numLines++;
+        if (numLines > start && numLines <= end) {
+            // printf("Iter #: %d\n", iter++);
+            if (line[0] == '@') continue;
+            
+            char *qname, *pos, *cigar, *seq, *qual;
+
+            tok = strtok_r(line, delim, &context);
+
+            // Assuming that each line in the file has the same number of tokens
+            qname = malloc(strlen(tok) + 1);
+            strcpy(qname, tok);
+            
+            tok = strtok_r(NULL, delim, &context);
+            tok = strtok_r(NULL, delim, &context);
+
+            tok = strtok_r(NULL, delim, &context);
+            pos = malloc(strlen(tok) + 1);
+            strcpy(pos, tok);
+
+            tok = strtok_r(NULL, delim, &context);
+
+            tok = strtok_r(NULL, delim, &context);
+            cigar = malloc(strlen(tok) + 1);
+            strcpy(cigar, tok);
+
+            tok = strtok_r(NULL, delim, &context);
+            tok = strtok_r(NULL, delim, &context);
+            tok = strtok_r(NULL, delim, &context);
+
+            tok = strtok_r(NULL, delim, &context);
+            seq = malloc(strlen(tok) + 1);
+            strcpy(seq, tok);
+
+            tok = strtok_r(NULL, delim, &context);
+            qual = malloc(strlen(tok) + 1);
+            strcpy(qual, tok);
+
+            newSeq *mseqs = apply_cigar(cigar, pos, seq, qual);
+
+            bool isRepeated = false;
+            if (paired) {
+                gpointer ret = g_hash_table_lookup(hash, qname);
+                if (ret != NULL) {
+                    if (GPOINTER_TO_INT(ret) < 0) isRepeated = true;
+                }
+            }
+
+            if (mseqs == NULL) continue;
+
+            int posRanges[2];
+            posRanges[0] = len_terminal_gap(mseqs->seq);
+            posRanges[1] = strlen(mseqs->seq);
+
+            char *aligned = mseqs->seq;
+            int posRange = posRanges[0];
+            int range = strlen(mseqs->seq);
+            double **posVals=(double**)malloc(sizeof(double*) * 4);
+
+            for (int j = 0; j < 4; j++) {
+                posVals[j] = (double *)malloc((range - posRange) * sizeof(double));
+            }
+            
+            double p;
+
+            for (int k = posRange; k < range; k++) {
+                char nt = aligned[k];
+                char qc = (mseqs->qualseq)[k];
+
+                if (nt == '-') {
+                    for (int j = 0; j < 4; j++) {
+                        posVals[j][k - posRange] = 0;
+                    }
+                }
+                else if (nt == 'N') {
+                    for (int j = 0; j < 4; j++) {
+                        posVals[j][k - posRange] = 0.25;
+                    }
+                }
+                else {
+                    p = pow(10, -1 * (((int)qc - 30)/ (double)10));
+
+                    for (int j = 0; j < 4; j++) {
+                        posVals[j][k - posRange] = p/(double)3;
+                    }
+                    switch (nt) {
+                        case 'A':
+                            posVals[0][k - posRange] = 1-p;
+                            break;
+                        case 'C':
+                            posVals[1][k - posRange] = 1-p;
+                            break; 
+                        case 'G':
+                            posVals[2][k - posRange] = 1-p;
+                            break; 
+                        case 'T':
+                            posVals[3][k - posRange] = 1-p;
+                            break; 
+                        default:
+                            break;
+                    }
+                }
+
+                if (isRepeated) {
+                    for (int l = 0; l < 4; l++) {
+                        posVals[l][k - posRange]/=2;
+                    }
+                }   
+            }     
+
+            // int posRange = posRanges[0];
+            // int range = posRanges[1];
+            pthread_mutex_lock(&lock);
+
+            if (maxLength < range) {
+                m = realloc(m, (sizeof(double *) * range));
+                for (int t = maxLength; t < range; t++) {
+                    m[t] = (double *)malloc(sizeof(double) * 4);
+                    for (int y = 0; y < 4; y++) {
+                        m[t][y] = 0;
+                    }
+                }
+                maxLength = range;
+            }
+            pthread_mutex_unlock(&lock);
+
+            for (int k = posRange; k < range; k++) {
+                for (int j = 0; j < 4; j++) {
+                    m[k][j] = posVals[j][k - posRange] + m[k][j];
+                }
+            }
+
+            // Deallocate memory
+            newSeq *temp_newSeq = mseqs;
+            while (mseqs != NULL) {
+                temp_newSeq = mseqs;
+                free(temp_newSeq->seq);
+                free(temp_newSeq->qualseq);
+                mseqs = mseqs->next;
+                free(temp_newSeq);
+            }
+
+            for (int f = 0; f < 4; f++) {
+                // for (int k = 0; k < 4; k++) {
+                //     free(posVals[f][k]);
+                // }
+                free(posVals[f]);
+            }
+            free(posVals);
+
+            free(qname);
+            free(pos);
+            free(cigar);
+            free(seq);
+            free(qual);
+        }
+    }
+    fclose(fp);
+    free(line);
+
+    free(arg);
+    return 0;
+}
+
+
 
 // Merge two matched reads into a single aligned read
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        printf("Error: No input file provided\n");
+        printf("Error: No input file provided or Number of threads haven't been specified\n");
         exit(-1);
     }
 
-    bool paired = true;
+    if (pthread_mutex_init(&lock, NULL) != 0)
+    {
+        printf("\n Mutex Initialization Failed\n");
+        exit(1);
+    }
+
+    // bool paired = true;
 
     clock_t t;
     t = clock();
@@ -294,8 +494,8 @@ int main(int argc, char **argv)
     }
 
     // Matrix
-    int maxLength = 100;
-    double **m = (double **)malloc(sizeof(double *) * maxLength);
+    maxLength = 100;
+    m = (double **)malloc(sizeof(double *) * maxLength);
     for (int i = 0; i < maxLength; i++) {
         m[i] = (double *)malloc(sizeof(double) * 4);
         for (int j = 0; j < 4; j++) {
@@ -310,12 +510,15 @@ int main(int argc, char **argv)
     char *tok;
     const char delim[2] = "\t";
 
+    int numLines = 0;
+
     // Hash table to keep track of repeated qname
     GHashTable* hash = g_hash_table_new_full(g_str_hash, g_str_equal, free, NULL);
     
     if (paired) {
         while((line_size = getline(&line, &line_buf_size, fp)) != -1)
         {
+            numLines++;
             if (line[0] == '@') continue;
             char *qname;
 
@@ -346,168 +549,49 @@ int main(int argc, char **argv)
         }
 
         // Moves file pointer to the beginning
-        fseek(fp, 0, SEEK_SET);
+        // fseek(fp, 0, SEEK_SET);
     }
-    
-
-    while((line_size = getline(&line, &line_buf_size, fp)) != -1)
-    {
-        // printf("Iter #: %d\n", iter++);
-        if (line[0] == '@') continue;
-        
-        char *qname, *pos, *cigar, *seq, *qual;
-
-        tok = strtok(line, delim);
-
-        // Assuming that each line in the file has the same number of tokens
-        qname = malloc(strlen(tok) + 1);
-        strcpy(qname, tok);
-        
-        tok = strtok(NULL, delim);
-        tok = strtok(NULL, delim);
-
-        tok = strtok(NULL, delim);
-        pos = malloc(strlen(tok) + 1);
-        strcpy(pos, tok);
-
-        tok = strtok(NULL, delim);
-
-        tok = strtok(NULL, delim);
-        cigar = malloc(strlen(tok) + 1);
-        strcpy(cigar, tok);
-
-        tok = strtok(NULL, delim);
-        tok = strtok(NULL, delim);
-        tok = strtok(NULL, delim);
-
-        tok = strtok(NULL, delim);
-        seq = malloc(strlen(tok) + 1);
-        strcpy(seq, tok);
-
-        tok = strtok(NULL, delim);
-        qual = malloc(strlen(tok) + 1);
-        strcpy(qual, tok);
-
-        newSeq *mseqs = apply_cigar(cigar, pos, seq, qual);
-
-        bool isRepeated = false;
-        if (paired) {
-            gpointer ret = g_hash_table_lookup(hash, qname);
-            if (ret != NULL) {
-                if (GPOINTER_TO_INT(ret) < 0) isRepeated = true;
-            }
-        }
-
-        if (mseqs == NULL) continue;
-
-        int posRanges[2];
-        posRanges[0] = len_terminal_gap(mseqs->seq);
-        posRanges[1] = strlen(mseqs->seq);
-
-        char *aligned = mseqs->seq;
-        int posRange = posRanges[0];
-        int range = strlen(mseqs->seq);
-        double **posVals=(double**)malloc(sizeof(double*) * 4);
-
-        for (int j = 0; j < 4; j++) {
-            posVals[j] = (double *)malloc((range - posRange) * sizeof(double));
-        }
-        
-        double p;
-
-        for (int k = posRange; k < range; k++) {
-            char nt = aligned[k];
-            char qc = (mseqs->qualseq)[k];
-
-            if (nt == '-') {
-                for (int j = 0; j < 4; j++) {
-                    posVals[j][k - posRange] = 0;
-                }
-            }
-            else if (nt == 'N') {
-                for (int j = 0; j < 4; j++) {
-                    posVals[j][k - posRange] = 0.25;
-                }
-            }
-            else {
-                p = pow(10, -1 * (((int)qc - 30)/ (double)10));
-
-                for (int j = 0; j < 4; j++) {
-                    posVals[j][k - posRange] = p/(double)3;
-                }
-                switch (nt) {
-                    case 'A':
-                        posVals[0][k - posRange] = 1-p;
-                        break;
-                    case 'C':
-                        posVals[1][k - posRange] = 1-p;
-                        break; 
-                    case 'G':
-                        posVals[2][k - posRange] = 1-p;
-                        break; 
-                    case 'T':
-                        posVals[3][k - posRange] = 1-p;
-                        break; 
-                    default:
-                        break;
-                }
-            }
-
-            if (isRepeated) {
-                for (int l = 0; l < 4; l++) {
-                    posVals[l][k - posRange]/=2;
-                }
-            }   
-        }     
-
-        // int posRange = posRanges[0];
-        // int range = posRanges[1];
-
-        if (maxLength < range) {
-            m = realloc(m, (sizeof(double *) * range));
-            for (int t = maxLength; t < range; t++) {
-                m[t] = (double *)malloc(sizeof(double) * 4);
-                for (int y = 0; y < 4; y++) {
-                    m[t][y] = 0;
-                }
-            }
-            maxLength = range;
-        }
-
-        for (int k = posRange; k < range; k++) {
-            for (int j = 0; j < 4; j++) {
-                m[k][j] = posVals[j][k - posRange] + m[k][j];
-            }
-        }
-
-        // Deallocate memory
-        newSeq *temp_newSeq = mseqs;
-        while (mseqs != NULL) {
-            temp_newSeq = mseqs;
-            free(temp_newSeq->seq);
-            free(temp_newSeq->qualseq);
-            mseqs = mseqs->next;
-            free(temp_newSeq);
-        }
-
-        for (int f = 0; f < 4; f++) {
-            // for (int k = 0; k < 4; k++) {
-            //     free(posVals[f][k]);
-            // }
-            free(posVals[f]);
-        }
-        free(posVals);
-
-        free(qname);
-        free(pos);
-        free(cigar);
-        free(seq);
-        free(qual);
+    else {
+        numLines = get_number_rows(argv[1]);
     }
     fclose(fp);
     free(line);
+    
+    int num_read_lines = numLines / atoi(argv[2]);
+    int num_threads = atoi(argv[2]);
+    int start_line = 0, end_line = num_read_lines;
+
+    if (numLines % num_threads > 0) {
+        num_threads++;
+    }  
+
+    pthread_t tid[num_threads];
+
+
+    for (int k = 0; k < num_threads; k++) {
+        if (end_line > numLines) end_line = numLines;
+
+        threadArg *arg = malloc(sizeof(threadArg));
+        arg->start_line = start_line;
+        arg->end_line = end_line;
+        arg->filename = argv[1];
+        arg->hash = hash;
+        pthread_create(&tid[k], NULL, processLines, (void *)arg);
+
+
+        start_line += num_read_lines;
+        end_line += num_read_lines;
+    }
+
+  
+    for (int k = 0; k < num_threads; k++) {
+        pthread_join(tid[k], NULL);
+    }
+
 
     g_hash_table_destroy(hash);
+    pthread_mutex_destroy(&lock);
+
 
     printf("Writing Matrix to CSV\n");
     write_matrix(m, maxLength, argv[1]);

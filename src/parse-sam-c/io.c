@@ -77,9 +77,9 @@ int get_number_rows(char *file) {
 
     while((line_size = getline(&line, &line_buf_size, fp)) != -1)
     {
-        if (line[0] != '@') {
-            num_lines++;
-        }
+        // if (line[0] != '@') {
+        num_lines++;
+        // }
     }
     fclose(fp);
     free(line);

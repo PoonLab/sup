@@ -1,5 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
+#include <glib.h>
+
 
 typedef struct in_file
 {
@@ -37,5 +39,12 @@ typedef struct newSeq {
     // struct insertions *insertions;
     struct newSeq *next;
 } newSeq;
+
+typedef struct threadArg {
+    int start_line;
+    int end_line;
+    char *filename;
+    GHashTable *hash;
+} threadArg;
 
 #endif
