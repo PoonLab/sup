@@ -127,14 +127,66 @@ data we show that lineage designations via Pangolin are much less
 certain than the bootstrap support would imply.
 \end{abstract}
 
-TODO - Nomenclature: \(\nps\) is ``nucleotide-level uncertainty
-sequence'' or simply ``uncertainty matrix''? - ``Uncertainty matrix'' is
-a misnomer - the entries are the probabilitity of basis call. Is there a
-better term? - Maybe ``Call Probability Matrix''? - Nomenclature:
-``sequence-level uncertainty sequence'' or ``genome likelihood''? -
-Genome likelihood is used in other contexts; their formulations are
-model-based but have the same interpretation. - I'm really bad at tense.
-- Nomenclature: Nucleotide position, location, or locus?
+TODO
+
+\begin{itemize}
+\tightlist
+\item
+  Ensure I'm using pangolin/pangoLEARN in proper contexts
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Right now, I'm using them as synonyms (bad)
+  \end{itemize}
+\item
+  Nomenclature:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(\nps\) is ``nucleotide-level uncertainty sequence'' or simply
+    ``uncertainty matrix''?
+
+    \begin{itemize}
+    \tightlist
+    \item
+      ``Uncertainty matrix'' is a misnomer - the entries are the
+      probabilitity of basis call. Is there a better term?
+    \item
+      Maybe ``Call Probability Matrix''?
+    \end{itemize}
+  \item
+    Nucleotide ``position'', ``location'', or ``locus''?
+  \item
+    ``sequence-level uncertainty sequence'' or ``genome likelihood''?
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Genome likelihood is used in other contexts; their formulations
+      are model-based but have the same interpretation.
+    \end{itemize}
+  \end{itemize}
+\item
+  Notation:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    subscript \(j\) for arbitrary locations on the genome.
+  \end{itemize}
+\item
+  Style:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Ensure I use \(\ie\), not i.e.
+  \item
+    I'm really bad at tense.
+  \end{itemize}
+\end{itemize}
 
 \hypertarget{intro}{%
 \section{Intro}\label{intro}}
@@ -466,6 +518,19 @@ that location. Dividing each entry of \(\nps'\) by the sum of that
 column results in \(\nps\). For our proposed propagation methods, it is
 convenient to work with \(\nps'\) until probabilities are necessary.
 
+It is important to note that many NGS platforms use paired reads where
+the same genome is read in both directions. In these situations, the two
+reads are not independent and should not be treated as such. Our
+implementation involves taking the average of the qualtiy scores. If the
+quality scores were 90\% \(\sq{A}\) for one read and 95\% \(\sq{A}\) in
+the second read, then 0.925 is added to the \(\sq{A}\) row in \(\nps'\).
+If the two reads were 60\% \(\sq{A}\) and 55\% \(\sq{C}\) in the two
+reads, then the average of 0.6 and 0 wold be added to the \(\sq{A}\) row
+and the average of 0 and 0.55 would be added to the \(\sq{C}\) row. This
+is equivalent to simply dividing the quality scores by 2 if they are
+paired. This is advantageous as it allows us to parallelize the reading
+of SAM files without needing to know which read it is paired with.
+
 \hypertarget{consensus-sequence-fastq-files}{%
 \subsubsection{Consensus sequence FASTQ
 files}\label{consensus-sequence-fastq-files}}
@@ -760,25 +825,30 @@ choice since random draws from the Dirichlet distribution when the sum
 of the parameters (which, in this case, corresponds to the coverage) is
 small are essentially draws from the uniform distribution.
 
-In \ref{fig:covidcalls}, each row represents one SAM file. Each bar
-represents one lineage assignment from pangolin. The width of the bars
-represents the sum of the weights (genome likelihoods) of sampled
-sequences. Bars are subdivided to visualize these weights.
+In \ref{fig:covidcalls}, each row represents resamples from one SAM
+file. Each bar represents one lineage assignment from pangolin. The
+width of the bars represents the sum of the weights (genome likelihoods)
+of sampled sequences. Bars are subdivided to visualize these weights.
 
 \begin{figure}
-\includegraphics[width = 0.5\textwidth]{../figures/stacked-lineages.png}
+\includegraphics[width = 0.47\textwidth]{../figures/stacked-lineages.png}
 \label{fig:covidcalls}
 \caption{Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence.}
 \end{figure}
-
-\hypertarget{results}{%
-\subsubsection{Results}\label{results}}
 
 Initial analyses used pangolin version 2.0.8, which used multinomial
 logistic regression, rather than decision trees, to assign lineages.
 This procedure resulted in bootstrap support values that varied from 0.6
 to 1. After upgrading to pangolin version 2.3.2, which uses a decision
 tree model, all bootstrap probabilities are reported as 1.
+
+\hypertarget{sequential-re-analysis-with-genome-likelihoods}{%
+\subsubsection{Sequential re-analysis with genome
+likelihoods}\label{sequential-re-analysis-with-genome-likelihoods}}
+
+If the purpose is to investigate how robust a given analysis is to the
+uncertainty in the genome, a more direct approach than sampling can be
+taken.
 
 \hypertarget{conclusions}{%
 \section{Conclusions}\label{conclusions}}
@@ -803,6 +873,54 @@ data}\label{for-analysis-of-genetic-data}}
   Our method allows for adjustments for Phred or more sophisticated
   genome likelihoods.
 \end{itemize}
+
+\clearpage
+
+\hypertarget{appendix-traversing-the-sequence-likelihoods}{%
+\section{Appendix: Traversing the Sequence
+Likelihoods}\label{appendix-traversing-the-sequence-likelihoods}}
+
+We shall denote \(\mathbf M\) as the matrix containing the largest and
+second largest call probabilities in each column of \(\nps\) (\ie, the
+probabilities of the two most probable base calls). \(\mathbf M\) has
+the same number of columns as \(\nps\), but only two rows. For LMP-3,
+this would include the top three probabilities.
+
+The most probable sequence is the one corresponding to the product of
+the first row of \(\mathbf M\). We'll denote this probability as \(P_0\)
+
+The second most probable sequence is found by choosing the lowest entry
+in the first row of \(\mathbf M\) and substituting that base with the
+second most probable base. We denote this substitution as a set
+\(I_1=\{j\}\), such that the probability of the second most probable
+sequence is:
+
+\[
+P_1 = \left(\prod_{i\in \overline I_1}\mathbf M_{(1, i)}\right)\left(\mathbf M_{(2, j)}\right)
+\]
+
+\noindent where \(\overline I\) denotes the complement of \(I\) (all
+locations \emph{not} in \(I\)) and \(\mathbf M_{(1, j)}\) denotes the
+first row and \(j\)th column of \(\mathbf M\).
+
+Determining the third most probable sequence requires a comparison. It
+is not clear whether keeping the substitution in the previous step and
+choosing the next lowest most probable base will result in a larger
+likelihood than reverting the substitution in the previous step and
+choosing a new location to substitute.
+
+Suppose the second lowest entry in the first row of \(\mathbf M\) is at
+column \(k\). Our decision for calculating \(P_2\) involves choosing
+between the sets of locations \(I_{2-1}\cup \{k\} = \{j, k\}\) versus
+\(\left(I_{2-1}\setminus\{j\}\right)\cup\{k\} = \{k\}\), where
+\(I_{2-1}\) represents the set of substitutions in the previous step. We
+should choose the set that maximizes the likelihood, leaving us to test
+the following condition:
+
+\begin{align}
+\left(\prod_{i\in \overline {\{j,k\}}}\mathbf M_{(1, i)}\right)\left(\mathbf M_{(2, j)}\mathbf M_{(2, k)}\right) &\stackrel{?}{>} \left(\prod_{i\in \overline {\{k\}}}\mathbf M_{(1, i)}\right)\left(\mathbf M_{(2, k)}\right) \\
+\Leftrightarrow \mathbf M_{(2, j)} &\stackrel{?}{>} 1
+\end{align}
 
   \bibliography{supbib.bib}
 

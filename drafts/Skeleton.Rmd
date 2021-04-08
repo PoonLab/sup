@@ -27,15 +27,21 @@ abstract: |
 ---
 
 TODO
-- Nomenclature: $\nps$ is "nucleotide-level uncertainty sequence" or simply "uncertainty matrix"?
-    - "Uncertainty matrix" is a misnomer - the entries are the probabilitity of basis call. Is there a better term? 
-    - Maybe "Call Probability Matrix"?
-- Nomenclature: "sequence-level uncertainty sequence" or "genome likelihood"?
-    - Genome likelihood is used in other contexts; their formulations are model-based but have the same interpretation.
-- I'm really bad at tense.
-- Nomenclature: Nucleotide position, location, or locus?
+
 - Ensure I'm using pangolin/pangoLEARN in proper contexts
     - Right now, I'm using them as synonyms (bad)
+- Nomenclature:
+    - $\nps$ is "nucleotide-level uncertainty sequence" or simply "uncertainty matrix"?
+        - "Uncertainty matrix" is a misnomer - the entries are the probabilitity of basis call. Is there a better term? 
+        - Maybe "Call Probability Matrix"?
+    - Nucleotide "position", "location", or "locus"?
+    - "sequence-level uncertainty sequence" or "genome likelihood"?
+        - Genome likelihood is used in other contexts; their formulations are model-based but have the same interpretation.
+- Notation:
+    - subscript $j$ for arbitrary locations on the genome.
+- Style: 
+    - Ensure I use $\ie$, not i.e.
+    - I'm really bad at tense.
 
 # Intro
 
@@ -230,9 +236,11 @@ See \autoref{fig:sam} for an illustration of this SAM file representation.
 
 The nucleotide-level probabilistic sequence can be constructed from this alignment. The algorithm that we suggest is as follows.
 
-We begin by initializing an empty $5\times\ell$ matrix $\nps'$. Each label in Figure \ref{fig:sam} has an associated probability score. These labels denote a row in $\nps$, and their location on the genome denotes the columns, say ($\sq{A}, j$). At this entry, we add the corresponding quality score to whatever was there before. 
+We begin by initializing an empty $5\times\ell$ matrix $\nps'$. Each label in Figure \ref{fig:sam} has an associated probability score. These labels denote a row in $\nps$, and their location on the genome denotes the columns, say ($\sq{A}, j$). At this entry, we add the corresponding quality score to whatever was there before.
 
 By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$. For our proposed propagation methods, it is convenient to work with $\nps'$ until probabilities are necessary.
+
+It is important to note that many NGS platforms use paired reads where the same genome is read in both directions. In these situations, the two reads are not independent and should not be treated as such. Our implementation involves taking the average of the qualtiy scores. If the quality scores were 90% $\sq{A}$ for one read and 95% $\sq{A}$ in the second read, then 0.925 is added to the $\sq{A}$ row in $\nps'$. If the two reads were 60% $\sq{A}$ and 55% $\sq{C}$ in the two reads, then the average of 0.6 and 0 wold be added to the $\sq{A}$ row and the average of 0 and 0.55 would be added to the $\sq{C}$ row. This is equivalent to simply dividing the quality scores by 2 if they are paired. This is advantageous as it allows us to parallelize the reading of SAM files without needing to know which read it is paired with.
 
 ### Consensus sequence FASTQ files
 
@@ -379,7 +387,7 @@ Initial analyses used pangolin version 2.0.8, which used multinomial logistic re
 
 ### Sequential re-analysis with genome likelihoods
 
-
+If the purpose is to investigate how robust a given analysis is to the uncertainty in the genome, a more direct approach than sampling can be taken. 
 
 
 
@@ -394,5 +402,30 @@ Initial analyses used pangolin version 2.0.8, which used multinomial logistic re
 - Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
 - Our method allows for adjustments for Phred or more sophisticated genome likelihoods.
 
+\clearpage
 
+# Appendix: Traversing the Sequence Likelihoods
+
+
+We shall denote $\mathbf M$ as the matrix containing the largest and second largest call probabilities in each column of $\nps$ (\ie, the probabilities of the two most probable base calls). $\mathbf M$ has the same number of columns as $\nps$, but only two rows. For LMP-3, this would include the top three probabilities.
+
+The most probable sequence is the one corresponding to the product of the first row of $\mathbf M$. We'll denote this probability as $P_0$
+
+The second most probable sequence is found by choosing the lowest entry in the first row of $\mathbf M$ and substituting that base with the second most probable base. We denote this substitution as a set $I_1=\{j\}$, such that the probability of the second most probable sequence is:
+
+$$
+P_1 = \left(\prod_{i\in \overline I_1}\mathbf M_{(1, i)}\right)\left(\mathbf M_{(2, j)}\right)
+$$
+
+\noindent where $\overline I$ denotes the complement of $I$ (all locations *not* in $I$) and $\mathbf M_{(1, j)}$ denotes the first row and $j$th column of $\mathbf M$.
+
+
+Determining the third most probable sequence requires a comparison. It is not clear whether keeping the substitution in the previous step and choosing the next lowest most probable base will result in a larger likelihood than reverting the substitution in the previous step and choosing a new location to substitute. 
+
+Suppose the second lowest entry in the first row of $\mathbf M$ is at column $k$. Our decision for calculating $P_2$ involves choosing between the sets of locations $I_{2-1}\cup \{k\} = \{j, k\}$ versus $\left(I_{2-1}\setminus\{j\}\right)\cup\{k\} = \{k\}$, where $I_{2-1}$ represents the set of substitutions in the previous step. We should choose the set that maximizes the likelihood, leaving us to test the following condition:
+
+\begin{align}
+\left(\prod_{i\in \overline {\{j,k\}}}\mathbf M_{(1, i)}\right)\left(\mathbf M_{(2, j)}\mathbf M_{(2, k)}\right) &\stackrel{?}{>} \left(\prod_{i\in \overline {\{k\}}}\mathbf M_{(1, i)}\right)\left(\mathbf M_{(2, k)}\right) \\
+\Leftrightarrow \mathbf M_{(2, j)} &\stackrel{?}{>} 1
+\end{align}
 
