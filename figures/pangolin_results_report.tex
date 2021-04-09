@@ -1,39 +1,46 @@
-\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 %
-\documentclass[]{article}
+\documentclass[
+]{article}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provides euro and other symbols
-\else % if luatex or xelatex
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
   \usepackage{unicode-math}
-  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
-% use upquote if available, for straight quotes in verbatim environments
+% Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{%
-\usepackage[]{microtype}
-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\IfFileExists{parskip.sty}{%
-\usepackage{parskip}
-}{% else
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
-\usepackage{hyperref}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-            pdftitle={Results of PangoVis},
-            pdfauthor={Devan Becker},
-            pdfborder={0 0 0},
-            breaklinks=true}
-\urlstyle{same}  % don't use monospace font for urls
+  pdftitle={Results of PangoVis},
+  pdfauthor={Devan Becker},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=1in]{geometry}
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -75,7 +82,7 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\usepackage{graphicx,grffile}
+\usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -84,31 +91,20 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{0}
-% Redefines (sub)paragraphs to behave more like sections
-\ifx\paragraph\undefined\else
-\let\oldparagraph\paragraph
-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
-\fi
-\ifx\subparagraph\undefined\else
-\let\oldsubparagraph\subparagraph
-\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
-\fi
-
-% set default figure placement to htbp
+% Set default figure placement to htbp
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
-
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 \usepackage[]{natbib}
 \bibliographystyle{plainnat}
 
 \title{Results of PangoVis}
 \author{Devan Becker}
-\date{2021-03-12}
+\date{2021-04-09}
 
 \begin{document}
 \maketitle
@@ -118,72 +114,54 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# Packages that Art hates}
+\CommentTok{\# Packages that Art hates}
 \KeywordTok{library}\NormalTok{(dplyr)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## 
-## Attaching package: 'dplyr'
-\end{verbatim}
-
-\begin{verbatim}
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-\end{verbatim}
-
-\begin{verbatim}
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(tidyr)}
 \KeywordTok{library}\NormalTok{(ggplot2)}
 \KeywordTok{library}\NormalTok{(stringr)}
 \KeywordTok{library}\NormalTok{(here)}
+
+\NormalTok{dirich \textless{}{-}}\StringTok{ }\OtherTok{TRUE} \CommentTok{\#params$dirich}
+
+\CommentTok{\# Read in CSV files}
+\NormalTok{csvs \textless{}{-}}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\KeywordTok{here}\NormalTok{(}\StringTok{"data/"}\NormalTok{, }\StringTok{"pangolineages"}\NormalTok{),}
+    \DataTypeTok{pattern =} \KeywordTok{ifelse}\NormalTok{(dirich, }\StringTok{"*\_d.csv"}\NormalTok{, }\StringTok{"*.csv"}\NormalTok{),}
+    \DataTypeTok{full.names =} \OtherTok{TRUE}\NormalTok{)}
+
+\CommentTok{\# Remove any copies}
+\NormalTok{csvs \textless{}{-}}\StringTok{ }\NormalTok{csvs[}\OperatorTok{!}\KeywordTok{grepl}\NormalTok{(}\StringTok{"{-}1"}\NormalTok{, csvs)]}
+
+\CommentTok{\# Bring them into one data frame}
+\NormalTok{lins \textless{}{-}}\StringTok{ }\KeywordTok{bind\_rows}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(csvs, read.csv))}
+
+\CommentTok{\# Taxon is encoded as \_ACCSESSIONNUMBER.ID, split into ACCESSIONNUMBER and ID}
+\NormalTok{lins \textless{}{-}}\StringTok{ }\NormalTok{lins }\OperatorTok{\%\textgreater{}\%}
+\StringTok{    }\KeywordTok{separate}\NormalTok{(}\DataTypeTok{col =} \StringTok{"taxon"}\NormalTok{, }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{,}
+        \DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"taxon"}\NormalTok{, }\StringTok{"sample"}\NormalTok{)) }\OperatorTok{\%\textgreater{}\%}
+\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{taxon =} \KeywordTok{str\_replace}\NormalTok{(taxon, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{\_"}\NormalTok{, }\StringTok{""}\NormalTok{))}
+
+\NormalTok{badlins \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)}
+\NormalTok{badlins \textless{}{-}}\StringTok{ }\KeywordTok{names}\NormalTok{(badlins[}\KeywordTok{which}\NormalTok{(badlins }\OperatorTok{\textless{}}\StringTok{ }\DecValTok{1000}\NormalTok{)])}
+\KeywordTok{cat}\NormalTok{(}\KeywordTok{length}\NormalTok{(badlins), }\StringTok{" runs were removed for having too few samples."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## here() starts at /home/devan/OneDriveUWO/0postdoc/sup
+## 11  runs were removed for having too few samples.
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{dirich <-}\StringTok{ }\NormalTok{params}\OperatorTok{$}\NormalTok{dirich}
+\NormalTok{lins \textless{}{-}}\StringTok{ }\KeywordTok{filter}\NormalTok{(lins, }\OperatorTok{!}\NormalTok{taxon }\OperatorTok{\%in\%}\StringTok{ }\NormalTok{badlins)}
 
-\CommentTok{# Read in CSV files}
-\NormalTok{csvs <-}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\StringTok{"../data/pangolineages"}\NormalTok{, }
-    \DataTypeTok{pattern =} \KeywordTok{ifelse}\NormalTok{(dirich, }\StringTok{"*_d.csv"}\NormalTok{, }\StringTok{"*.csv"}\NormalTok{), }
-    \DataTypeTok{full.names =} \OtherTok{TRUE}\NormalTok{)}
-
-\CommentTok{# Remove any copies}
-\NormalTok{csvs <-}\StringTok{ }\NormalTok{csvs[}\OperatorTok{!}\KeywordTok{grepl}\NormalTok{(}\StringTok{"-1"}\NormalTok{, csvs)]}
-\CommentTok{# Proper names}
-\CommentTok{#csvs <- paste0("../data/pangolineages/", csvs)}
-
-\CommentTok{# Bring them into one data frame}
-\NormalTok{lins <-}\StringTok{ }\KeywordTok{bind_rows}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(csvs, read.csv))}
-
-\CommentTok{# Taxon is encoded as _ACCSESSIONNUMBER.ID, split into ACCESSIONNUMBER and ID}
-\NormalTok{lins <-}\StringTok{ }\NormalTok{lins }\OperatorTok{%>%}\StringTok{ }
-\StringTok{    }\KeywordTok{separate}\NormalTok{(}\DataTypeTok{col =} \StringTok{"taxon"}\NormalTok{, }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, }
-        \DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"taxon"}\NormalTok{, }\StringTok{"sample"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{taxon =} \KeywordTok{str_replace}\NormalTok{(taxon, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{_"}\NormalTok{, }\StringTok{""}\NormalTok{))}
-
-\CommentTok{#### Visualize the uncertainty in the base calls ----}
-\NormalTok{taxons <-}\StringTok{ }\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)}
+\CommentTok{\#\#\#\# Visualize the uncertainty in the base calls {-}{-}{-}{-}}
+\NormalTok{taxons \textless{}{-}}\StringTok{ }\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)}
 \KeywordTok{length}\NormalTok{(taxons)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 35
+## [1] 82
 \end{verbatim}
 
 \hypertarget{abstract-info}{%
@@ -191,15 +169,16 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{summs <-}\StringTok{ }\NormalTok{lins }\OperatorTok{%>%}\StringTok{ }
-\StringTok{    }\KeywordTok{group_by}\NormalTok{(taxon) }\OperatorTok{%>%}
-\StringTok{    }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{maxperc =} \KeywordTok{mean}\NormalTok{(lineage }\OperatorTok{==}\StringTok{ }\KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage), }
-        \DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{))[}\DecValTok{1}\NormalTok{]),}
+\NormalTok{summs \textless{}{-}}\StringTok{ }\NormalTok{lins }\OperatorTok{\%\textgreater{}\%}
+\StringTok{    }\KeywordTok{group\_by}\NormalTok{(taxon) }\OperatorTok{\%\textgreater{}\%}
+\StringTok{    }\KeywordTok{summarise}\NormalTok{(}
+        \DataTypeTok{maxperc =} \KeywordTok{mean}\NormalTok{(lineage }\OperatorTok{==}\StringTok{ }\KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage),}
+            \DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{)[}\DecValTok{1}\NormalTok{]),}
         \DataTypeTok{uniques =} \KeywordTok{length}\NormalTok{(}\KeywordTok{unique}\NormalTok{(lineage)),}
         \DataTypeTok{minpango =} \KeywordTok{min}\NormalTok{(probability),}
         \DataTypeTok{maxpango =} \KeywordTok{max}\NormalTok{(probability),}
         \DataTypeTok{menpango =} \KeywordTok{mean}\NormalTok{(probability),}
-        \DataTypeTok{max =} \KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage), }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{))[}\DecValTok{1}\NormalTok{])}
+        \DataTypeTok{max =} \KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage), }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{))[}\DecValTok{1}\NormalTok{]))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -224,283 +203,170 @@
 \end{Shaded}
 
 \begin{verbatim}
-## # A tibble: 35 x 7
-##    taxon      maxperc uniques minpango maxpango menpango max      
-##    <chr>        <dbl>   <int>    <dbl>    <dbl>    <dbl> <chr>    
-##  1 ERR4085809   0.356      86        1        1        1 A        
-##  2 ERR4204823   0.701       9        1        1        1 A        
-##  3 ERR4363387   0.939      11        1        1        1 B.1.222  
-##  4 ERR4364007   0.838      48        1        1        1 B.1.1.29 
-##  5 ERR4664555   0.968      15        1        1        1 B.1.1.253
-##  6 ERR4667618   0.990       7        1        1        1 B.1.1.315
-##  7 ERR4692364   0.932      25        1        1        1 B.1      
-##  8 ERR4693034   0.901      34        1        1        1 B.1.1.310
-##  9 ERR4693061   0.958      11        1        1        1 B.23     
-## 10 ERR4693079   0.864      45        1        1        1 B.1.1.310
-## # ... with 25 more rows
+## # A tibble: 82 x 2
+##    taxon      maxperc
+##    <chr>        <dbl>
+##  1 ERR4363387   0.938
+##  2 ERR4364007   0.871
+##  3 ERR4664555   0.945
+##  4 ERR4667618   0.990
+##  5 ERR4692364   0.914
+##  6 ERR4693034   0.847
+##  7 ERR4693061   0.941
+##  8 ERR4693079   0.866
+##  9 ERR4693537   0.972
+## 10 ERR4693605   0.970
+## # ... with 72 more rows
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{maxperc); }\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{menpango)}
+\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{maxperc); }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{menpango)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 0.1421196
+## [1] 0.09124434
 \end{verbatim}
 
 \begin{verbatim}
-## [1] 0.02857143
+## Warning: Unknown or uninitialised column: `menpango`.
 \end{verbatim}
 
-\hypertarget{as-a-pareto-plot}{%
-\section{As a Pareto plot}\label{as-a-pareto-plot}}
+\begin{verbatim}
+## Warning in mean.default(summs$menpango): argument is not numeric or logical:
+## returning NA
+\end{verbatim}
+
+\begin{verbatim}
+## [1] NA
+\end{verbatim}
+
+\hypertarget{stacked-bar-plots}{%
+\section{Stacked Bar Plots}\label{stacked-bar-plots}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{))}
-\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(}\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)))\{}
-\NormalTok{    thistab <-}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]])}
-\NormalTok{    called <-}\StringTok{ }\NormalTok{lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i] }\OperatorTok{&}\StringTok{ }
-\StringTok{        }\NormalTok{lins}\OperatorTok{$}\NormalTok{sample }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{]}
-    \KeywordTok{print}\NormalTok{(called)}
-    
-    \ControlFlowTok{if}\NormalTok{(}\KeywordTok{length}\NormalTok{(called) }\OperatorTok{==}\StringTok{ }\DecValTok{1}\NormalTok{) \{}
-\NormalTok{        colours <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{length}\NormalTok{(thistab))}
-\NormalTok{        colours[}\KeywordTok{names}\NormalTok{(thistab) }\OperatorTok{==}\StringTok{ }\NormalTok{called] <-}\StringTok{ }\DecValTok{2}
+\NormalTok{max\_label \textless{}{-}}\StringTok{ }\KeywordTok{max}\NormalTok{(}\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)) }\OperatorTok{/}\StringTok{ }\DecValTok{40}
+
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{15}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{mar =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\FloatTok{1.5}\NormalTok{, }\FloatTok{0.5}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{38}\NormalTok{) \{}
+\NormalTok{    pang \textless{}{-}}\StringTok{ }\NormalTok{lins[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i], ]}
+\NormalTok{    called \textless{}{-}}\StringTok{ }\NormalTok{pang}\OperatorTok{$}\NormalTok{lineage[pang}\OperatorTok{$}\NormalTok{sample }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{][}\DecValTok{1}\NormalTok{]}
+\NormalTok{    pangtab \textless{}{-}}\StringTok{ }\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(pang}\OperatorTok{$}\NormalTok{lineage), }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{)}
+
+\NormalTok{    colvec \textless{}{-}}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\StringTok{"grey"}\NormalTok{, }\KeywordTok{length}\NormalTok{(pangtab))}
+\NormalTok{    colvec[}\KeywordTok{which}\NormalTok{(}\KeywordTok{names}\NormalTok{(pangtab) }\OperatorTok{==}\StringTok{ }\NormalTok{called)] \textless{}{-}}\StringTok{ "red"}
+
+\NormalTok{    n \textless{}{-}}\StringTok{ }\KeywordTok{sum}\NormalTok{(pangtab }\OperatorTok{\textgreater{}}\StringTok{ }\NormalTok{max\_label)}
+    \ControlFlowTok{if}\NormalTok{ (n }\OperatorTok{\textgreater{}}\StringTok{ }\DecValTok{1}\NormalTok{) \{}
+\NormalTok{        barlabx \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\KeywordTok{cumsum}\NormalTok{(pangtab[}\DecValTok{1}\OperatorTok{:}\NormalTok{(n }\OperatorTok{{-}}\StringTok{ }\DecValTok{1}\NormalTok{)])) }\OperatorTok{+}
+\StringTok{            }\NormalTok{pangtab[}\DecValTok{1}\OperatorTok{:}\NormalTok{n] }\OperatorTok{/}\StringTok{ }\DecValTok{2}
+
+        \KeywordTok{barplot}\NormalTok{(}\KeywordTok{as.matrix}\NormalTok{(pangtab),}
+            \DataTypeTok{col =}\NormalTok{ colvec, }\DataTypeTok{hori =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{axes =} \OtherTok{FALSE}\NormalTok{)}
+        \KeywordTok{text}\NormalTok{(barlabx, }\FloatTok{0.7}\NormalTok{, }\KeywordTok{names}\NormalTok{(pangtab)[}\DecValTok{1}\OperatorTok{:}\NormalTok{n])}
+        \KeywordTok{mtext}\NormalTok{(}\DataTypeTok{side =} \DecValTok{3}\NormalTok{, }\DataTypeTok{text =}\NormalTok{ taxons[i], }\DataTypeTok{cex =} \FloatTok{0.75}\NormalTok{, }\DataTypeTok{las =} \DecValTok{1}\NormalTok{)}
+\NormalTok{        pretty\_labels \textless{}{-}}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\KeywordTok{sum}\NormalTok{(pangtab),}
+                \DataTypeTok{by =} \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{sum}\NormalTok{(pangtab) }\OperatorTok{\textless{}}\StringTok{ }\DecValTok{2000}\NormalTok{, }\DecValTok{100}\NormalTok{, }\DecValTok{1000}\NormalTok{))}
+        \KeywordTok{mtext}\NormalTok{(}\DataTypeTok{side =} \DecValTok{1}\NormalTok{,}
+            \DataTypeTok{at =}\NormalTok{ pretty\_labels,}
+            \DataTypeTok{text =}\NormalTok{ pretty\_labels,}
+            \DataTypeTok{line =} \DecValTok{0}\NormalTok{,}
+            \DataTypeTok{cex =} \FloatTok{0.75}
+\NormalTok{        )}
 \NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{        colours <-}\StringTok{ "lightgrey"}
+        \KeywordTok{cat}\NormalTok{(}\StringTok{"Taxon"}\NormalTok{, taxons[i], }\StringTok{"had"}\NormalTok{, }\KeywordTok{length}\NormalTok{(pangtab),}
+            \StringTok{"unique calls, with largest accounting for"}\NormalTok{,}
+\NormalTok{            pangtab[}\DecValTok{1}\NormalTok{], }\StringTok{"lineage calls, }\CharTok{\textbackslash{}n\textbackslash{}t}\StringTok{ with second place"}\NormalTok{,}
+\NormalTok{            pangtab[}\DecValTok{2}\NormalTok{], }\StringTok{". First place was"}\NormalTok{,}
+            \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{names}\NormalTok{(pangtab)[}\DecValTok{1}\NormalTok{] }\OperatorTok{==}\StringTok{ }\NormalTok{called, }\StringTok{""}\NormalTok{, }\StringTok{"not"}\NormalTok{),}
+            \StringTok{"the conseq call.}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
 \NormalTok{    \}}
-    
-    \KeywordTok{barplot}\NormalTok{(}\KeywordTok{sort}\NormalTok{(thistab, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{), }
-        \DataTypeTok{las =} \DecValTok{2}\NormalTok{, }\DataTypeTok{col =}\NormalTok{ colours, }\DataTypeTok{border =} \OtherTok{NA}\NormalTok{)}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] "B.1"
+## Taxon ERR4364007 had 43 unique calls, with largest accounting for 873 lineage calls, 
+##   with second place 14 . First place was  the conseq call.
+## Taxon ERR4664555 had 18 unique calls, with largest accounting for 947 lineage calls, 
+##   with second place 15 . First place was  the conseq call.
+## Taxon ERR4667618 had 4 unique calls, with largest accounting for 992 lineage calls, 
+##   with second place 7 . First place was  the conseq call.
+## Taxon ERR4692364 had 20 unique calls, with largest accounting for 916 lineage calls, 
+##   with second place 22 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.40"
+## Taxon ERR4693537 had 6 unique calls, with largest accounting for 974 lineage calls, 
+##   with second place 23 . First place was  the conseq call.
+## Taxon ERR4693605 had 11 unique calls, with largest accounting for 972 lineage calls, 
+##   with second place 12 . First place was  the conseq call.
+## Taxon ERR4758772 had 4 unique calls, with largest accounting for 999 lineage calls, 
+##   with second place 1 . First place was  the conseq call.
+## Taxon ERR4891711 had 15 unique calls, with largest accounting for 966 lineage calls, 
+##   with second place 7 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.1.222"
+## Taxon ERR4891805 had 7 unique calls, with largest accounting for 983 lineage calls, 
+##   with second place 7 . First place was  the conseq call.
+## Taxon ERR4891841 had 97 unique calls, with largest accounting for 732 lineage calls, 
+##   with second place 19 . First place was  the conseq call.
+## Taxon ERR4891863 had 58 unique calls, with largest accounting for 838 lineage calls, 
+##   with second place 18 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.1.1.29"
+## Taxon ERR4891898 had 16 unique calls, with largest accounting for 969 lineage calls, 
+##   with second place 4 . First place was  the conseq call.
+## Taxon ERR4891916 had 1 unique calls, with largest accounting for 1002 lineage calls, 
+##   with second place NA . First place was  the conseq call.
+## Taxon ERR4891988 had 35 unique calls, with largest accounting for 873 lineage calls, 
+##   with second place 25 . First place was  the conseq call.
+## Taxon ERR4892048 had 8 unique calls, with largest accounting for 990 lineage calls, 
+##   with second place 5 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.1.1.253"
+## Taxon ERR4892112 had 13 unique calls, with largest accounting for 975 lineage calls, 
+##   with second place 14 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.1.1.315"
+## Taxon ERR4892200 had 2 unique calls, with largest accounting for 993 lineage calls, 
+##   with second place 9 . First place was  the conseq call.
+## Taxon ERR4892203 had 32 unique calls, with largest accounting for 905 lineage calls, 
+##   with second place 12 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.1"
+## Taxon ERR4892339 had 8 unique calls, with largest accounting for 962 lineage calls, 
+##   with second place 17 . First place was  the conseq call.
+## Taxon ERR4892386 had 5 unique calls, with largest accounting for 997 lineage calls, 
+##   with second place 2 . First place was  the conseq call.
+## Taxon ERR4892392 had 10 unique calls, with largest accounting for 968 lineage calls, 
+##   with second place 11 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.1.1.310"
+## Taxon ERR4893013 had 18 unique calls, with largest accounting for 901 lineage calls, 
+##   with second place 21 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.23"
+## Taxon ERR4893033 had 8 unique calls, with largest accounting for 988 lineage calls, 
+##   with second place 5 . First place was  the conseq call.
+## Taxon ERR4893037 had 124 unique calls, with largest accounting for 543 lineage calls, 
+##   with second place 17 . First place was  the conseq call.
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "B.1.1.310"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.177.7"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.177.3"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.1.7"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.1.7"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1" "B.1"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.1.7"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.177"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.160"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.177.19"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.177.19"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.177"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.1.7"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.1.7"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.1.315"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "A"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "None"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1.1.241"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "A.2.2"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "A.2.2"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "A.2.2"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "A.2.2"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "B.1"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "A.1"
-\end{verbatim}
-
-\begin{verbatim}
-## [1] "A.1"
+## Taxon ERR4893138 had 3 unique calls, with largest accounting for 993 lineage calls, 
+##   with second place 8 . First place was  the conseq call.
 \end{verbatim}
 
 \includegraphics{pangolin_results_report_files/figure-latex/pareto-1.pdf}
-
-\hypertarget{probability-bars}{%
-\section{Probability Bars}\label{probability-bars}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{boots <-}\StringTok{ }\KeywordTok{vector}\NormalTok{(}\DataTypeTok{mode =} \StringTok{"list"}\NormalTok{, }\DataTypeTok{length =} \KeywordTok{length}\NormalTok{(taxons))}
-\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{,}\DecValTok{6}\NormalTok{))}
-\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(taxons))\{}
-    \CommentTok{# Find modal lineage}
-\NormalTok{    thistab <-}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]])}
-\NormalTok{    maxtab <-}\StringTok{ }\KeywordTok{names}\NormalTok{(thistab)[}\KeywordTok{which.max}\NormalTok{(thistab)]}
-    \CommentTok{# Record "probability" for all sequences labelled with this lineage}
-\NormalTok{    boots[[i]] <-}\StringTok{ }\NormalTok{lins}\OperatorTok{$}\NormalTok{probability[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i] }\OperatorTok{&}\StringTok{ }
-\StringTok{            }\NormalTok{lins}\OperatorTok{$}\NormalTok{lineage }\OperatorTok{==}\StringTok{ }\NormalTok{maxtab]}
-    
-    \CommentTok{# histogram of probabilities of that lineage}
-    \KeywordTok{hist}\NormalTok{(boots[[i]], }\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\FloatTok{0.05}\NormalTok{), }
-        \DataTypeTok{xlim =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{))}
-    \CommentTok{# Add a line for the number of genomes that actually had that lineage}
-    \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v =} \KeywordTok{mean}\NormalTok{(lins}\OperatorTok{$}\NormalTok{lineage[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i]] }\OperatorTok{==}\StringTok{ }\NormalTok{maxtab),}
-        \DataTypeTok{col =} \DecValTok{2}\NormalTok{, }\DataTypeTok{lwd =} \DecValTok{3}\NormalTok{)}
-\NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{pangolin_results_report_files/figure-latex/probbars-1.pdf}
-
-\hypertarget{scatterplot}{%
-\section{Scatterplot}\label{scatterplot}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{gglist <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
-\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(taxons))\{}
-\NormalTok{    pang <-}\StringTok{ }\NormalTok{lins[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i], ]}
-\NormalTok{    pang2 <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(}\KeywordTok{unique}\NormalTok{(pang}\OperatorTok{$}\NormalTok{lineage), }\ControlFlowTok{function}\NormalTok{(x) \{}
-        \KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{lineage =}\NormalTok{ x, }
-            \DataTypeTok{prop =} \KeywordTok{mean}\NormalTok{(pang}\OperatorTok{$}\NormalTok{lineage }\OperatorTok{==}\StringTok{ }\NormalTok{x))}
-\NormalTok{    \}) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{bind_rows}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{right_join}\NormalTok{(pang, }\DataTypeTok{by =} \StringTok{"lineage"}\NormalTok{)}
-    \CommentTok{#pang2}
-    \KeywordTok{ggplot}\NormalTok{(pang2) }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prop, }\DataTypeTok{y =}\NormalTok{ probability,}
-            \DataTypeTok{colour =}\NormalTok{ lineage, }\DataTypeTok{label =}\NormalTok{ lineage) }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
-\StringTok{        }\CommentTok{#geom_text_repel() + }
-\StringTok{        }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{)}
-    
-\NormalTok{    pangtab <-}\StringTok{ }\NormalTok{pang2 }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{group_by}\NormalTok{(prop, lineage) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{y =} \DecValTok{1}\NormalTok{, }\DataTypeTok{count =} \KeywordTok{n}\NormalTok{(), }\DataTypeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{filter}\NormalTok{(prop }\OperatorTok{>}\StringTok{ }\FloatTok{0.025}\NormalTok{)}
-    
-\NormalTok{    gglist[[i]] <-}\StringTok{ }\NormalTok{pang2 }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\CommentTok{# round to nearest 0.5}
-\StringTok{        }\CommentTok{#mutate(prop = round(prop*2, 1)/2,}
-\StringTok{        }\CommentTok{#    probability = round(probability*2, 1)/2) %>% }
-\StringTok{        }\KeywordTok{group_by}\NormalTok{(prop, probability, lineage) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{count =} \KeywordTok{n}\NormalTok{(), }\DataTypeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{        }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_bw}\NormalTok{() }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prop, }\DataTypeTok{y =}\NormalTok{ probability, }\DataTypeTok{colour =}\NormalTok{ lineage, }
-            \DataTypeTok{label =}\NormalTok{ count) }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{geom_text}\NormalTok{() }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{annotate}\NormalTok{(}\StringTok{"text"}\NormalTok{, }\DataTypeTok{x =}\NormalTok{ pangtab}\OperatorTok{$}\NormalTok{prop, }\DataTypeTok{y =} \DecValTok{1}\NormalTok{, }
-            \DataTypeTok{label =}\NormalTok{ pangtab}\OperatorTok{$}\NormalTok{lineage,}
-            \DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{vjust =} \DecValTok{-1}\NormalTok{) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Proportion of Lineage"}\NormalTok{,}
-            \DataTypeTok{y =} \StringTok{"Bootstrap Probability"}\NormalTok{,}
-            \DataTypeTok{title =} \OtherTok{NULL}\NormalTok{) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.1}\NormalTok{)) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\FloatTok{1.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{)) }\OperatorTok{+}
-\StringTok{        }\KeywordTok{coord_cartesian}\NormalTok{(}\DataTypeTok{ylim =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{1.1}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
-\StringTok{        }\KeywordTok{geom_abline}\NormalTok{(}\DataTypeTok{slope =} \DecValTok{1}\NormalTok{, }\DataTypeTok{intercept =} \DecValTok{0}\NormalTok{)}
-\NormalTok{\}}
-\NormalTok{cowplot}\OperatorTok{::}\KeywordTok{plot_grid}\NormalTok{(}\DataTypeTok{plotlist =}\NormalTok{ gglist)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{pangolin_results_report_files/figure-latex/ggscatter-1.pdf}
 
 \end{document}
