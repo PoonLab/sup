@@ -6,6 +6,8 @@ in_file <- "open_seSAMe-S-ERR4363387.RDS"
 in_path <- "data/unc_covid/"
 sam1 <- readRDS(here(in_path, in_file))
 
+acc <- rev(strsplit(strsplit(in_file, "\\.")[[1]][1], "-")[[1]])[1]
+
 dim(sam1)
 
 if (ncol(sam1) == 6) {
@@ -78,15 +80,15 @@ bottom_n <- function(S, n) {
 # Testing
 lik_mat <- bottom_n(sam2, 12)
 lik_mat <- lik_mat[order(-lik_mat$diff_lik), ]
-head(tmp)
-nrow(tmp)
+head(lik_mat)
+nrow(lik_mat)
 
 # now:
     # Calculate conseq
     # make the top 1000 substitutions
     # Run through pangolin
 alph <- colnames(sam1)
-conseq <- apply(S, 1, function(x) {
+conseq <- apply(sam1, 1, function(x) {
     if (any(is.na(x)) | sum(x) < 1) {
         return("N")
     } else {
@@ -94,7 +96,7 @@ conseq <- apply(S, 1, function(x) {
     }
 })
 
-runner_up <- apply(S, 1, function(x) {
+runner_up <- apply(sam1, 1, function(x) {
     if (any(is.na(x)) | sum(x) < 1) {
         return("N")
     } else {
@@ -113,9 +115,8 @@ for (i in seq_along(ordered_seq)) {
 conseq <- paste(conseq, collapse = "")
 ordered_seq <- sapply(ordered_seq, paste, collapse = "")
 
-acc <- rev(strsplit(strsplit(in_file, "\\.")[[1]][1], "-")[[1]])[1]
 fasta_labels <- paste("> ", acc,
-        c(0, round(lik_mat$diff_lik, 6)),
+        c(0, round(lik_mat$diff_lik[1:length(ordered_seq)], 6)),
     sep = "")
 
 to_save <- paste(fasta_labels, c(conseq, ordered_seq),
