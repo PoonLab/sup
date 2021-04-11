@@ -17,6 +17,7 @@ header-includes:
     - \usepackage{xspace}
     - \usepackage{xcolor}
     - \usepackage{float} # Place figures exactly "here" (option "H")
+    - \usepackage{longtable, booktabs}
 bibliography: supbib.bib
 #csl: apa.csl
 abstract: |
@@ -38,7 +39,7 @@ TODO
     - "sequence-level uncertainty sequence" or "genome likelihood"?
         - Genome likelihood is used in other contexts; their formulations are model-based but have the same interpretation.
 - Notation:
-    - subscript $j$ for arbitrary locations on the genome.
+    - subscript $j$ for arbitrary locations on the genome - double check that this is consistent throughout.
 - Style: 
     - Ensure I use $\ie$, not i.e.
     - I'm really bad at tense.
@@ -308,8 +309,6 @@ This uncertainty sequence is completely fabricated, but downstream analyses can 
 
 ## Propagation of uncertainty via resampling
 
-- Works in any analysis
-- provides something like bootstrapped variance or an extra prior sampling step
 
 The most general way to propagate uncertainty is through resampling. Given $\nps$ and assuming that locations are independent (or pre-defining biologically-reasonable sequences and calculating their probabilities), uncertainty can be propagated by re-sampling the sequences according to their probability and re-running the analysis on each set of sampled sequences (I don't have a citation for this, but I believe Peter Piper sampled a set of sampled sequences). 
 
@@ -382,23 +381,23 @@ Since pangoLEARN is a pre-trained model, the analysis is not computationally bur
 
 For this analysis we use the most basic resampling strategy. We simply draw probabilities from the Dirichlet distribution with parameters defined by $\nps'$, sample base calls from the multinomial distribution, then use pangoLEARN to determine the lineage assignment. 
 
-Locations with 0 reads were discarded. This is a somewhat arbitrary choice since random draws from the Dirichlet distribution when the sum of the parameters (which, in this case, corresponds to the coverage) is small are essentially draws from the uniform distribution. 
 
-
-In \ref{fig:covidcalls}, each row represents resamples from one SAM file. Each bar represents one lineage assignment from pangolin. The width of the bars represents the sum of the weights (genome likelihoods) of sampled sequences. Bars are subdivided to visualize these weights.
+In \ref{fig:covidcalls}, each row represents resamples from one SAM file. Each bar represents one lineage assignment from pangolin. The width of the bars represents the sum of the weights (genome likelihoods) of sampled sequences. Bars are subdivided to visualize these weights. There were 95 sequences total, but we only plotted ones where the second most common lineage designation had more than 250 observations. Results for all lineages can be found in Table \ref{tab:pango} in the Appendix.
 
 \begin{figure}
 \includegraphics[width = 0.97\textwidth]{../figures/pangolin_results_report_d_files/figure-latex/pareto-1.pdf}
 \label{fig:covidcalls}
-\caption{Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence.}
+\caption{Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with fewer than 100 observations was grouped into the "Other" category.}
 \end{figure}
+
+Figure \ref{fig:covidcalls} 
 
 Initial analyses used pangolin version 2.0.8, which used multinomial logistic regression, rather than decision trees, to assign lineages. This procedure resulted in bootstrap support values that varied from 0.6 to 1. After upgrading to pangolin version 2.3.2, which uses a decision tree model, all bootstrap probabilities are reported as 1. 
 
 
 ### Sequential re-analysis with genome likelihoods
 
-TODO (Analysis not yet run - not sure how this will compare to resampling.)
+TODO (Analysis has been run on a single accession number; not sure how this will compare to resampling in all accessions.)
 
 
 
@@ -411,18 +410,161 @@ Our proposed methods can result in a drastic increase in compuatational expense.
 
 Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model. The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
 
-## For Pangolin
+Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption. We cannot account for systematic errors, such as those present due to human errors (e.g. mis-calibrated machines or that one lab in @blank that kept giving the same mutations). Our method allows for adjustments of the base call quality score (such as those in @blank), as well as more sophisticated definitions genome likelihoods (such as those in @blank2).
 
-TODO
 
-## For phylogenetics in general
+# Appendix: Results for all lineages
 
-TODO
+\LTcapwidth=\textwidth
 
-## For analysis of genetic data
+<!--- Copied from pangolin_results_report_d.tex, which was automatically created by the Rmd --->
 
-- Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
-- Our method allows for adjustments for Phred or more sophisticated genome likelihoods.
+\begin{longtable}[]{@{}llrlrrrl@{}}
+\caption{\label{tab:pango}Results for re-sampling analysis all accession numbers in our analysis. The "Conseq" column refers to the lineage designated to the consensus sequence. "Mode" refers to the most common lineage across all re-samples, with "Mode Count" indicating the number of re-samples with this lineage. "Runner Up" and "Runner Up Cnt" are the second most likely lineage designation and the number with that designation, respectively. "Unique" is the total number of unique lineage designations, and "Atoms" are the total number of lineage designations that were only observed for a single re-sample.}\\
+\toprule
+Conseq & Mode & Mode Count & Runner Up & Runner Up Count & Unique & Atoms & Accession\tabularnewline
+\midrule
+\endhead
+B.1.222 & B.1.222 & 4756 & B.1 & 108 & 19 & 3 &
+ERR4363387\tabularnewline
+B.1.1.29 & B.1.1.29 & 4112 & B.1.1.44 & 130 & 84 & 27 &
+ERR4364007\tabularnewline
+B.1.1.253 & B.1.1.253 & 4819 & B.1 & 52 & 27 & 9 &
+ERR4664555\tabularnewline
+B.1.1.315 & B.1.1.315 & 4969 & B.1 & 22 & 7 & 2 &
+ERR4667618\tabularnewline
+B.1 & B.1 & 4577 & B.1.400 & 92 & 55 & 12 & ERR4692364\tabularnewline
+B.1.1.310 & B.1.1.310 & 4352 & B.1.1.59 & 185 & 77 & 31 &
+ERR4693034\tabularnewline
+B.23 & B.23 & 4776 & B.48 & 112 & 19 & 6 & ERR4693061\tabularnewline
+B.1.1.310 & B.1.1.310 & 4375 & B.1.1.29 & 212 & 99 & 40 &
+ERR4693079\tabularnewline
+B.1.177.7 & B.1.177.7 & 4871 & B.1.177 & 125 & 9 & 4 &
+ERR4693537\tabularnewline
+B.1.177.3 & B.1.177.3 & 4847 & B.1.177 & 62 & 15 & 1 &
+ERR4693605\tabularnewline
+B.1.36 & B.1.36 & 4724 & B.1.36.9 & 71 & 26 & 8 &
+ERR4891711\tabularnewline
+B & B & 4408 & B.23 & 189 & 30 & 7 & ERR4891715\tabularnewline
+B.1.177.6 & B.1.177.6 & 4944 & B.1.177.9 & 31 & 8 & 1 &
+ERR4891805\tabularnewline
+B.1 & B.1 & 3736 & B.1.243 & 91 & 216 & 49 & ERR4891841\tabularnewline
+B.1.1.216 & B.1.1.216 & 4179 & B.1 & 135 & 132 & 48 &
+ERR4891863\tabularnewline
+B.1.98 & B.1.98 & 4037 & B.1 & 311 & 75 & 36 & ERR4891889\tabularnewline
+B.1.1.304 & B.1.1.304 & 4856 & B.1.1.4 & 16 & 34 & 11 &
+ERR4891898\tabularnewline
+None & None & 5002 & B.1 & 1 & 2 & 1 & ERR4891916\tabularnewline
+B & B & 3401 & B.10 & 609 & 79 & 32 & ERR4891988\tabularnewline
+B.1.1.307 & B.1.1.307 & 4975 & B.1 & 10 & 14 & 8 &
+ERR4892048\tabularnewline
+B.1.1.29 & B.1.1.29 & 1384 & B.1.1.59 & 239 & 213 & 41 &
+ERR4892066\tabularnewline
+B.39 & B.39 & 4817 & B & 113 & 22 & 8 & ERR4892112\tabularnewline
+B.1.177 & B.1.177 & 4372 & B.1.177.7 & 427 & 15 & 3 &
+ERR4892152\tabularnewline
+B.1.177.17 & B.1.177.17 & 4967 & B.1.177 & 39 & 2 & 0 &
+ERR4892200\tabularnewline
+B.1.1.216 & B.1.1.216 & 4528 & B.1.1.29 & 38 & 76 & 18 &
+ERR4892203\tabularnewline
+B.1.1.162 & B.1.1.162 & 3001 & B.1.1.209 & 112 & 198 & 66 &
+ERR4892293\tabularnewline
+B.1.177 & B.1.177 & 4529 & B.1.177.23 & 181 & 17 & 0 &
+ERR4892339\tabularnewline
+B.40 & B.40 & 4974 & B & 13 & 7 & 1 & ERR4892386\tabularnewline
+B.1.177 & B.1.177 & 4830 & B.1.177.22 & 81 & 17 & 1 &
+ERR4892392\tabularnewline
+B.1.523 & B.1.523 & 4501 & B.1 & 228 & 30 & 6 &
+ERR4892423\tabularnewline
+B.1 & B.1 & 4378 & B.1.88 & 140 & 50 & 16 & ERR4893013\tabularnewline
+B.1.177 & B.1.177 & 3779 & B.1.177.7 & 985 & 13 & 0 &
+ERR4893031\tabularnewline
+B.1.1.307 & B.1.1.307 & 4885 & B.1 & 46 & 40 & 22 &
+ERR4893033\tabularnewline
+B.1.1.29 & B.1.1.29 & 2445 & B.1.1.39 & 101 & 231 & 29 &
+ERR4893037\tabularnewline
+B.1.177 & B.1.177 & 4819 & B.1.177.22 & 98 & 12 & 4 &
+ERR4893080\tabularnewline
+B.1.177.16 & B.1.177.16 & 4964 & B.1.177 & 29 & 4 & 1 &
+ERR4893138\tabularnewline
+B.1.258 & B.1.258 & 4256 & B.1.258.17 & 468 & 24 & 6 &
+ERR4893184\tabularnewline
+B.1.1.216 & B.1.1.216 & 4441 & B.1.1.208 & 52 & 100 & 43 &
+ERR4893186\tabularnewline
+B.1.177 & B.1.177 & 4844 & B.1.177.23 & 68 & 17 & 6 &
+ERR4893197\tabularnewline
+B.1.177 & B.1.177 & 4724 & B.1.177.22 & 131 & 13 & 3 &
+ERR4893242\tabularnewline
+B.1.1.307 & B.1.1.307 & 4957 & B.1 & 20 & 15 & 10 &
+ERR4893353\tabularnewline
+B.1.523 & B.1.523 & 4598 & B.1 & 122 & 32 & 7 &
+ERR4893393\tabularnewline
+B.1.177 & B.1.177 & 4779 & B.1.177.22 & 133 & 21 & 7 &
+ERR5062571\tabularnewline
+B.1.177.19 & B.1.177.19 & 4914 & B.1.177 & 64 & 8 & 1 &
+ERR5063165\tabularnewline
+B.1.177 & B.1.177 & 4783 & B.1.177.22 & 115 & 18 & 3 &
+ERR5064166\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5069584\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5069616\tabularnewline
+B.1 & B.1 & 4829 & B.1.247 & 75 & 43 & 14 & ERR5069624\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5069871\tabularnewline
+B.1.177 & B.1.177 & 4841 & B.1.177.22 & 115 & 14 & 2 &
+ERR5070060\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5070294\tabularnewline
+B.1.160 & B.1.160 & 4663 & B.1.160.8 & 184 & 17 & 7 &
+ERR5074314\tabularnewline
+B.1.177.19 & B.1.177.19 & 4875 & B.1.177 & 74 & 13 & 2 &
+ERR5076163\tabularnewline
+B.1.177.19 & B.1.177.19 & 4852 & B.1.177 & 113 & 12 & 6 &
+ERR5076748\tabularnewline
+B.1.177 & B.1.177 & 4802 & B.1.177.22 & 114 & 19 & 4 &
+ERR5077151\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5077411\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5077618\tabularnewline
+B.1.36.17 & B.1.36.17 & 4785 & B.1 & 125 & 15 & 5 &
+ERR5080897\tabularnewline
+B.1.1.311 & B.1.1.311 & 4876 & B.1 & 54 & 14 & 8 &
+ERR5080913\tabularnewline
+B.1.177 & B.1.177 & 4710 & B.1.177.22 & 130 & 22 & 4 &
+ERR5080918\tabularnewline
+B.1.177 & B.1.177 & 4667 & B.1.177.22 & 182 & 20 & 5 &
+ERR5081301\tabularnewline
+B.1.177.4 & B.1.177.4 & 4983 & B.1.177.2 & 11 & 13 & 10 &
+ERR5081304\tabularnewline
+B.1.177.15 & B.1.177.15 & 4845 & B.1.177 & 130 & 11 & 3 &
+ERR5081316\tabularnewline
+B.1.177.7 & B.1.177.7 & 3702 & B.1.177 & 1256 & 12 & 1 &
+ERR5082556\tabularnewline
+B.1.160 & B.1.160 & 4857 & B.1.160.5 & 61 & 15 & 5 &
+ERR5082569\tabularnewline
+B.1.177 & B.1.177 & 4620 & B.1.177.22 & 240 & 21 & 2 &
+ERR5082580\tabularnewline
+B.1.177.4 & B.1.177.4 & 4980 & B.1.177.2 & 15 & 8 & 5 &
+ERR5082590\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5082610\tabularnewline
+B.1.177.7 & B.1.177.7 & 4879 & B.1.177 & 113 & 10 & 4 &
+ERR5082630\tabularnewline
+B.1.177 & B.1.177 & 4014 & B.1.177.22 & 391 & 26 & 9 &
+ERR5082645\tabularnewline
+B.1.1.315 & B.1.1.315 & 4853 & B.1 & 61 & 15 & 6 &
+ERR5082664\tabularnewline
+B.1.177.6 & B.1.177.6 & 4875 & B.1.177 & 80 & 11 & 2 &
+ERR5082674\tabularnewline
+B.1.177 & B.1.177 & 4463 & B.1.177.22 & 227 & 19 & 2 &
+ERR5082695\tabularnewline
+B.1.1.315 & B.1.1.315 & 4403 & B.1.1.281 & 244 & 39 & 18 &
+ERR5082696\tabularnewline
+B.1.177 & B.1.177 & 3586 & B.1.177.22 & 793 & 30 & 7 &
+ERR5082711\tabularnewline
+B.1.177.7 & B.1.177.7 & 3240 & B.1.177 & 1704 & 15 & 1 &
+ERR5082712\tabularnewline
+None & None & 5006 & NA & NA & 1 & 0 & SRR12639958\tabularnewline
+A & A & 5708 & B & 2156 & 16 & 0 & SRR12762573\tabularnewline
+A.2.2 & A.2.2 & 2950 & A.2 & 730 & 108 & 47 & SRR13020990\tabularnewline
+A.1 & A.1 & 8879 & B.40 & 57 & 20 & 6 & SRR13092002\tabularnewline
+\bottomrule
+\end{longtable}
 
 # Bibliography
 

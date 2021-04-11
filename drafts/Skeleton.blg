@@ -3,9 +3,11 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Skeleton.aux
 The style file: plainnat.bst
 Database file #1: supbib.bib
+Warning--I didn't find a database entry for "blank"
+Warning--I didn't find a database entry for "blank2"
 You've used 15 entries,
             2773 wiz_defined-function locations,
-            735 strings with 9422 characters,
+            737 strings with 9433 characters,
 and the built_in function-call counts, 9211 in all, are:
 = -- 840
 > -- 680
@@ -44,3 +46,4 @@ warning$ -- 0
 while$ -- 72
 width$ -- 0
 write$ -- 261
+(There were 2 warnings)
