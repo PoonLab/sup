@@ -1,7 +1,7 @@
 #! bin/sh
 
 # Suggested usage:
-# /usr/bin/time -v --outfilebash covid/src_sample-pangolin-vis.sh -d --overwrite -N 5000; /usr/bin/time -v bash covid/src_sample-pangolin-vis.sh -d --overwrite -N 5000
+# bash covid/src_sample-pangolin-vis.sh -d
 
 
 # Arguments
@@ -13,7 +13,7 @@
         # Re-sample existing files
 
 # I'm bad at arg parsing
-N=10
+N=5
 dirich=false
 overwrite=false
 num_args=$#
@@ -39,19 +39,40 @@ fi
 
 # Sample from Uncertainty Matrix
 # Again, I'm bad at argparsing
+N1=1000
 if [ $dirich = true ]; then # if dirichlet sampling
-    if [ $overwrite = true ]; then # if overwrite
-        Rscript covid/sample_S_dir.R -d -N $N --overwrite
-    else 
-        Rscript covid/sample_S_dir.R -d -N $N
-    fi
+    Rscript covid/sample_S_dir.R -d -N $N1 --overwrite
 else 
-    if [ $overwrite = true ]; then # if overwrite
-        Rscript covid/sample_S_dir.R -N $N --overwrite
-    else 
-        Rscript covid/sample_S_dir.R -N $N
-    fi
+    Rscript covid/sample_S_dir.R -N $N1 --overwrite
 fi
+
+# I have no idea why my for loop failed,
+# but it only needed to do four loops.
+if [ $dirich = true ]; then # if dirichlet sampling
+    Rscript covid/sample_S_dir.R -d -N $N1
+else 
+    Rscript covid/sample_S_dir.R -N $N1
+fi
+
+if [ $dirich = true ]; then # if dirichlet sampling
+    Rscript covid/sample_S_dir.R -d -N $N1
+else 
+    Rscript covid/sample_S_dir.R -N $N1
+fi
+
+if [ $dirich = true ]; then # if dirichlet sampling
+    Rscript covid/sample_S_dir.R -d -N $N1
+else 
+    Rscript covid/sample_S_dir.R -N $N1
+fi
+
+if [ $dirich = true ]; then # if dirichlet sampling
+    Rscript covid/sample_S_dir.R -d -N $N1
+else 
+    Rscript covid/sample_S_dir.R -N $N1
+fi
+
+
 
 
 # Initialize Conda
@@ -79,15 +100,7 @@ do
         out_fasta=("data/pangolineages/"$acc"_pangolineages.csv")
     fi
     
-    if [ $overwrite = true ]; then # if overwrite
-        pangolin $sampled_fasta --outfile $out_fasta
-    else
-        if [ -f "$out_fasta" ]; then
-            echo "$out_fasta already exists"
-        else 
-            pangolin $sampled_fasta --outfile $out_fasta
-        fi
-    fi
+    pangolin $sampled_fasta --outfile $out_fasta
 done
 
 # Visualize!
