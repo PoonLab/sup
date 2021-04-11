@@ -5,8 +5,9 @@ date: "`r Sys.Date()`"
 output:
     pdf_document:
       citation_package: natbib
+      keep_tex: yes
 params:
-    dirich: FALSE
+    dirich: TRUE
 ---
 
 
@@ -20,7 +21,7 @@ library(ggplot2)
 library(stringr)
 library(here)
 
-dirich <- TRUE #params$dirich
+dirich <- params$dirich
 
 # Read in CSV files
 csvs <- list.files(here("data/", "pangolineages"),
@@ -40,12 +41,12 @@ lins <- lins %>%
     mutate(taxon = str_replace(taxon, "\\_", ""))
 
 badlins <- table(lins$taxon)
-badlins <- names(badlins[which(badlins < 1000)])
+badlins <- names(badlins[which(badlins < 5000)])
 cat(length(badlins), " runs were removed for having too few samples.")
 lins <- filter(lins, !taxon %in% badlins)
 
 #### Visualize the uncertainty in the base calls ----
-taxons <- unique(lins$taxon)
+taxons <- sort(unique(lins$taxon))
 length(taxons)
 
 ```
@@ -57,56 +58,101 @@ summs <- lins %>%
     group_by(taxon) %>%
     summarise(
         maxperc = mean(lineage == names(sort(table(lineage),
-            decreasing = TRUE)[1]),
+            decreasing = TRUE)[1])),
         uniques = length(unique(lineage)),
         minpango = min(probability),
         maxpango = max(probability),
         menpango = mean(probability),
-        max = names(sort(table(lineage), decreasing = TRUE))[1]))
+        max = names(sort(table(lineage), decreasing = TRUE))[1])
 
 print("summary info")
 print(summs)
 1 - mean(summs$maxperc); 1 - mean(summs$menpango)
+#print(summs, n = Inf)
 ```
 
 # Stacked Bar Plots
 
-```{r pareto, fig.height=10, fig.width=10}
-max_label <- max(table(lins$taxon)) / 40
+```{r pareto, fig.height=11, fig.width=13}
+max_label <- 250
+other_label <- 100
 
-par(mfrow = c(15, 1), mar = c(1, 0.5, 1.5, 0.5))
-for (i in 1:38) {
+par(mfrow = c(17, 1), mar = c(0.05, 7.75, 0.05, 0.05))
+if (exists("seq_info")) rm(seq_info)
+for (i in seq_along(taxons)) {
     pang <- lins[lins$taxon == taxons[i], ]
     called <- pang$lineage[pang$sample == 0][1]
     pangtab <- sort(table(pang$lineage), decreasing = TRUE)
+
+    seq_info_i <- data.frame(
+        called = called,
+        mode = names(pangtab)[1],
+            mode_count = pangtab[1],
+        runner_up = names(pangtab)[2],
+            runner_up_count = pangtab[2],
+        unique = length(pangtab), atoms = sum(pangtab == 1))
+    seq_info_i$taxon <- taxons[i]
+
+    if (!exists("seq_info")) {
+        seq_info <- seq_info_i
+    } else {
+        seq_info <- bind_rows(seq_info, seq_info_i)
+    }
 
     colvec <- rep("grey", length(pangtab))
     colvec[which(names(pangtab) == called)] <- "red"
 
     n <- sum(pangtab > max_label)
     if (n > 1) {
+        add_other <- FALSE
+        if (sum(pangtab < other_label) > 10) {
+            add_other <- TRUE
+            other_count <- sum(pangtab <= other_label)
+            pangtab <- c(pangtab[pangtab > other_label],
+                c("other" = sum(pangtab[pangtab <= other_label])))
+            colvec[which(names(pangtab) == "other")] <- "black"
+        }
         barlabx <- c(0, cumsum(pangtab[1:(n - 1)])) +
             pangtab[1:n] / 2
+        barlabels <- names(pangtab)[1:n]
+        barlens <- sapply(gregexpr("\\.", barlabels), length)
+        for (j in seq_along(barlabels)) {
+            if (pangtab[j] < 400 & barlens[j] >= 2) {
+                barsplit <- strsplit(barlabels[j], split = "\\.")[[1]]
+                barn <- length(barsplit)
+                half <- floor(barn / 2)
+                barlabels[j] <- paste0(
+                    paste(barsplit[1:half], collapse = "."),
+                    ".\n",
+                    paste(barsplit[(half + 1):barn], collapse = ".")
+                )
+            }
+        }
 
         barplot(as.matrix(pangtab),
             col = colvec, hori = TRUE, axes = FALSE)
-        text(barlabx, 0.7, names(pangtab)[1:n])
-        mtext(side = 3, text = taxons[i], cex = 0.75, las = 1)
-        pretty_labels <- seq(0, sum(pangtab),
+        text(barlabx, 0.7, barlabels, cex = 1.5)
+        if (add_other) {
+            text(x = sum(pangtab) - pangtab["other"] / 2,
+            y = 0.7, col = "white", cex = 1.5,
+            label = paste0("Others:\n", other_count))
+        }
+        mtext(side = 2, cex = 1, las = 1,
+            text = paste(substr(taxons[i], 1, 3),
+                substr(taxons[i], 4, 20), sep = "\n"))
+        abline(v = seq(0, 10000, 1000), lty = 2)
+        "pretty_labels <- seq(0, sum(pangtab),
                 by = ifelse(sum(pangtab) < 2000, 100, 1000))
         mtext(side = 1,
             at = pretty_labels,
             text = pretty_labels,
             line = 0,
             cex = 0.75
-        )
-    } else {
-        cat("Taxon", taxons[i], "had", length(pangtab),
-            "unique calls, with largest accounting for",
-            pangtab[1], "lineage calls, \n\t with second place",
-            pangtab[2], ". First place was",
-            ifelse(names(pangtab)[1] == called, "", "not"),
-            "the conseq call.\n")
+        )"
     }
 }
+
+seq_info$taxon <- taxons
+knitr::kable(seq_info, row.names = FALSE)
+rm(seq_info)
 ```

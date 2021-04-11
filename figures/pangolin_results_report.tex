@@ -82,6 +82,15 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -104,7 +113,7 @@
 
 \title{Results of PangoVis}
 \author{Devan Becker}
-\date{2021-04-09}
+\date{2021-04-10}
 
 \begin{document}
 \maketitle
@@ -121,7 +130,7 @@
 \KeywordTok{library}\NormalTok{(stringr)}
 \KeywordTok{library}\NormalTok{(here)}
 
-\NormalTok{dirich \textless{}{-}}\StringTok{ }\OtherTok{TRUE} \CommentTok{\#params$dirich}
+\NormalTok{dirich \textless{}{-}}\StringTok{ }\NormalTok{params}\OperatorTok{$}\NormalTok{dirich}
 
 \CommentTok{\# Read in CSV files}
 \NormalTok{csvs \textless{}{-}}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\KeywordTok{here}\NormalTok{(}\StringTok{"data/"}\NormalTok{, }\StringTok{"pangolineages"}\NormalTok{),}
@@ -141,7 +150,7 @@
 \StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{taxon =} \KeywordTok{str\_replace}\NormalTok{(taxon, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{\_"}\NormalTok{, }\StringTok{""}\NormalTok{))}
 
 \NormalTok{badlins \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)}
-\NormalTok{badlins \textless{}{-}}\StringTok{ }\KeywordTok{names}\NormalTok{(badlins[}\KeywordTok{which}\NormalTok{(badlins }\OperatorTok{\textless{}}\StringTok{ }\DecValTok{1000}\NormalTok{)])}
+\NormalTok{badlins \textless{}{-}}\StringTok{ }\KeywordTok{names}\NormalTok{(badlins[}\KeywordTok{which}\NormalTok{(badlins }\OperatorTok{\textless{}}\StringTok{ }\DecValTok{5000}\NormalTok{)])}
 \KeywordTok{cat}\NormalTok{(}\KeywordTok{length}\NormalTok{(badlins), }\StringTok{" runs were removed for having too few samples."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -155,13 +164,13 @@
 \NormalTok{lins \textless{}{-}}\StringTok{ }\KeywordTok{filter}\NormalTok{(lins, }\OperatorTok{!}\NormalTok{taxon }\OperatorTok{\%in\%}\StringTok{ }\NormalTok{badlins)}
 
 \CommentTok{\#\#\#\# Visualize the uncertainty in the base calls {-}{-}{-}{-}}
-\NormalTok{taxons \textless{}{-}}\StringTok{ }\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)}
+\NormalTok{taxons \textless{}{-}}\StringTok{ }\KeywordTok{sort}\NormalTok{(}\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon))}
 \KeywordTok{length}\NormalTok{(taxons)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 82
+## [1] 80
 \end{verbatim}
 
 \hypertarget{abstract-info}{%
@@ -173,12 +182,12 @@
 \StringTok{    }\KeywordTok{group\_by}\NormalTok{(taxon) }\OperatorTok{\%\textgreater{}\%}
 \StringTok{    }\KeywordTok{summarise}\NormalTok{(}
         \DataTypeTok{maxperc =} \KeywordTok{mean}\NormalTok{(lineage }\OperatorTok{==}\StringTok{ }\KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage),}
-            \DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{)[}\DecValTok{1}\NormalTok{]),}
+            \DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{)[}\DecValTok{1}\NormalTok{])),}
         \DataTypeTok{uniques =} \KeywordTok{length}\NormalTok{(}\KeywordTok{unique}\NormalTok{(lineage)),}
         \DataTypeTok{minpango =} \KeywordTok{min}\NormalTok{(probability),}
         \DataTypeTok{maxpango =} \KeywordTok{max}\NormalTok{(probability),}
         \DataTypeTok{menpango =} \KeywordTok{mean}\NormalTok{(probability),}
-        \DataTypeTok{max =} \KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage), }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{))[}\DecValTok{1}\NormalTok{]))}
+        \DataTypeTok{max =} \KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage), }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{))[}\DecValTok{1}\NormalTok{])}
 \end{Highlighting}
 \end{Shaded}
 
@@ -203,20 +212,20 @@
 \end{Shaded}
 
 \begin{verbatim}
-## # A tibble: 82 x 2
-##    taxon      maxperc
-##    <chr>        <dbl>
-##  1 ERR4363387   0.938
-##  2 ERR4364007   0.871
-##  3 ERR4664555   0.945
-##  4 ERR4667618   0.990
-##  5 ERR4692364   0.914
-##  6 ERR4693034   0.847
-##  7 ERR4693061   0.941
-##  8 ERR4693079   0.866
-##  9 ERR4693537   0.972
-## 10 ERR4693605   0.970
-## # ... with 72 more rows
+## # A tibble: 80 x 7
+##    taxon      maxperc uniques minpango maxpango menpango max      
+##    <chr>        <dbl>   <int>    <dbl>    <dbl>    <dbl> <chr>    
+##  1 ERR4363387   0.938      12        1        1        1 B.1.222  
+##  2 ERR4364007   0.871      43        1        1        1 B.1.1.29 
+##  3 ERR4664555   0.945      18        1        1        1 B.1.1.253
+##  4 ERR4667618   0.990       4        1        1        1 B.1.1.315
+##  5 ERR4692364   0.914      20        1        1        1 B.1      
+##  6 ERR4693034   0.847      32        1        1        1 B.1.1.310
+##  7 ERR4693061   0.941       9        1        1        1 B.23     
+##  8 ERR4693079   0.866      41        1        1        1 B.1.1.310
+##  9 ERR4693537   0.972       6        1        1        1 B.1.177.7
+## 10 ERR4693605   0.970      11        1        1        1 B.1.177.3
+## # ... with 70 more rows
 \end{verbatim}
 
 \begin{Shaded}
@@ -226,146 +235,259 @@
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 0.09124434
+## [1] 0.09633206
 \end{verbatim}
 
 \begin{verbatim}
-## Warning: Unknown or uninitialised column: `menpango`.
+## [1] 0.0249975
 \end{verbatim}
 
-\begin{verbatim}
-## Warning in mean.default(summs$menpango): argument is not numeric or logical:
-## returning NA
-\end{verbatim}
-
-\begin{verbatim}
-## [1] NA
-\end{verbatim}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#print(summs, n = Inf)}
+\end{Highlighting}
+\end{Shaded}
 
 \hypertarget{stacked-bar-plots}{%
 \section{Stacked Bar Plots}\label{stacked-bar-plots}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{max\_label \textless{}{-}}\StringTok{ }\KeywordTok{max}\NormalTok{(}\KeywordTok{table}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon)) }\OperatorTok{/}\StringTok{ }\DecValTok{40}
+\NormalTok{max\_label \textless{}{-}}\StringTok{ }\DecValTok{250}
+\NormalTok{other\_label \textless{}{-}}\StringTok{ }\DecValTok{100}
 
-\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{15}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{mar =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\FloatTok{1.5}\NormalTok{, }\FloatTok{0.5}\NormalTok{))}
-\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{38}\NormalTok{) \{}
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{17}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{mar =} \KeywordTok{c}\NormalTok{(}\FloatTok{0.05}\NormalTok{, }\FloatTok{7.75}\NormalTok{, }\FloatTok{0.05}\NormalTok{, }\FloatTok{0.05}\NormalTok{))}
+\ControlFlowTok{if}\NormalTok{ (}\KeywordTok{exists}\NormalTok{(}\StringTok{"seq\_info"}\NormalTok{)) }\KeywordTok{rm}\NormalTok{(seq\_info)}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \KeywordTok{seq\_along}\NormalTok{(taxons)) \{}
 \NormalTok{    pang \textless{}{-}}\StringTok{ }\NormalTok{lins[lins}\OperatorTok{$}\NormalTok{taxon }\OperatorTok{==}\StringTok{ }\NormalTok{taxons[i], ]}
 \NormalTok{    called \textless{}{-}}\StringTok{ }\NormalTok{pang}\OperatorTok{$}\NormalTok{lineage[pang}\OperatorTok{$}\NormalTok{sample }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{][}\DecValTok{1}\NormalTok{]}
 \NormalTok{    pangtab \textless{}{-}}\StringTok{ }\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(pang}\OperatorTok{$}\NormalTok{lineage), }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{)}
+
+\NormalTok{    seq\_info\_i \textless{}{-}}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+        \DataTypeTok{called =}\NormalTok{ called,}
+        \DataTypeTok{mode =} \KeywordTok{names}\NormalTok{(pangtab)[}\DecValTok{1}\NormalTok{],}
+            \DataTypeTok{mode\_count =}\NormalTok{ pangtab[}\DecValTok{1}\NormalTok{],}
+        \DataTypeTok{runner\_up =} \KeywordTok{names}\NormalTok{(pangtab)[}\DecValTok{2}\NormalTok{],}
+            \DataTypeTok{runner\_up\_count =}\NormalTok{ pangtab[}\DecValTok{2}\NormalTok{],}
+        \DataTypeTok{unique =} \KeywordTok{length}\NormalTok{(pangtab), }\DataTypeTok{atoms =} \KeywordTok{sum}\NormalTok{(pangtab }\OperatorTok{==}\StringTok{ }\DecValTok{1}\NormalTok{))}
+\NormalTok{    seq\_info\_i}\OperatorTok{$}\NormalTok{taxon \textless{}{-}}\StringTok{ }\NormalTok{taxons[i]}
+
+    \ControlFlowTok{if}\NormalTok{ (}\OperatorTok{!}\KeywordTok{exists}\NormalTok{(}\StringTok{"seq\_info"}\NormalTok{)) \{}
+\NormalTok{        seq\_info \textless{}{-}}\StringTok{ }\NormalTok{seq\_info\_i}
+\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{        seq\_info \textless{}{-}}\StringTok{ }\KeywordTok{bind\_rows}\NormalTok{(seq\_info, seq\_info\_i)}
+\NormalTok{    \}}
 
 \NormalTok{    colvec \textless{}{-}}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\StringTok{"grey"}\NormalTok{, }\KeywordTok{length}\NormalTok{(pangtab))}
 \NormalTok{    colvec[}\KeywordTok{which}\NormalTok{(}\KeywordTok{names}\NormalTok{(pangtab) }\OperatorTok{==}\StringTok{ }\NormalTok{called)] \textless{}{-}}\StringTok{ "red"}
 
 \NormalTok{    n \textless{}{-}}\StringTok{ }\KeywordTok{sum}\NormalTok{(pangtab }\OperatorTok{\textgreater{}}\StringTok{ }\NormalTok{max\_label)}
     \ControlFlowTok{if}\NormalTok{ (n }\OperatorTok{\textgreater{}}\StringTok{ }\DecValTok{1}\NormalTok{) \{}
+\NormalTok{        add\_other \textless{}{-}}\StringTok{ }\OtherTok{FALSE}
+        \ControlFlowTok{if}\NormalTok{ (}\KeywordTok{sum}\NormalTok{(pangtab }\OperatorTok{\textless{}}\StringTok{ }\NormalTok{other\_label) }\OperatorTok{\textgreater{}}\StringTok{ }\DecValTok{10}\NormalTok{) \{}
+\NormalTok{            add\_other \textless{}{-}}\StringTok{ }\OtherTok{TRUE}
+\NormalTok{            other\_count \textless{}{-}}\StringTok{ }\KeywordTok{sum}\NormalTok{(pangtab }\OperatorTok{\textless{}=}\StringTok{ }\NormalTok{other\_label)}
+\NormalTok{            pangtab \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(pangtab[pangtab }\OperatorTok{\textgreater{}}\StringTok{ }\NormalTok{other\_label],}
+                \KeywordTok{c}\NormalTok{(}\StringTok{"other"}\NormalTok{ =}\StringTok{ }\KeywordTok{sum}\NormalTok{(pangtab[pangtab }\OperatorTok{\textless{}=}\StringTok{ }\NormalTok{other\_label])))}
+\NormalTok{            colvec[}\KeywordTok{which}\NormalTok{(}\KeywordTok{names}\NormalTok{(pangtab) }\OperatorTok{==}\StringTok{ "other"}\NormalTok{)] \textless{}{-}}\StringTok{ "black"}
+\NormalTok{        \}}
 \NormalTok{        barlabx \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\KeywordTok{cumsum}\NormalTok{(pangtab[}\DecValTok{1}\OperatorTok{:}\NormalTok{(n }\OperatorTok{{-}}\StringTok{ }\DecValTok{1}\NormalTok{)])) }\OperatorTok{+}
 \StringTok{            }\NormalTok{pangtab[}\DecValTok{1}\OperatorTok{:}\NormalTok{n] }\OperatorTok{/}\StringTok{ }\DecValTok{2}
+\NormalTok{        barlabels \textless{}{-}}\StringTok{ }\KeywordTok{names}\NormalTok{(pangtab)[}\DecValTok{1}\OperatorTok{:}\NormalTok{n]}
+\NormalTok{        barlens \textless{}{-}}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{gregexpr}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, barlabels), length)}
+        \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \KeywordTok{seq\_along}\NormalTok{(barlabels)) \{}
+            \ControlFlowTok{if}\NormalTok{ (pangtab[j] }\OperatorTok{\textless{}}\StringTok{ }\DecValTok{400} \OperatorTok{\&}\StringTok{ }\NormalTok{barlens[j] }\OperatorTok{\textgreater{}=}\StringTok{ }\DecValTok{2}\NormalTok{) \{}
+\NormalTok{                barsplit \textless{}{-}}\StringTok{ }\KeywordTok{strsplit}\NormalTok{(barlabels[j], }\DataTypeTok{split =} \StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{)[[}\DecValTok{1}\NormalTok{]]}
+\NormalTok{                barn \textless{}{-}}\StringTok{ }\KeywordTok{length}\NormalTok{(barsplit)}
+\NormalTok{                half \textless{}{-}}\StringTok{ }\KeywordTok{floor}\NormalTok{(barn }\OperatorTok{/}\StringTok{ }\DecValTok{2}\NormalTok{)}
+\NormalTok{                barlabels[j] \textless{}{-}}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}
+                    \KeywordTok{paste}\NormalTok{(barsplit[}\DecValTok{1}\OperatorTok{:}\NormalTok{half], }\DataTypeTok{collapse =} \StringTok{"."}\NormalTok{),}
+                    \StringTok{".}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+                    \KeywordTok{paste}\NormalTok{(barsplit[(half }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)}\OperatorTok{:}\NormalTok{barn], }\DataTypeTok{collapse =} \StringTok{"."}\NormalTok{)}
+\NormalTok{                )}
+\NormalTok{            \}}
+\NormalTok{        \}}
 
         \KeywordTok{barplot}\NormalTok{(}\KeywordTok{as.matrix}\NormalTok{(pangtab),}
             \DataTypeTok{col =}\NormalTok{ colvec, }\DataTypeTok{hori =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{axes =} \OtherTok{FALSE}\NormalTok{)}
-        \KeywordTok{text}\NormalTok{(barlabx, }\FloatTok{0.7}\NormalTok{, }\KeywordTok{names}\NormalTok{(pangtab)[}\DecValTok{1}\OperatorTok{:}\NormalTok{n])}
-        \KeywordTok{mtext}\NormalTok{(}\DataTypeTok{side =} \DecValTok{3}\NormalTok{, }\DataTypeTok{text =}\NormalTok{ taxons[i], }\DataTypeTok{cex =} \FloatTok{0.75}\NormalTok{, }\DataTypeTok{las =} \DecValTok{1}\NormalTok{)}
-\NormalTok{        pretty\_labels \textless{}{-}}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\KeywordTok{sum}\NormalTok{(pangtab),}
-                \DataTypeTok{by =} \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{sum}\NormalTok{(pangtab) }\OperatorTok{\textless{}}\StringTok{ }\DecValTok{2000}\NormalTok{, }\DecValTok{100}\NormalTok{, }\DecValTok{1000}\NormalTok{))}
-        \KeywordTok{mtext}\NormalTok{(}\DataTypeTok{side =} \DecValTok{1}\NormalTok{,}
-            \DataTypeTok{at =}\NormalTok{ pretty\_labels,}
-            \DataTypeTok{text =}\NormalTok{ pretty\_labels,}
-            \DataTypeTok{line =} \DecValTok{0}\NormalTok{,}
-            \DataTypeTok{cex =} \FloatTok{0.75}
-\NormalTok{        )}
-\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
-        \KeywordTok{cat}\NormalTok{(}\StringTok{"Taxon"}\NormalTok{, taxons[i], }\StringTok{"had"}\NormalTok{, }\KeywordTok{length}\NormalTok{(pangtab),}
-            \StringTok{"unique calls, with largest accounting for"}\NormalTok{,}
-\NormalTok{            pangtab[}\DecValTok{1}\NormalTok{], }\StringTok{"lineage calls, }\CharTok{\textbackslash{}n\textbackslash{}t}\StringTok{ with second place"}\NormalTok{,}
-\NormalTok{            pangtab[}\DecValTok{2}\NormalTok{], }\StringTok{". First place was"}\NormalTok{,}
-            \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{names}\NormalTok{(pangtab)[}\DecValTok{1}\NormalTok{] }\OperatorTok{==}\StringTok{ }\NormalTok{called, }\StringTok{""}\NormalTok{, }\StringTok{"not"}\NormalTok{),}
-            \StringTok{"the conseq call.}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+        \KeywordTok{text}\NormalTok{(barlabx, }\FloatTok{0.7}\NormalTok{, barlabels, }\DataTypeTok{cex =} \FloatTok{1.5}\NormalTok{)}
+        \ControlFlowTok{if}\NormalTok{ (add\_other) \{}
+            \KeywordTok{text}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{sum}\NormalTok{(pangtab) }\OperatorTok{{-}}\StringTok{ }\NormalTok{pangtab[}\StringTok{"other"}\NormalTok{] }\OperatorTok{/}\StringTok{ }\DecValTok{2}\NormalTok{,}
+            \DataTypeTok{y =} \FloatTok{0.7}\NormalTok{, }\DataTypeTok{col =} \StringTok{"white"}\NormalTok{, }\DataTypeTok{cex =} \FloatTok{1.5}\NormalTok{,}
+            \DataTypeTok{label =} \KeywordTok{paste0}\NormalTok{(}\StringTok{"Others:}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{, other\_count))}
+\NormalTok{        \}}
+        \KeywordTok{mtext}\NormalTok{(}\DataTypeTok{side =} \DecValTok{2}\NormalTok{, }\DataTypeTok{cex =} \DecValTok{1}\NormalTok{, }\DataTypeTok{las =} \DecValTok{1}\NormalTok{,}
+            \DataTypeTok{text =} \KeywordTok{paste}\NormalTok{(}\KeywordTok{substr}\NormalTok{(taxons[i], }\DecValTok{1}\NormalTok{, }\DecValTok{3}\NormalTok{),}
+                \KeywordTok{substr}\NormalTok{(taxons[i], }\DecValTok{4}\NormalTok{, }\DecValTok{20}\NormalTok{), }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{))}
+        \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{10000}\NormalTok{, }\DecValTok{1000}\NormalTok{), }\DataTypeTok{lty =} \DecValTok{2}\NormalTok{)}
+        \StringTok{"pretty\_labels \textless{}{-} seq(0, sum(pangtab),}
+\StringTok{                by = ifelse(sum(pangtab) \textless{} 2000, 100, 1000))}
+\StringTok{        mtext(side = 1,}
+\StringTok{            at = pretty\_labels,}
+\StringTok{            text = pretty\_labels,}
+\StringTok{            line = 0,}
+\StringTok{            cex = 0.75}
+\StringTok{        )"}
 \NormalTok{    \}}
 \NormalTok{\}}
+
+\NormalTok{seq\_info}\OperatorTok{$}\NormalTok{taxon \textless{}{-}}\StringTok{ }\NormalTok{taxons}
+\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(seq\_info, }\DataTypeTok{row.names =} \OtherTok{FALSE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## Taxon ERR4364007 had 43 unique calls, with largest accounting for 873 lineage calls, 
-##   with second place 14 . First place was  the conseq call.
-## Taxon ERR4664555 had 18 unique calls, with largest accounting for 947 lineage calls, 
-##   with second place 15 . First place was  the conseq call.
-## Taxon ERR4667618 had 4 unique calls, with largest accounting for 992 lineage calls, 
-##   with second place 7 . First place was  the conseq call.
-## Taxon ERR4692364 had 20 unique calls, with largest accounting for 916 lineage calls, 
-##   with second place 22 . First place was  the conseq call.
-\end{verbatim}
+\begin{longtable}[]{@{}llrlrrrl@{}}
+\toprule
+called & mode & mode\_count & runner\_up & runner\_up\_count & unique &
+atoms & taxon\tabularnewline
+\midrule
+\endhead
+B.1.222 & B.1.222 & 5635 & B.1 & 174 & 12 & 0 &
+ERR4363387\tabularnewline
+B.1.1.29 & B.1.1.29 & 5233 & B.1.1 & 84 & 43 & 0 &
+ERR4364007\tabularnewline
+B.1.1.253 & B.1.1.253 & 5677 & B.1 & 90 & 18 & 0 &
+ERR4664555\tabularnewline
+B.1.1.315 & B.1.1.315 & 5947 & B.1 & 42 & 4 & 0 &
+ERR4667618\tabularnewline
+B.1 & B.1 & 5491 & B.1.367 & 132 & 20 & 0 & ERR4692364\tabularnewline
+B.1.1.310 & B.1.1.310 & 4241 & B.1.1.59 & 380 & 32 & 0 &
+ERR4693034\tabularnewline
+B.23 & B.23 & 4711 & B.48 & 130 & 9 & 0 & ERR4693061\tabularnewline
+B.1.1.310 & B.1.1.310 & 4336 & B.1.1.29 & 180 & 41 & 0 &
+ERR4693079\tabularnewline
+B.1.177.7 & B.1.177.7 & 4866 & B.1.177 & 115 & 6 & 0 &
+ERR4693537\tabularnewline
+B.1.177.3 & B.1.177.3 & 4856 & B.1.177 & 60 & 11 & 0 &
+ERR4693605\tabularnewline
+B.1.36 & B.1.36 & 4826 & B.1.36.9 & 35 & 15 & 0 &
+ERR4891711\tabularnewline
+B & B & 3466 & B.23 & 655 & 12 & 0 & ERR4891715\tabularnewline
+B.1.177.6 & B.1.177.6 & 4911 & B.1.177 & 35 & 7 & 0 &
+ERR4891805\tabularnewline
+B.1 & B.1 & 3656 & B.1.243 & 95 & 97 & 0 & ERR4891841\tabularnewline
+B.1.1.216 & B.1.1.216 & 4186 & B.1 & 90 & 58 & 0 &
+ERR4891863\tabularnewline
+B.1.98 & B.1.98 & 4321 & B.1 & 240 & 22 & 0 & ERR4891889\tabularnewline
+B.1.1.304 & B.1.1.304 & 4841 & B.1.1.70 & 20 & 16 & 0 &
+ERR4891898\tabularnewline
+None & None & 5002 & B.1 & 1 & 2 & 1 & ERR4891916\tabularnewline
+B & B & 4361 & B.1 & 125 & 35 & 0 & ERR4891988\tabularnewline
+B.1.1.307 & B.1.1.307 & 4946 & B.1 & 25 & 8 & 0 &
+ERR4892048\tabularnewline
+B.1.1.29 & B.1.1.29 & 1311 & B.1.1.127 & 595 & 108 & 0 &
+ERR4892066\tabularnewline
+B.39 & B.39 & 4871 & B & 70 & 13 & 0 & ERR4892112\tabularnewline
+B.1.177 & B.1.177 & 4671 & B.1.177.7 & 260 & 5 & 0 &
+ERR4892152\tabularnewline
+B.1.177.17 & B.1.177.17 & 4961 & B.1.177 & 45 & 2 & 0 &
+ERR4892200\tabularnewline
+B.1.1.216 & B.1.1.216 & 4521 & B.1.1.29 & 60 & 32 & 0 &
+ERR4892203\tabularnewline
+B.1.1.162 & B.1.1.162 & 3016 & B.1.1.141 & 235 & 90 & 0 &
+ERR4892293\tabularnewline
+B.1.177 & B.1.177 & 4806 & B.1.177.22 & 85 & 8 & 0 &
+ERR4892339\tabularnewline
+B.40 & B.40 & 4981 & B & 10 & 5 & 0 & ERR4892386\tabularnewline
+B.1.177 & B.1.177 & 4836 & B.1.177.22 & 55 & 10 & 0 &
+ERR4892392\tabularnewline
+B.1.523 & B.1.523 & 4556 & B.1.471 & 225 & 13 & 0 &
+ERR4892423\tabularnewline
+B.1 & B.1 & 4501 & B.1.36 & 105 & 18 & 0 & ERR4893013\tabularnewline
+B.1.177 & B.1.177 & 3741 & B.1.177.7 & 950 & 7 & 0 &
+ERR4893031\tabularnewline
+B.1.1.307 & B.1.1.307 & 4936 & B.1 & 25 & 8 & 0 &
+ERR4893033\tabularnewline
+B.1.1.29 & B.1.1.29 & 2711 & B.1.1.37 & 85 & 124 & 0 &
+ERR4893037\tabularnewline
+B.1.177 & B.1.177 & 4786 & B.1.177.22 & 135 & 8 & 0 &
+ERR4893080\tabularnewline
+B.1.177.16 & B.1.177.16 & 4961 & B.1.177 & 40 & 3 & 0 &
+ERR4893138\tabularnewline
+B.1.258 & B.1.258 & 4416 & B.1.258.17 & 450 & 9 & 0 &
+ERR4893184\tabularnewline
+B.1.1.216 & B.1.1.216 & 4576 & B.1.1.141 & 90 & 35 & 0 &
+ERR4893186\tabularnewline
+B.1.177 & B.1.177 & 4686 & B.1.177.23 & 205 & 7 & 0 &
+ERR4893197\tabularnewline
+B.1.177 & B.1.177 & 4916 & B.1.177.22 & 55 & 8 & 0 &
+ERR4893242\tabularnewline
+B.1.1.307 & B.1.1.307 & 4966 & B.1.1.311 & 35 & 3 & 0 &
+ERR4893353\tabularnewline
+B.1.523 & B.1.523 & 4656 & B.1 & 145 & 13 & 0 &
+ERR4893393\tabularnewline
+B.1.177 & B.1.177 & 4811 & B.1.177.22 & 120 & 8 & 0 &
+ERR5062571\tabularnewline
+B.1.177.19 & B.1.177.19 & 4936 & B.1.177 & 60 & 3 & 0 &
+ERR5063165\tabularnewline
+B.1.177 & B.1.177 & 4686 & B.1.177.22 & 205 & 8 & 0 &
+ERR5064166\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5069584\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5069616\tabularnewline
+B.1 & B.1 & 4821 & B.1.247 & 65 & 21 & 0 & ERR5069624\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5069871\tabularnewline
+B.1.177 & B.1.177 & 4866 & B.1.177.22 & 90 & 6 & 0 &
+ERR5070060\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5070294\tabularnewline
+B.1.160 & B.1.160 & 4801 & B.1.160.7 & 120 & 6 & 0 &
+ERR5074314\tabularnewline
+B.1.177.19 & B.1.177.19 & 4906 & B.1.177 & 40 & 6 & 0 &
+ERR5076163\tabularnewline
+B.1.177.19 & B.1.177.19 & 4931 & B.1.177 & 70 & 3 & 0 &
+ERR5076748\tabularnewline
+B.1.177 & B.1.177 & 4761 & B.1.177.22 & 150 & 12 & 0 &
+ERR5077151\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5077411\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5077618\tabularnewline
+B.1.36.17 & B.1.36.17 & 4806 & B.1 & 85 & 9 & 0 &
+ERR5080897\tabularnewline
+B.1.1.311 & B.1.1.311 & 4806 & B.1 & 100 & 8 & 0 &
+ERR5080913\tabularnewline
+B.1.177 & B.1.177 & 4681 & B.1.177.22 & 135 & 15 & 0 &
+ERR5080918\tabularnewline
+B.1.177 & B.1.177 & 4761 & B.1.177.22 & 130 & 12 & 0 &
+ERR5081301\tabularnewline
+B.1.177.4 & B.1.177.4 & 4931 & B.1.177 & 25 & 9 & 0 &
+ERR5081304\tabularnewline
+B.1.177.15 & B.1.177.15 & 4756 & B.1.177 & 170 & 9 & 0 &
+ERR5081316\tabularnewline
+B.1.177.7 & B.1.177.7 & 3851 & B.1.177 & 1100 & 6 & 0 &
+ERR5082556\tabularnewline
+B.1.160 & B.1.160 & 4851 & B.1.160.7 & 70 & 11 & 0 &
+ERR5082569\tabularnewline
+B.1.177 & B.1.177 & 4611 & B.1.177.22 & 290 & 12 & 0 &
+ERR5082580\tabularnewline
+B.1.177.4 & B.1.177.4 & 4991 & B.1.177.2 & 15 & 2 & 0 &
+ERR5082590\tabularnewline
+B.1.1.7 & B.1.1.7 & 5006 & NA & NA & 1 & 0 & ERR5082610\tabularnewline
+B.1.177.7 & B.1.177.7 & 4776 & B.1.177 & 185 & 5 & 0 &
+ERR5082630\tabularnewline
+B.1.177 & B.1.177 & 3856 & B.1.177.14 & 450 & 11 & 0 &
+ERR5082645\tabularnewline
+B.1.1.315 & B.1.1.315 & 4901 & B.1 & 45 & 8 & 0 &
+ERR5082664\tabularnewline
+B.1.177.6 & B.1.177.6 & 4891 & B.1.177 & 70 & 7 & 0 &
+ERR5082674\tabularnewline
+B.1.177 & B.1.177 & 4336 & B.1.177.22 & 410 & 10 & 0 &
+ERR5082695\tabularnewline
+B.1.1.315 & B.1.1.315 & 4186 & B.1 & 405 & 21 & 0 &
+ERR5082696\tabularnewline
+B.1.177 & B.1.177 & 3431 & B.1.177.22 & 815 & 20 & 0 &
+ERR5082711\tabularnewline
+B.1.177.7 & B.1.177.7 & 3331 & B.1.177 & 1640 & 6 & 0 &
+ERR5082712\tabularnewline
+None & None & 5006 & NA & NA & 1 & 0 & SRR12639958\tabularnewline
+A & A & 4478 & B & 3699 & 13 & 0 & SRR12762573\tabularnewline
+A.2.2 & A.2.2 & 2916 & A.2 & 775 & 48 & 0 & SRR13020990\tabularnewline
+A.1 & A.1 & 8902 & B.40 & 58 & 11 & 0 & SRR13092002\tabularnewline
+\bottomrule
+\end{longtable}
 
-\begin{verbatim}
-## Taxon ERR4693537 had 6 unique calls, with largest accounting for 974 lineage calls, 
-##   with second place 23 . First place was  the conseq call.
-## Taxon ERR4693605 had 11 unique calls, with largest accounting for 972 lineage calls, 
-##   with second place 12 . First place was  the conseq call.
-## Taxon ERR4758772 had 4 unique calls, with largest accounting for 999 lineage calls, 
-##   with second place 1 . First place was  the conseq call.
-## Taxon ERR4891711 had 15 unique calls, with largest accounting for 966 lineage calls, 
-##   with second place 7 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4891805 had 7 unique calls, with largest accounting for 983 lineage calls, 
-##   with second place 7 . First place was  the conseq call.
-## Taxon ERR4891841 had 97 unique calls, with largest accounting for 732 lineage calls, 
-##   with second place 19 . First place was  the conseq call.
-## Taxon ERR4891863 had 58 unique calls, with largest accounting for 838 lineage calls, 
-##   with second place 18 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4891898 had 16 unique calls, with largest accounting for 969 lineage calls, 
-##   with second place 4 . First place was  the conseq call.
-## Taxon ERR4891916 had 1 unique calls, with largest accounting for 1002 lineage calls, 
-##   with second place NA . First place was  the conseq call.
-## Taxon ERR4891988 had 35 unique calls, with largest accounting for 873 lineage calls, 
-##   with second place 25 . First place was  the conseq call.
-## Taxon ERR4892048 had 8 unique calls, with largest accounting for 990 lineage calls, 
-##   with second place 5 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4892112 had 13 unique calls, with largest accounting for 975 lineage calls, 
-##   with second place 14 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4892200 had 2 unique calls, with largest accounting for 993 lineage calls, 
-##   with second place 9 . First place was  the conseq call.
-## Taxon ERR4892203 had 32 unique calls, with largest accounting for 905 lineage calls, 
-##   with second place 12 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4892339 had 8 unique calls, with largest accounting for 962 lineage calls, 
-##   with second place 17 . First place was  the conseq call.
-## Taxon ERR4892386 had 5 unique calls, with largest accounting for 997 lineage calls, 
-##   with second place 2 . First place was  the conseq call.
-## Taxon ERR4892392 had 10 unique calls, with largest accounting for 968 lineage calls, 
-##   with second place 11 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4893013 had 18 unique calls, with largest accounting for 901 lineage calls, 
-##   with second place 21 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4893033 had 8 unique calls, with largest accounting for 988 lineage calls, 
-##   with second place 5 . First place was  the conseq call.
-## Taxon ERR4893037 had 124 unique calls, with largest accounting for 543 lineage calls, 
-##   with second place 17 . First place was  the conseq call.
-\end{verbatim}
-
-\begin{verbatim}
-## Taxon ERR4893138 had 3 unique calls, with largest accounting for 993 lineage calls, 
-##   with second place 8 . First place was  the conseq call.
-\end{verbatim}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(seq\_info)}
+\end{Highlighting}
+\end{Shaded}
 
 \includegraphics{pangolin_results_report_files/figure-latex/pareto-1.pdf}
 
