@@ -1,6 +1,6 @@
 ---
-title: "Propagating Sequence Uncertainty into Downstream Analyses"
-author: "David Champredon, Devan Becker, Art Poon, Connor Chato"
+title: "Variance in Variants: Propagating Sequence Uncertainty into Downstream Analyses"
+author: "David Champredon, Devan Becker, Art Poon, Connor Chato, Gopi Gugan"
 date: ""
 font: 13pt
 output:
@@ -388,7 +388,7 @@ Locations with 0 reads were discarded. This is a somewhat arbitrary choice since
 In \ref{fig:covidcalls}, each row represents resamples from one SAM file. Each bar represents one lineage assignment from pangolin. The width of the bars represents the sum of the weights (genome likelihoods) of sampled sequences. Bars are subdivided to visualize these weights.
 
 \begin{figure}
-\includegraphics[width = 0.47\textwidth]{../figures/stacked-lineages.png}
+\includegraphics[width = 0.97\textwidth]{../figures/pangolin_results_report_d_files/figure-latex/pareto-1.pdf}
 \label{fig:covidcalls}
 \caption{Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence.}
 \end{figure}
@@ -398,12 +398,18 @@ Initial analyses used pangolin version 2.0.8, which used multinomial logistic re
 
 ### Sequential re-analysis with genome likelihoods
 
-TODO
+TODO (Analysis not yet run - not sure how this will compare to resampling.)
 
 
 
 
 # Conclusions
+
+The short run files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses. Re-sampling allows a more honest appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
+
+Our proposed methods can result in a drastic increase in compuatational expense. Even the method base on ordering the sequences by likelihood can result in re-running the analysis numerous times. However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results. The so-called "consensus sequence" is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity. 
+
+Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model. The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
 
 ## For Pangolin
 
