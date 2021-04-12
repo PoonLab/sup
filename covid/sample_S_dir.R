@@ -59,37 +59,33 @@ for (i in seq_along(rds_names)) {
     names(S_list)[i] <- asc_names[i]
 }
 
-# Check coverage of each read
-#hist(apply(S_list[[1]], 1, sum), breaks = 30)
-
-# Prepare empty list
-sampled_files <- list()
-
 # Set up timing system
 t0 <- Sys.time() # Outer timer
 nloops <- length(S_list)
 collapsed <- estlapseds <- double(nloops)
 for (i in 1:nloops) {
     # Error checking
-    if (is.null(dim(S_list[[i]]))) {
-        print("Empty file")
-        next
-        }
 
     t1 <- Sys.time() # Inner timer
 
     # Normalize matrix
     S <- S_list[[i]]
+    if (is.null(dim(S))) {
+        print("Empty file")
+        next
+    }
+    if ("X" %in% colnames(S)) {
+        S <- S[, -which(colnames(S) == "X")]
+    }
     if (ncol(S) == 6) {
         S[, 5] <- S[, 5] + S[, 6]
         S <- S[, 1:5]
     }
+    if (any(S[!is.na(S)] < 0 | S[!is.na(S)] > 10e8)) {
+        print(paste0("Values too small or too large - ", asc_names[i]))
+        next
+    }
     alph <- toupper(colnames(S))
-
-    # Make columns add to 1
-    S2sum <- as.vector(apply(S, 1, sum))
-    S2mat <- matrix(rep(S2sum, ncol(S)), ncol = ncol(S), byrow = FALSE)
-    S2 <- S / S2mat
 
     # Sample the sequences
     sampleseq_mat <- apply(S, 1, function(x) {
@@ -98,8 +94,8 @@ for (i in 1:nloops) {
         } else {
             if (dirich) {
                 newx <- rdirichlet(1,
-                    x + c(rep(1 / 4, 4),
-                    rep(0, length(x) - 4)))
+                    as.numeric(x + c(rep(1 / 4, 4),
+                    rep(0, length(x) - 4))))
                 return(sample(alph, size = N, prob = newx, replace = TRUE))
             } else {
                 return(sample(alph, size = N, prob = x, replace = TRUE))
@@ -117,13 +113,18 @@ for (i in 1:nloops) {
     })
 
     # Convert sample letters to single string
-    conseq <- paste(conseq, collapse = "", sep = "")
-    sampleseq <- c(conseq, apply(sampleseq_mat, 1, paste, collapse = ""))
+    if (!append) {
+        conseq <- paste(conseq, collapse = "", sep = "")
+        sampleseq <- c(conseq, apply(sampleseq_mat, 1, paste, collapse = ""))
 
-    # Create well-formatted fasta file
-    name <- paste0("> ", asc_names[i], ".", 0:length(sampleseq))
-    fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
-    sampled_files[[i]] <- fasta
+        # Create well-formatted fasta file
+        name <- paste0("> ", asc_names[i], ".", 0:length(sampleseq))
+        fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
+    } else {
+        sampleseq <- apply(sampleseq_mat, 1, paste, collapse = "")
+        name <- paste0("> ", asc_names[i], ".", 1:length(sampleseq))
+        fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
+    }
     cat(fasta, append = append,
         file = paste0("data/sampled_covid/", asc_names[i],
             "_sampled", ifelse(dirich, "_d", ""), ".fasta"))
