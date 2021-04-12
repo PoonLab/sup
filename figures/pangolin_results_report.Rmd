@@ -68,11 +68,11 @@ summs <- lins %>%
 print("summary info")
 print(summs)
 1 - mean(summs$maxperc); 1 - mean(summs$menpango)
-#print(summs, n = Inf)
 ```
 
 # Stacked Bar Plots
 
+\scriptsize
 ```{r pareto, fig.height=11, fig.width=13}
 max_label <- 250
 other_label <- 100
@@ -84,12 +84,15 @@ for (i in seq_along(taxons)) {
     called <- pang$lineage[pang$sample == 0][1]
     pangtab <- sort(table(pang$lineage), decreasing = TRUE)
 
+    # Prep the data for a nicely formatted table
+    # Subtract one because of the conseq.
     seq_info_i <- data.frame(
         called = called,
         mode = names(pangtab)[1],
-            mode_count = pangtab[1],
+            mode_n = pangtab[1] - 1,
+            perc = round(100 * (pangtab[1] - 1) / (sum(pangtab) - 1), 2),
         runner_up = names(pangtab)[2],
-            runner_up_count = pangtab[2],
+            ru_n = pangtab[2],
         unique = length(pangtab), atoms = sum(pangtab == 1))
     seq_info_i$taxon <- taxons[i]
 
@@ -153,6 +156,7 @@ for (i in seq_along(taxons)) {
 }
 
 seq_info$taxon <- taxons
+seq_info <- arrange(seq_info, mode, mode_count) %>%
+    select(taxon, everything())
 knitr::kable(seq_info, row.names = FALSE)
-rm(seq_info)
 ```
