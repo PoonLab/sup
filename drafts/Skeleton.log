@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2021.3.25)  11 APR 2021 13:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2021.3.25)  12 APR 2021 19:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -515,67 +515,37 @@ has been already used, duplicate ignored
 l.540 
        <../ms/figs/sam-tablet.png>] [6] [7] [8]
 <../figures/pangolin_results_report_d_files/figure-latex/pareto-1.pdf, id=237, 
-918.43124pt x 513.92pt>
+918.43124pt x 746.79pt>
 File: ../figures/pangolin_results_report_d_files/figure-latex/pareto-1.pdf Grap
 hic file (type pdf)
 <use ../figures/pangolin_results_report_d_files/figure-latex/pareto-1.pdf>
 Package pdftex.def Info: ../figures/pangolin_results_report_d_files/figure-late
-x/pareto-1.pdf  used on input line 861.
-(pdftex.def)             Requested size: 455.66891pt x 254.97539pt.
-[9]
-
-Package natbib Warning: Citation `blank' on page 10 undefined on input line 910
-.
-
-
-Package natbib Warning: Citation `blank' on page 10 undefined on input line 912
-.
-
-
-Package natbib Warning: Citation `blank2' on page 10 undefined on input line 91
-4.
-
-
-Overfull \hbox (6.8543pt too wide) in alignment at lines 922--927
- [] [] [] [] [] [] [] [] 
- []
-
-
-Overfull \hbox (6.8543pt too wide) in alignment at lines 927--961
- [] [] [] [] [] [] [] [] 
- []
-
-[10pdfTeX warning (ext4): destination with the same identifier (name{figure.2})
- has been already used, duplicate ignored
+x/pareto-1.pdf  used on input line 865.
+(pdftex.def)             Requested size: 455.66891pt x 370.51112pt.
+[9] [10pdfTeX warning (ext4): destination with the same identifier (name{figure
+.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   
-l.961 B
-       .1.1.29 & B.1.1.29 & 1384 & B.1.1.59 & 239 & 213 & 41 & <../figures/pang
-olin_results_report_d_files/figure-latex/pareto-1.pdf>]
-Overfull \hbox (6.8543pt too wide) in alignment at lines 961--998
- [] [] [] [] [] [] [] [] 
- []
+l.887 I
+       nitial analyses used pangolin version 2.0.8, which used multinomial <../
+figures/pangolin_results_report_d_files/figure-latex/pareto-1.pdf>]
+
+Package natbib Warning: Citation `blank' on page 11 undefined on input line 962
+.
 
 
-Overfull \hbox (6.8543pt too wide) in alignment at lines 998--1031
- [] [] [] [] [] [] [] [] 
- []
+Package natbib Warning: Citation `blank' on page 11 undefined on input line 964
+.
 
 
-Overfull \hbox (6.8543pt too wide) in alignment at lines 1031--1066
- [] [] [] [] [] [] [] [] 
- []
+Package natbib Warning: Citation `blank2' on page 11 undefined on input line 96
+6.
 
-[11]
-Overfull \hbox (6.8543pt too wide) in alignment at lines 1066--1067
- [] [] [] [] [] [] [] [] 
- []
-
-(./Skeleton.bbl [12])
+[11] [12] (./Skeleton.bbl [13])
 
 Package natbib Warning: There were undefined citations.
 
-[13] (./Skeleton.aux)
+[14] (./Skeleton.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
@@ -583,15 +553,15 @@ Package rerunfilecheck Info: File `Skeleton.out' has not changed.
 (rerunfilecheck)             Checksum: 89FE8536049891EC3BA1123FD4C3D872;3873.
  ) 
 Here is how much of TeX's memory you used:
- 11054 strings out of 481008
- 159187 string characters out of 5909273
- 505133 words of memory out of 5000000
+ 11055 strings out of 481008
+ 159194 string characters out of 5909273
+ 523160 words of memory out of 5000000
  27941 multiletter control sequences out of 15000+600000
  477831 words of font info for 77 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 71i,9n,74p,717b,431s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/home/devan/.TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/home/deva
-n/.TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/home/devan/.TinyTeX/texmf-
+ 71i,9n,74p,705b,445s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/home/devan/.TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/home/devan/.T
+inyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/home/devan/.TinyTeX/texmf-
 dist/fonts/enc/dvips/lm/lm-rm.enc}{/home/devan/.TinyTeX/texmf-dist/fonts/enc/dv
 ips/lm/lm-mathsy.enc}{/home/devan/.TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mat
 hex.enc}{/home/devan/.TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</home/d
@@ -612,10 +582,10 @@ sy10.pfb></home/devan/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></hom
 e/devan/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></home/devan/.Tiny
 TeX/texmf-dist/fonts/type1/public/lm/lmtt8.pfb></home/devan/.TinyTeX/texmf-dist
 /fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Skeleton.pdf (13 pages, 570112 bytes).
+Output written on Skeleton.pdf (14 pages, 582779 bytes).
 PDF statistics:
- 373 PDF objects out of 1000 (max. 8388607)
- 329 compressed objects within 4 object streams
- 85 named destinations out of 1000 (max. 500000)
+ 381 PDF objects out of 1000 (max. 8388607)
+ 336 compressed objects within 4 object streams
+ 86 named destinations out of 1000 (max. 500000)
  179 words of extra memory for PDF output out of 10000 (max. 10000000)
 
