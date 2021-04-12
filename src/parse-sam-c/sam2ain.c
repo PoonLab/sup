@@ -183,7 +183,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
                     strncat(current_edit->qualPart, qual_part, current_edit->len + 1);
                     free(qual_part);
                 }
-                else {
+                else if (current_edit->left - 1 < strlen(qual)) {
                     current_edit->qualPart = malloc(current_edit->len + 1);
                     strncpy(current_edit->qualPart, qual + (current_edit->left - 1), current_edit->len);
                     (current_edit->qualPart)[current_edit->len] = '\0';
@@ -238,9 +238,15 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
                     curr_sequence->seq = realloc(curr_sequence->seq, curr_len);
                     strncat(curr_sequence->seq, start_edits->seqPart, strlen(start_edits->seqPart) + 1);
 
-                    int qual_len = strlen(curr_sequence->qualseq) + strlen(start_edits->qualPart) + 1;
-                    curr_sequence->qualseq = realloc(curr_sequence->qualseq, qual_len);
-                    strncat(curr_sequence->qualseq, start_edits->qualPart, strlen(start_edits->qualPart) + 1);
+		            if (strcmp(qual, "*") !=0) {
+                      int qual_len = strlen(curr_sequence->qualseq) + strlen(start_edits->qualPart) + 1;
+                      curr_sequence->qualseq = realloc(curr_sequence->qualseq, qual_len);
+                      strncat(curr_sequence->qualseq, start_edits->qualPart, strlen(start_edits->qualPart) + 1);
+                    }
+                    else {
+                        curr_sequence->qualseq = realloc(curr_sequence->qualseq, curr_len);
+                        memset(curr_sequence->qualseq, '!', curr_len);
+                    }
                 }
             }
 
