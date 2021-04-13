@@ -4,9 +4,10 @@ library(here)
 
 # Arg Parsing -----------------------------------
 args <- commandArgs(trailingOnly = TRUE)
+print(args)
 
 # Finds the value after -N, otherwise N = 1000
-    N <- 1000
+N <- 1000
 if ("-N" %in% args) {
     N <- as.numeric(args[which(args == "-N") + 1])
 }
@@ -29,6 +30,10 @@ for (i in seq_along(in_files)) {
 
     # Set up filenames, skip if --overwrite flag is present
     in_file <- in_files[i]
+
+    # Ugly regex/string splitting to get accession number
+    # Files are "blah-blah-blah-S-[accession number].RDS"
+    acc <- rev(strsplit(strsplit(in_file, "\\.")[[1]][1], "-")[[1]])[1]
     out_file <- here(out_path, paste0(acc, "_ord.fasta"))
     if ((!overwrite) & paste0(acc, "_ord.fasta") %in% list.files(out_path)) {
         print(paste0(in_file, " exists, skipping."))
@@ -54,9 +59,6 @@ for (i in seq_along(in_files)) {
         next
     }
 
-    # Ugly regex/string splitting to get accession number
-    # Files are "blah-blah-blah-S-[accession number].RDS"
-    acc <- rev(strsplit(strsplit(in_file, "\\.")[[1]][1], "-")[[1]])[1]
 
 
     bottom_n <- function(S, n) {
@@ -64,7 +66,8 @@ for (i in seq_along(in_files)) {
         # S: uncertainty matrix
         # n: number of substitution sites to check
         M_all <- apply(S, 1, max)
-        bottom <- which(rank(M_all) <= n)
+        M_all[M_all < 10] <- Inf
+        bottom <- which(rank(M_all) <= n)[1:n]
         # If there aren't n uncertainties, find the number of uncertainties
         if (length(bottom) < n) {
             print(paste0("Warning: ", acc, " did not have ",
@@ -87,11 +90,12 @@ for (i in seq_along(in_files)) {
         colnames(subs) <- bottom
         subs$diff_lik <- NA
 
-        for (i in seq_len(nrow(subs))) {
-            new_subs <- which(subs[i, 1:n] == 2)
+        for (j in seq_len(nrow(subs))) {
+            new_subs <- which(subs[j, 1:n] == 2)
             new_lik <- M
             new_lik[new_subs] <- m[new_subs]
-            subs$diff_lik[i] <- sum(log(new_lik))
+            new_lik <- new_lik/M
+            subs$diff_lik[j] <- sum(log(new_lik))
         }
         subs
     }
@@ -138,9 +142,12 @@ for (i in seq_along(in_files)) {
     conseq <- paste(conseq, collapse = "")
     ordered_seq <- sapply(ordered_seq, paste, collapse = "")
 
-    fasta_labels <- paste("> ", acc,
-        c(0, round(lik_mat$diff_lik[seq_along(ordered_seq)], 6)),
-        sep = ""
+    accs <- rep(acc, length(ordered_seq))
+    weights <- round(lik_mat$diff_lik[seq_along(ordered_seq)], 6)
+    subs <- apply(lik_mat[, 1:n], 1, paste0, collapse = "")
+
+    fasta_labels <- paste(">",
+        paste(accs, weights, subs, sep = "_")
     )
 
     to_save <- paste(fasta_labels, c(conseq, ordered_seq),
