@@ -1,5 +1,6 @@
 #!/bin/sh
 
+rm data/pangordlineages/*
 
 # I'm bad at arg parsing
 N=5
@@ -39,12 +40,17 @@ accs=`ls data/ord_covid/*.fasta`
 for acc in $accs
 do
     sampled_fasta=$acc
+    arg_chars=${#sampled_fasta}
+    echo $arg_chars
     newacc1=${acc/"data/ord_covid/"/}
     newacc2=${newacc1/"_ord.fasta"/}
     echo $newacc2
+
     out_fasta="data/pangordlineages/"$newacc2"_pangolineages.csv"
     pangolin $sampled_fasta --outfile $out_fasta
 done
 
+
+rm data/ord_covid/*
 
 Rscript -e "rmarkdown::render('figures/ord-results.Rmd')"
