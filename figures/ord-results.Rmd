@@ -1,0 +1,57 @@
+---
+title: "Results of Ordered Likelihood Analysis"
+author: "Devan Becker"
+date: "`r Sys.Date()`"
+output:
+    pdf_document:
+      citation_package: natbib
+      keep_tex: yes
+---
+
+```{r data_prep}
+library(here)
+library(dplyr)
+csvs <- lapply(
+    list.files(here("data/pangordlineages"),
+        full.names = TRUE),
+    read.csv
+    ) %>%
+    bind_rows()
+
+# SRR have one more character than ERR
+csvs$conseq <- sapply(csvs$taxon,
+    function(x) nchar(x) < 15)
+
+csvs$lik <- sapply(seq_len(nrow(csvs)),
+    function(x) {
+        if (csvs$conseq[x]) {
+            0
+        } else {
+            tax_split <- strsplit(csvs$taxon[x],
+                split = "-")[[1]]
+            -as.numeric(tax_split[2])
+        }
+    })
+
+csvs$acc <- sapply(seq_len(nrow(csvs)),
+    function(x) {
+        x2 <- csvs$taxon[x]
+        if(csvs$conseq[x]) {
+            substr(x2, 2, nchar(x2) - 1)
+        } else {
+            x3 <- strsplit(x2, "-")[[1]][1]
+            substr(x3, 2, nchar(x3))
+        }
+    })
+```
+
+```{r}
+t1 <- csvs[csvs$acc == unique(csvs$acc)[1], ]
+plot(y = t1$lik, x = seq_along(t1$lik))
+
+```
+
+
+
+
+
