@@ -2,65 +2,70 @@ library(dplyr)
 library(tidyr)
 library(here)
 
+# Arg Parsing -----------------------------------
 args <- commandArgs(trailingOnly = TRUE)
 
+# Finds the value after -N, otherwise N = 1000
+    N <- 1000
 if ("-N" %in% args) {
     N <- as.numeric(args[which(args == "-N") + 1])
-} else {
-    N <- 1000
 }
 
+overwrite <- FALSE
+if ("--overwrite" %in% args) {
+    overwrite <- TRUE
+}
+
+# Read in files (using here::here()) ------------
 in_path <- "data/unc_covid/"
 out_path <- "data/ord_covid"
 in_files <- list.files(here(in_path), pattern = "RDS")
 
+
+# Loop though files
 for (i in seq_along(in_files)) {
+    # Smallest number of sequences to ensure an output of N
     n <- min(which(2 ^ (1:15) >= N))
+
+    # Set up filenames, skip if --overwrite flag is present
     in_file <- in_files[i]
+    out_file <- here(out_path, paste0(acc, "_ord.fasta"))
+    if ((!overwrite) & paste0(acc, "_ord.fasta") %in% list.files(out_path)) {
+        print(paste0(in_file, " exists, skipping."))
+        next
+    }
     print(in_file)
 
-    sam1 <- readRDS(here(in_path, in_file))
-    if (is.null(dim(sam1))) {
+    # File processing (TODO: make this a function)
+    unc_mat <- readRDS(here(in_path, in_file))
+    if (is.null(dim(unc_mat))) {
         print("Empty file")
         next
     }
-    if ("X" %in% colnames(sam1)) {
-        sam1 <- sam1[, -which(colnames(sam1) == "X")]
+    if ("X" %in% colnames(unc_mat)) {
+        unc_mat <- unc_mat[, -which(colnames(unc_mat) == "X")]
     }
-    if (ncol(sam1) == 6) {
-        sam1[, 5] <- sam1[, 5] + sam1[, 6]
-        S <- sam1[, 1:5]
+    if (ncol(unc_mat) == 6) {
+        unc_mat[, 5] <- unc_mat[, 5] + unc_mat[, 6]
+        unc_mat <- unc_mat[, 1:5]
     }
-    if (any(sam1[!is.na(sam1)] < 0 | sam1[!is.na(sam1)] > 10e8)) {
+    if (any(unc_mat[!is.na(unc_mat)] < 0 | unc_mat[!is.na(unc_mat)] > 10e8)) {
         print(paste0("Values too small or too large - ", in_file))
         next
     }
 
-    alph <- toupper(colnames(sam1))
-
+    # Ugly regex/string splitting to get accession number
+    # Files are "blah-blah-blah-S-[accession number].RDS"
     acc <- rev(strsplit(strsplit(in_file, "\\.")[[1]][1], "-")[[1]])[1]
 
-    sam2 <- apply(sam1, 1, function(x) {
-        if (sum(x) > 0 & !all(is.na(x))) {
-            x_norm <- x / sum(x, na.rm = TRUE)
-            if (any(x_norm > 0.99)) {
-                newx <- rep(0, length(x_norm))
-                newx[which(x_norm > 0.99)] <- 1
-                return(newx)
-            } else {
-                return(x_norm)
-            }
-        } else {
-            return(rep(NA, ncol(sam1)))
-        }
-    })
-
-    sam2 <- t(sam2)
 
     bottom_n <- function(S, n) {
+        # Find the n substitutions with smallest differences from the conseq
+        # S: uncertainty matrix
+        # n: number of substitution sites to check
         M_all <- apply(S, 1, max)
         bottom <- which(rank(M_all) <= n)
-        # If there aren't n uncertainties, just find the number of uncertainties
+        # If there aren't n uncertainties, find the number of uncertainties
         if (length(bottom) < n) {
             print(paste0("Warning: ", acc, " did not have ",
                 n, " uncertain bases"))
@@ -91,14 +96,16 @@ for (i in seq_along(in_files)) {
         subs
     }
 
-    lik_mat <- bottom_n(sam2, n)
+    # Calculate likelihoods ---------------------
+    lik_mat <- bottom_n(unc_mat, n)
+    # put the sequences in order of the likelihood
     lik_mat <- lik_mat[order(-lik_mat$diff_lik), ]
     # now:
     # Calculate conseq
     # make the top 1000 substitutions
     # Run through pangolin
-    alph <- colnames(sam1)
-    conseq <- apply(sam1, 1, function(x) {
+    alph <- colnames(unc_mat)
+    conseq <- apply(unc_mat, 1, function(x) {
         if (any(is.na(x)) | sum(x) < 1) {
             return("N")
         } else {
@@ -106,7 +113,9 @@ for (i in seq_along(in_files)) {
         }
     })
 
-    runner_up <- apply(sam1, 1, function(x) {
+    # Second most likely base call at each locus.
+    # Necessary to make the substitutions.
+    runner_up <- apply(unc_mat, 1, function(x) {
         if (any(is.na(x)) | sum(x) < 1) {
             return("N")
         } else {
@@ -114,7 +123,10 @@ for (i in seq_along(in_files)) {
         }
     })
 
-    ordered_seq <- lapply(1:min(1000, nrow(lik_mat)), function(x) conseq)
+    # Prep empty list of sequences
+    ordered_seq <- lapply(1:min(N, nrow(lik_mat)), function(x) conseq)
+
+    # Switch the conseq call with the relevant substitution
     for (j in seq_along(ordered_seq)) {
         switch <- lik_mat[j, 1:(ncol(lik_mat) - 1)]
         to_switch <- colnames(switch)[as.numeric(switch) == 2]
@@ -122,6 +134,7 @@ for (i in seq_along(in_files)) {
         ordered_seq[[j]][to_switch] <- runner_up[to_switch]
     }
 
+    # Begin Fasta prep --------------------------
     conseq <- paste(conseq, collapse = "")
     ordered_seq <- sapply(ordered_seq, paste, collapse = "")
 
@@ -134,5 +147,5 @@ for (i in seq_along(in_files)) {
         collapse = "\n", sep = "\n"
     )
 
-    writeLines(to_save, here(out_path, paste0(acc, "_ord.fasta")))
+    writeLines(to_save, out_file)
 }
