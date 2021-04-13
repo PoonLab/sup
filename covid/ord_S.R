@@ -33,9 +33,16 @@ for (i in seq_along(in_files)) {
 
     # Ugly regex/string splitting to get accession number
     # Files are "blah-blah-blah-S-[accession number].RDS"
-    acc <- rev(strsplit(strsplit(in_file, "\\.")[[1]][1], "-")[[1]])[1]
+    acc <- rev(
+        strsplit(
+            strsplit(
+                in_file, "\\."
+                )[[1]][1], "-"
+            )[[1]]
+        )[1]
     out_file <- here(out_path, paste0(acc, "_ord.fasta"))
-    if ((!overwrite) & paste0(acc, "_ord.fasta") %in% list.files(out_path)) {
+    if ((!overwrite) & 
+            paste0(acc, "_ord.fasta") %in% list.files(out_path)) {
         print(paste0(in_file, " exists, skipping."))
         next
     }
@@ -54,7 +61,8 @@ for (i in seq_along(in_files)) {
         unc_mat[, 5] <- unc_mat[, 5] + unc_mat[, 6]
         unc_mat <- unc_mat[, 1:5]
     }
-    if (any(unc_mat[!is.na(unc_mat)] < 0 | unc_mat[!is.na(unc_mat)] > 10e8)) {
+    if (any(unc_mat[!is.na(unc_mat)] < 0 | 
+            unc_mat[!is.na(unc_mat)] > 10e8)) {
         print(paste0("Values too small or too large - ", in_file))
         next
     }
@@ -104,6 +112,8 @@ for (i in seq_along(in_files)) {
     lik_mat <- bottom_n(unc_mat, n)
     # put the sequences in order of the likelihood
     lik_mat <- lik_mat[order(-lik_mat$diff_lik), ]
+    lik_mat <- lik_mat[1:N, ]
+
     # now:
     # Calculate conseq
     # make the top 1000 substitutions
@@ -128,7 +138,8 @@ for (i in seq_along(in_files)) {
     })
 
     # Prep empty list of sequences
-    ordered_seq <- lapply(1:min(N, nrow(lik_mat)), function(x) conseq)
+    ordered_seq <- lapply(1:min(N, nrow(lik_mat)), 
+        function(x) conseq)
 
     # Switch the conseq call with the relevant substitution
     for (j in seq_along(ordered_seq)) {
