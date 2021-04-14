@@ -41,35 +41,23 @@ fi
 # Again, I'm bad at argparsing
 N1=1000
 if [ $dirich = true ]; then # if dirichlet sampling
-    Rscript covid/sample_S_dir.R -d -N $N1 --overwrite
+    Rscript covid/sample-S.R -d -N $N1 --overwrite
 else 
-    Rscript covid/sample_S_dir.R -N $N1 --overwrite
+    Rscript covid/sample-S.R -N $N1 --overwrite
 fi
 
 # I have no idea why my for loop failed,
 # but it only needed to do four loops.
 if [ $dirich = true ]; then # if dirichlet sampling
-    Rscript covid/sample_S_dir.R -d -N $N1
+    Rscript covid/sample-S.R -d -N $N1
+    Rscript covid/sample-S.R -d -N $N1
+    Rscript covid/sample-S.R -d -N $N1
+    Rscript covid/sample-S.R -d -N $N1
 else 
-    Rscript covid/sample_S_dir.R -N $N1
-fi
-
-if [ $dirich = true ]; then # if dirichlet sampling
-    Rscript covid/sample_S_dir.R -d -N $N1
-else 
-    Rscript covid/sample_S_dir.R -N $N1
-fi
-
-if [ $dirich = true ]; then # if dirichlet sampling
-    Rscript covid/sample_S_dir.R -d -N $N1
-else 
-    Rscript covid/sample_S_dir.R -N $N1
-fi
-
-if [ $dirich = true ]; then # if dirichlet sampling
-    Rscript covid/sample_S_dir.R -d -N $N1
-else 
-    Rscript covid/sample_S_dir.R -N $N1
+    Rscript covid/sample-S.R -N $N1
+    Rscript covid/sample-S.R -N $N1
+    Rscript covid/sample-S.R -N $N1
+    Rscript covid/sample-S.R -N $N1
 fi
 
 

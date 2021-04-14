@@ -26,9 +26,9 @@ fi
 
 # Create files
 if [ $overwrite = true ]; then
-    Rscript covid/ord_S.R -N $N --overwrite
+    Rscript covid/ordered-lik.R -N $N --overwrite
 else 
-    Rscript covid/ord_S.R -N $N
+    Rscript covid/ordered-lik.R -N $N
 fi
 
 

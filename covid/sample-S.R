@@ -7,7 +7,9 @@
 #       Should sometimes include Ns (current method does not)
 library(ape)
 library(gtools) # rdirichlet
+library(here)
 #set.seed(2112) # \m/
+source(here("covid", "aux_funk.R"))
 
 args <- commandArgs(TRUE)
 # --overwrite: Resample ALL
@@ -22,7 +24,7 @@ print(args)
 dirich <- "-d" %in% args
 
 # Read list of files ending with .RDS
-rds_names <- list.files("data/unc_covid/", pattern = "*.RDS")
+rds_names <- list.files("data/unc_covid/", pattern = "*RDS")
 # The "-1" indicates that it's a copy. Remove it.
 rds_names <- rds_names[!grepl("-1", rds_names)]
 
@@ -36,12 +38,8 @@ rds_todo <- sapply(strsplit(rds_names, "-"),
     })
 
 # Record accession names
-asc_names <- c()
-for (i in seq_along(rds_names)) {
-    asc <- strsplit(rev(strsplit(rds_names[i], "-")[[1]])[1], "\\.")[[1]][1]
-    asc_names <- c(asc_names, sub(".RDS", "", asc))
-}
-#print(asc_names)
+asc_names <- parse_accession(rds_names)
+if (FALSE) print(asc_names)
 
 append <- FALSE
 if (!"--overwrite" %in% args) {
@@ -70,21 +68,11 @@ for (i in 1:nloops) {
 
     # Normalize matrix
     S <- S_list[[i]]
-    if (is.null(dim(S))) {
-        print("Empty file")
-        next
+    S <- fix_unc(S)
+    if (class(S) == "character") {
+        print(paste(S, acc, sep = " - "))
     }
-    if ("X" %in% colnames(S)) {
-        S <- S[, -which(colnames(S) == "X")]
-    }
-    if (ncol(S) == 6) {
-        S[, 5] <- S[, 5] + S[, 6]
-        S <- S[, 1:5]
-    }
-    if (any(S[!is.na(S)] < 0 | S[!is.na(S)] > 10e8)) {
-        print(paste0("Values too small or too large - ", asc_names[i]))
-        next
-    }
+
     alph <- toupper(colnames(S))
 
     # Sample the sequences
