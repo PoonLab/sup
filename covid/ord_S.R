@@ -2,6 +2,48 @@ library(dplyr)
 library(tidyr)
 library(here)
 
+source(here("covid", "aux_funk.R"))
+
+
+bottom_n <- function(S, n) {
+    # Find the n substitutions with smallest differences from the conseq
+    # S: uncertainty matrix
+    # n: number of substitution sites to check
+    M_all <- apply(S, 1, max)
+    M_all[M_all < 10] <- Inf
+    bottom <- which(rank(M_all) <= n)
+    # If there aren't n uncertainties, find the number of uncertainties
+    if (length(bottom) < n | any(is.na(bottom))) {
+        print(paste0("Warning: ", acc, " did not have ",
+            n, " uncertain bases"))
+        bottom <- bottom[!is.na(bottom)]
+        n <- length(bottom)
+    }
+
+    M <- M_all[bottom]
+    m <- apply(S[bottom, ], 1, function(x) {
+        sort(x, decreasing = TRUE)[2]
+    })
+
+    dummy_list <- list()
+    for (i in seq_along(bottom)) {
+        dummy_list[[i]] <- c(1, 2)
+    }
+
+    subs <- expand.grid(dummy_list)
+    colnames(subs) <- bottom
+    subs$diff_lik <- NA
+
+    for (j in seq_len(nrow(subs))) {
+        new_subs <- which(subs[j, 1:n] == 2)
+        new_lik <- M
+        new_lik[new_subs] <- m[new_subs]
+        new_lik <- new_lik / M
+        subs$diff_lik[j] <- sum(log(new_lik))
+    }
+    subs
+}
+
 # Arg Parsing -----------------------------------
 args <- commandArgs(trailingOnly = TRUE)
 print(args)
@@ -33,80 +75,23 @@ for (i in seq_along(in_files)) {
 
     # Ugly regex/string splitting to get accession number
     # Files are "blah-blah-blah-S-[accession number].RDS"
-    acc <- rev(
-        strsplit(
-            strsplit(
-                in_file, "\\."
-                )[[1]][1], "-"
-            )[[1]]
-        )[1]
+    acc <- parse_accession(in_file)
+
     out_file <- here(out_path, paste0(acc, "_ord.fasta"))
-    if ((!overwrite) & 
+
+    if ((!overwrite) &
             paste0(acc, "_ord.fasta") %in% list.files(out_path)) {
         print(paste0(in_file, " exists, skipping."))
         next
     }
     print(in_file)
 
-    # File processing (TODO: make this a function)
-    unc_mat <- readRDS(here(in_path, in_file))
-    if (is.null(dim(unc_mat))) {
-        print("Empty file")
-        next
-    }
-    if ("X" %in% colnames(unc_mat)) {
-        unc_mat <- unc_mat[, -which(colnames(unc_mat) == "X")]
-    }
-    if (ncol(unc_mat) == 6) {
-        unc_mat[, 5] <- unc_mat[, 5] + unc_mat[, 6]
-        unc_mat <- unc_mat[, 1:5]
-    }
-    if (any(unc_mat[!is.na(unc_mat)] < 0 | 
-            unc_mat[!is.na(unc_mat)] > 10e8)) {
-        print(paste0("Values too small or too large - ", in_file))
-        next
+    # File processing
+    unc_mat <- fix_unc(readRDS(here(in_path, in_file)))
+    if (class(unc_mat) == "character") {
+        print(paste(unc_mat, acc, sep = " - "))
     }
 
-
-
-    bottom_n <- function(S, n) {
-        # Find the n substitutions with smallest differences from the conseq
-        # S: uncertainty matrix
-        # n: number of substitution sites to check
-        M_all <- apply(S, 1, max)
-        M_all[M_all < 10] <- Inf
-        bottom <- which(rank(M_all) <= n)
-        # If there aren't n uncertainties, find the number of uncertainties
-        if (length(bottom) < n | any(is.na(bottom))) {
-            print(paste0("Warning: ", acc, " did not have ",
-                n, " uncertain bases"))
-            bottom <- bottom[!is.na(bottom)]
-            n <- length(bottom)
-        }
-
-        M <- M_all[bottom]
-        m <- apply(S[bottom, ], 1, function(x) {
-            sort(x, decreasing = TRUE)[2]
-        })
-
-        dummy_list <- list()
-        for (i in seq_along(bottom)) {
-            dummy_list[[i]] <- c(1, 2)
-        }
-
-        subs <- expand.grid(dummy_list)
-        colnames(subs) <- bottom
-        subs$diff_lik <- NA
-
-        for (j in seq_len(nrow(subs))) {
-            new_subs <- which(subs[j, 1:n] == 2)
-            new_lik <- M
-            new_lik[new_subs] <- m[new_subs]
-            new_lik <- new_lik/M
-            subs$diff_lik[j] <- sum(log(new_lik))
-        }
-        subs
-    }
 
     # Calculate likelihoods ---------------------
     lik_mat <- bottom_n(unc_mat, n)
@@ -142,7 +127,7 @@ for (i in seq_along(in_files)) {
     })
 
     # Prep empty list of sequences
-    ordered_seq <- lapply(1:min(N, nrow(lik_mat)), 
+    ordered_seq <- lapply(1:min(N, nrow(lik_mat)),
         function(x) conseq)
 
     # Switch the conseq call with the relevant substitution
