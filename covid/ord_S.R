@@ -75,9 +75,9 @@ for (i in seq_along(in_files)) {
         # n: number of substitution sites to check
         M_all <- apply(S, 1, max)
         M_all[M_all < 10] <- Inf
-        bottom <- which(rank(M_all) <= n)[1:n]
+        bottom <- which(rank(M_all) <= n)
         # If there aren't n uncertainties, find the number of uncertainties
-        if (length(bottom) < n) {
+        if (length(bottom) < n | any(is.na(bottom))) {
             print(paste0("Warning: ", acc, " did not have ",
                 n, " uncertain bases"))
             bottom <- bottom[!is.na(bottom)]
@@ -90,7 +90,7 @@ for (i in seq_along(in_files)) {
         })
 
         dummy_list <- list()
-        for (i in seq_along(bottom[!is.na(bottom)])) {
+        for (i in seq_along(bottom)) {
             dummy_list[[i]] <- c(1, 2)
         }
 
@@ -112,6 +112,10 @@ for (i in seq_along(in_files)) {
     lik_mat <- bottom_n(unc_mat, n)
     # put the sequences in order of the likelihood
     lik_mat <- lik_mat[order(-lik_mat$diff_lik), ]
+    if (nrow(lik_mat) < N) {
+        print(paste0(acc, " failed - not enough substitutions"))
+        next
+    }
     lik_mat <- lik_mat[1:N, ]
 
     # now:
@@ -142,7 +146,7 @@ for (i in seq_along(in_files)) {
         function(x) conseq)
 
     # Switch the conseq call with the relevant substitution
-    for (j in seq_along(ordered_seq)) {
+    for (j in seq_len(nrow(lik_mat))) {
         switch <- lik_mat[j, 1:(ncol(lik_mat) - 1)]
         to_switch <- colnames(switch)[as.numeric(switch) == 2]
         to_switch <- as.numeric(to_switch)

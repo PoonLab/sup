@@ -14,7 +14,7 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(ggplot2)
-csvs <- lapply(
+ords <- lapply(
     list.files(here("data/pangordlineages"),
         full.names = TRUE),
     read.csv
@@ -32,70 +32,18 @@ csvs <- lapply(
 ```
 
 ```{r change_in_weight}
-ggplot(csvs) +
+ggplot(filter(ords, order < 1024)) +
     aes(x = order, y = lik, colour = factor(acc)) + 
-    geom_point() + geom_line() +
+    geom_line() +
     theme(legend.position = "none")
 ```
 
-
-```{r sampling_results}
-samp_csvs <- list.files(here("data/", "pangolineages"),
-    pattern = "*_d.csv",
-    full.names = TRUE)
-
-# Remove any copies
-samp_csvs <- samp_csvs[!grepl("-1", samp_csvs)]
-
-# Bring them into one data frame
-lins <- bind_rows(lapply(samp_csvs, read.csv))
-
-# Taxon is encoded as _ACCSESSIONNUMBER.ID, split into ACCESSIONNUMBER and ID
-lins <- lins %>%
-    separate(col = "taxon", sep = "\\.",
-        into = c("taxon", "sample")) %>%
-    mutate(taxon = str_replace(taxon, "\\_", ""))
-
-badlins <- table(lins$taxon)
-badlins <- names(badlins[which(badlins < 5000)])
-cat(length(badlins), " runs were removed for having too few samples.")
-lins <- filter(lins, !taxon %in% badlins)
-
-#### Visualize the uncertainty in the base calls ----
-taxons <- sort(unique(lins$taxon))
-length(taxons)
-```
-
-
-TODO: 
-
-- Good summaries for ord.
-- Plot them.
-
 ```{r}
-lin_sum <- lins %>%
-    group_by(taxon) %>%
-    summarise(
-        maxperc = mean(lineage == names(sort(table(lineage),
-            decreasing = TRUE)[1])),
-        uniques = length(unique(lineage)),
-        minpango = min(probability),
-        maxpango = max(probability),
-        menpango = mean(probability),
-        max = names(sort(table(lineage), decreasing = TRUE))[1])
-
-ord_sum <- csvs %>% 
+ords %>%
     group_by(acc) %>%
-    summarise(
-        maxperc = mean(lineage == names(sort(table(lineage),
-            decreasing = TRUE)[1])),
-        uniques = length(unique(lineage)),
-        minpango = min(probability),
-        maxpango = max(probability),
-        menpango = mean(probability),
-        max = names(sort(table(lineage), decreasing = TRUE))[1])
+    summarise(unique = length(unique(lineage))) %>%
+    print(n = Inf)
 ```
-
 
 
 

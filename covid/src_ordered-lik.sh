@@ -1,7 +1,5 @@
 #!/bin/sh
 
-rm data/pangordlineages/*
-
 # I'm bad at arg parsing
 N=5
 overwrite=false
@@ -20,6 +18,10 @@ if [ $num_args -gt 0 ]; then
     done
 fi
 
+if [ $overwrite = true]; then
+    rm data/pangordlineages/*
+    rm data/ord_covid/*
+fi
 
 
 # Create files
@@ -50,7 +52,5 @@ do
     pangolin $sampled_fasta --outfile $out_fasta
 done
 
-
-rm data/ord_covid/*
 
 Rscript -e "rmarkdown::render('figures/ord-results.Rmd')"
