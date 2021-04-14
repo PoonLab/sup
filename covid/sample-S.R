@@ -20,32 +20,22 @@ if ("-N" %in% args) {
     N <- args[which(args == "-N") + 1]
     N <- as.numeric(N)
 }
-print(args)
-dirich <- "-d" %in% args
-
-# Read list of files ending with .RDS
-rds_names <- list.files("data/unc_covid/", pattern = "*RDS")
-# The "-1" indicates that it's a copy. Remove it.
-rds_names <- rds_names[!grepl("-1", rds_names)]
-
-# Avoid re-tracing my steps
-rds_done <- sapply(list.files("data/pangolineages/",
-    pattern = ifelse(dirich, "*_d.csv", "*.csv")),
-    function(x) strsplit(x, "\\_")[[1]][1])
-rds_todo <- sapply(strsplit(rds_names, "-"),
-    function(x) {
-        strsplit(rev(x)[1], "\\.")[[1]][1]
-    })
-
-# Record accession names
-asc_names <- parse_accession(rds_names)
-if (FALSE) print(asc_names)
 
 append <- FALSE
 if (!"--overwrite" %in% args) {
-    #rds_names <- rds_names[which(!rds_todo %in% rds_done)]
     append <- TRUE
 }
+
+dirich <- "-d" %in% args
+
+print(args)
+
+# Read list of files ending with .RDS
+rds_names <- list.files("data/unc_covid/", pattern = "*RDS")
+
+# Record accession names
+asc_names <- parse_accession(rds_names) # aux_funk.R
+if (FALSE) print(asc_names)
 
 # Prepare empty lists
 S_list <- vector(mode = "list", length = length(rds_names))
@@ -57,20 +47,20 @@ for (i in seq_along(rds_names)) {
     names(S_list)[i] <- asc_names[i]
 }
 
-# Set up timing system
+
+# Set up timing system --------------------------
 t0 <- Sys.time() # Outer timer
 nloops <- length(S_list)
 collapsed <- estlapseds <- double(nloops)
 for (i in 1:nloops) {
-    # Error checking
-
     t1 <- Sys.time() # Inner timer
 
     # Normalize matrix
     S <- S_list[[i]]
-    S <- fix_unc(S)
+    S <- fix_unc(S) # aux_funk.R
     if (class(S) == "character") {
         print(paste(S, acc, sep = " - "))
+        next
     }
 
     alph <- toupper(colnames(S))
@@ -108,7 +98,10 @@ for (i in 1:nloops) {
         # Create well-formatted fasta file
         name <- paste0("> ", asc_names[i], ".", 0:length(sampleseq))
         fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
+
     } else {
+
+        # When appending, conseq is not needed.
         sampleseq <- apply(sampleseq_mat, 1, paste, collapse = "")
         name <- paste0("> ", asc_names[i], ".", 1:length(sampleseq))
         fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")

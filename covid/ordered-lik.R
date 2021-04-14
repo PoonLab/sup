@@ -25,11 +25,7 @@ bottom_n <- function(S, n) {
         sort(x, decreasing = TRUE)[2]
     })
 
-    dummy_list <- list()
-    for (i in seq_along(bottom)) {
-        dummy_list[[i]] <- c(1, 2)
-    }
-
+    dummy_list <- lapply(seq_along(bottom), function(x) 1:2)
     subs <- expand.grid(dummy_list)
     colnames(subs) <- bottom
     subs$diff_lik <- NA
@@ -53,6 +49,8 @@ N <- 1000
 if ("-N" %in% args) {
     N <- as.numeric(args[which(args == "-N") + 1])
 }
+# Smallest number of sequences to ensure an output of N
+n <- min(which(2 ^ (1:15) >= N))
 
 overwrite <- FALSE
 if ("--overwrite" %in% args) {
@@ -61,15 +59,12 @@ if ("--overwrite" %in% args) {
 
 # Read in files (using here::here()) ------------
 in_path <- "data/unc_covid/"
-out_path <- "data/ord_covid"
+out_path <- "data/ord_covid/"
 in_files <- list.files(here(in_path), pattern = "RDS")
 
 
 # Loop though files
 for (i in seq_along(in_files)) {
-    # Smallest number of sequences to ensure an output of N
-    n <- min(which(2 ^ (1:15) >= N))
-
     # Set up filenames, skip if --overwrite flag is present
     in_file <- in_files[i]
 
@@ -79,8 +74,10 @@ for (i in seq_along(in_files)) {
 
     out_file <- here(out_path, paste0(acc, "_ord.fasta"))
 
-    if ((!overwrite) &
-            paste0(acc, "_ord.fasta") %in% list.files(out_path)) {
+    if (
+        (!overwrite) &
+        paste0(acc, "_ord.fasta") %in% list.files(out_path)
+    ) {
         print(paste0(in_file, " exists, skipping."))
         next
     }
@@ -90,6 +87,7 @@ for (i in seq_along(in_files)) {
     unc_mat <- fix_unc(readRDS(here(in_path, in_file)))
     if (class(unc_mat) == "character") {
         print(paste(unc_mat, acc, sep = " - "))
+        next
     }
 
 
@@ -118,6 +116,8 @@ for (i in seq_along(in_files)) {
 
     # Second most likely base call at each locus.
     # Necessary to make the substitutions.
+    # TODO: If there's a problem with memory, this only needs
+        # to include the bottom n locations of M
     runner_up <- apply(unc_mat, 1, function(x) {
         if (any(is.na(x)) | sum(x) < 1) {
             return("N")
@@ -127,14 +127,18 @@ for (i in seq_along(in_files)) {
     })
 
     # Prep empty list of sequences
-    ordered_seq <- lapply(1:min(N, nrow(lik_mat)),
+    ordered_seq <- lapply(seq_len(nrow(lik_mat)),
         function(x) conseq)
 
     # Switch the conseq call with the relevant substitution
     for (j in seq_len(nrow(lik_mat))) {
+        # First n columns are 1 for no switch, 2 for switch
+        # ncol(lik_mat) is more robust than using n
         switch <- lik_mat[j, 1:(ncol(lik_mat) - 1)]
+        # The column names are the nucleotide location
         to_switch <- colnames(switch)[as.numeric(switch) == 2]
         to_switch <- as.numeric(to_switch)
+        # Make the switches
         ordered_seq[[j]][to_switch] <- runner_up[to_switch]
     }
 
