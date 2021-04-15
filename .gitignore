@@ -1,7 +1,8 @@
 # csv and files (there are a lot of them and they're ~28Mb each)
-data/pangolineages/*.csv
+data/ord_covid
 *.fasta
-data/sampled_covid/*.txt
+*.RDS
+data/sampled_covid
 
 
 .DS_Store
