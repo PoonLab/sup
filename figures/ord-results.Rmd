@@ -1,0 +1,66 @@
+---
+title: "Results of Ordered Likelihood Analysis"
+author: "Devan Becker"
+date: "`r Sys.Date()`"
+output:
+    pdf_document:
+      citation_package: natbib
+      keep_tex: yes
+---
+
+```{r data_prep}
+library(here)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+ords <- lapply(
+    list.files(here("data/pangordlineages"),
+        full.names = TRUE),
+    read.csv
+    ) %>%
+    bind_rows() %>%
+    separate(col = taxon, 
+        into = c("dummy", "acc", "lik", "subs"),
+        sep = "_") %>%
+    mutate(nsubs = str_count(subs, "2"),
+        lik = as.numeric(lik)) %>%
+    group_by(acc) %>%
+    mutate(order = 1:n()) %>%
+    ungroup()
+
+```
+
+```{r change_in_weight}
+ggplot(ords) +
+    aes(x = order, y = lik, colour = factor(acc)) + 
+    geom_line() +
+    theme(legend.position = "none")
+```
+
+```{r}
+ords %>%
+    group_by(acc, lineage) %>%
+    summarise(
+        count = n(),
+        weight = sum(lik),
+        .groups = "drop"
+    ) %>%
+    group_by(acc) %>%
+    summarise(
+        unique = length(unique(lineage)),
+        mode = names(sort(table(lineage)))[1],
+        mode_n = max(count),
+        mode_wt = sum(weight[lineage ==
+            names(sort(table(lineage)))[1]]),
+        ru = names(sort(table(lineage)))[2],
+        ru_wt = sum(weight[lineage ==
+            names(sort(table(lineage)))[2]]),
+        .groups = "drop"
+    ) %>%
+    print(n = Inf)
+```
+
+
+
+

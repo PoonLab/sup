@@ -1,0 +1,16 @@
+---
+title: "Visualizing the Uncertainty in Sequences"
+author: "Devan Beckers"
+date: "2021-02-10"
+font: 13pt
+output: pdf_document
+---
+
+The code in this document takes the uncertainty matrices (from `parse.sam`) and finds the locations where the largest probability is less than 99.9%. That is, it looks for rows where there will be at least, on average, 1 sample out of 1,000 that have a different base.
+
+To visualize these, any location where the effect is nearly certain is removed. The x-axis is labelled with the location of the base, the y axis is A, C, G, and T, and the tiles are coloured according to the probability (darker means higher probability). 
+
+```{r unc_vis, fig.height=8, fig.fig.width=4, echo=FALSE}
+library(here)
+source(here("covid", "unc_vis.R"))
+```

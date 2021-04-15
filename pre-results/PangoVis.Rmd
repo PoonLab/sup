@@ -1,0 +1,62 @@
+---
+title: "Visualizing Pangolin Uncertainty (a.k.a. Pangoluncertainty)"
+author: "Devan Becker"
+date: "2021-02-10"
+font: 13pt
+output: pdf_document
+---
+
+```{r setup}
+library(here)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(stringr)
+```
+
+# Goal
+
+Visualize/summarize the results of sending resampled uncertainty matrices through pangolin.
+
+# Vis Setup
+
+Each row in the dataset represents a single sample from one uncertainty matrix (only dealing with one accession number for now). The columns are as folows:
+
+- `taxon`: the accession name, followed by ".0" for the consensus sequence and "0.1" to "0.1000" for the 1,000 samples from the matrix.
+    - This is split into `taxon`, which is all identical for one file, and `sample`, which is 0 for the conseq and 1:1000 for the 1,000 samples.
+- `lineage`: The called lineage from pangolin
+- `probability`: the bootstrap support for this lineage call
+- `pangoLEARN_version`, `status`, and `note`: extra info from pangolin
+
+```{r}
+unc1 <- read.csv(here("data/pangolineages/", "ERR4085809_pangolineages.csv"))
+unc1 <- unc1 %>% 
+    separate(col = "taxon", sep = "\\.", 
+        into = c("taxon", "sample")) %>% 
+    mutate(taxon = str_replace(taxon, "\\_", ""))
+head(unc1)
+```
+
+To prep the data, I calculate another column called "prop", which represents the number of samples that were assigned the sam lineage as the one in that row. So, for a lineage assigned B.1, prop would be the total number of B.1s in the sampled lineages divided by 1000. 
+
+```{r}
+unc2 <- unc1 %>%
+    group_by(lineage) %>%
+    summarise(prop = n() / (nrow(unc1) - 1)) %>%
+    right_join(unc1, by = "lineage") %>%
+    arrange(as.numeric(sample))
+head(unc2)
+```
+
+Now we can view the differences between the pangolin bootstrap support and the actual proportion of samples with that lineage designation!
+
+```{r}
+ggplot(unc2) + 
+    aes(x = prop, y = probability) + 
+    geom_point()
+```
+
+Right now it's not very interesting because all of the pangolin probabilities are 1. I changed something in my code, and I don't know why this broke it. It's on my TODO.
+
+
+
