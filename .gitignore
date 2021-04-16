@@ -2,8 +2,9 @@
 data/ord_covid
 *.fasta
 *.RDS
+*.sam
 data/sampled_covid
-
+data/unc_covid/metadata.tsv
 
 .DS_Store
 
