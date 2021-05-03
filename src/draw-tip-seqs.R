@@ -6,6 +6,10 @@
 ###  here from an input error probability. 
 ###
 
+message("draw-tip-seqs.R")
+
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet draw-tip-seqs.R; fi")
+
 suppressPackageStartupMessages(library(seqinr))
 source('utils.R')
 

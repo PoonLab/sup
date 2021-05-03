@@ -1,7 +1,8 @@
-## 
-##  Simulate evolution of a 
-##  "root" nucleotide sequence 
 ##
+##  Simulate evolution of a
+##  "root" nucleotide sequence
+##
+
 
 suppressPackageStartupMessages(
     {library(phylosim);
@@ -14,16 +15,18 @@ source('utils.R')
 set.seed(1234)
 t1 <- as.numeric(Sys.time())
 
-message("\nStarting phylogeny simulation...")
+message("\nsimul-seq.R: Starting phylogeny simulation...")
+
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet simul-seq.R; fi")
 
 prm <- read.csv('prm.csv')
 
 # Define the evolution process:
-ev.proc    <- phylosim::JC69()  
+ev.proc    <- phylosim::JC69()
 summary(ev.proc)
 
 # Define the "root" sequence from
-# which evolution occurs. 
+# which evolution occurs.
 # Either generate randomly or
 # read from an existing sequence.
 
@@ -34,17 +37,17 @@ message('Building root sequence... ')
 
 if(random.root){
     root.seq.length <- get_prm(prm,'phylosim.root.seq.length')
-    root.seq <- NucleotideSequence(length = root.seq.length, 
+    root.seq <- NucleotideSequence(length = root.seq.length,
                                    processes = list(list(ev.proc)) ) %>%
         sampleStates()
 }
 
 if(!random.root){
     rs <- read.fasta(file = 'seqs/patient_1_TP_3_consensus.fasta',
-                     as.string = TRUE, 
-                     forceDNAtolower = FALSE) %>% 
+                     as.string = TRUE,
+                     forceDNAtolower = FALSE) %>%
         as.character()
-    root.seq <- NucleotideSequence(string = rs, 
+    root.seq <- NucleotideSequence(string = rs,
                                    processes = list(list(ev.proc)) )
     root.seq.length <- nchar(rs)
 }
@@ -58,7 +61,7 @@ evol.rate   <- get_prm(prm,'phylosim.evol.rate')
 setRateMultipliers(root.seq, ev.proc, evol.rate)
 message(paste("Evolution rate:", evol.rate))
 
-# Draw invariable positions 
+# Draw invariable positions
 invar.p   <- get_prm(prm,'phylosim.prop.invar')
 invar.n   <- round(invar.p*root.seq.length)
 invar.pos <- sample(1:root.seq.length, invar.n)
@@ -75,7 +78,7 @@ tree.sim$tip.label <- paste('seq', 1:n.tips, sep='_')
 message(paste('Tree with',n.tips,'tips built.'))
 
 
-# Simulate evolution of 
+# Simulate evolution of
 # the root seq on the tree:
 message('Simulating phylogeny...')
 sim <- PhyloSim(phy  = tree.sim,
@@ -88,20 +91,22 @@ message('Saving...', appendLF = FALSE)
 fname.seqs <- 'seqs/sim.fasta'
 fname.tree <- 'trees/sim.nwk'
 ape::write.tree(tree.sim, file = fname.tree)
-phylosim::saveAlignment(this = sim, 
-                        file = fname.seqs, 
-                        skip.internal = TRUE, 
+phylosim::saveAlignment(this = sim,
+                        file = fname.seqs,
+                        skip.internal = TRUE,
                         paranoid = TRUE)
+# Added by Devan: Fix extra space
+writeLines(sapply(readLines("seqs/sim.fasta"), trimws), fname.seqs)
 
 message(paste(" done.\nSimulated phylogeny saved in:",
               fname.seqs, fname.tree))
 
-pdf('plot-sim-phylo.pdf', 
+pdf('plot-sim-phylo.pdf',
     width=15, height = 10)
 plot(ev.proc)
 plot(tree.sim, main='Benchmark tree simulated')
 plot(tree.sim, main='Benchmark tree simulated\nwith branch lengths')
-edgelabels(round(tree.sim$edge.length,2), 
+edgelabels(round(tree.sim$edge.length,2),
            bg="black", col="white", font=2, cex=.6)
 plot(sim, num.pages = 1)
 dev.off()

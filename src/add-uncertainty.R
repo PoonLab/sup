@@ -2,6 +2,11 @@
 ###  Generate Probabilistic Sequences from existing sequence
 ###
 
+message("add-uncertainty.R")
+
+# If figlet is installed, make banner at the start of code
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet add-uncertainty; fi")
+
 suppressPackageStartupMessages({
 library(seqinr);
 library(tidyr);

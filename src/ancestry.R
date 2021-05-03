@@ -7,6 +7,10 @@ library(ape)
 library(phytools)
 library(phylobase)
 
+message("ancestry.R")
+
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet ancestry.R; fi")
+
 # ---- FUNCTIONS ----
 
 #' Get all internal nodes and their descendants labels.

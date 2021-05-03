@@ -12,6 +12,8 @@ software <- 'raxml'   # 'raxml' or 'fasttree'
 
 do.kernel <- FALSE
 
+message("dist-calc.R")
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet dist-calc.R; fi")
 message(paste('Inference assessment for prmset',
               args[1],'...'))
 

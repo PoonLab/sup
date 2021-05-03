@@ -17,6 +17,8 @@ suppressPackageStartupMessages(library(igraph))
 # You should have received a copy of the GNU General Public License
 # along with Kaphi.  If not, see <http://www.gnu.org/licenses/>.
 
+message("treekernel.R")
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet treekernel.R; fi")
 
 .rescale.tree <- function(tree, mode) {
     #print ('.rescale.tree')

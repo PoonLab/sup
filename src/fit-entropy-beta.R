@@ -5,6 +5,9 @@
 ###  The Fit is made on the entropy of Zanini's data. 
 ###
 
+message("fit-entropy-beta.R")
+
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet fit-entropy-beta.R; fi")
 
 library(tidyr)
 library(dplyr)

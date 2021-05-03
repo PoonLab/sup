@@ -6,7 +6,9 @@ library(gridExtra)
 source('dist-fcts.R')
 source('utils.R')
 
-message('Starting analysis...')
+message('Analysis.R: Starting analysis...')
+
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet Analysis.R; fi")
 
 # ---- Data ----
 
