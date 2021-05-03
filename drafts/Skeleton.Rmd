@@ -413,9 +413,24 @@ For analyses that require a set of sequences, the likelihoods for the set of seq
 
 ## HIV
 
-*Copy from David, re-word as necessary.*
+If only FASTA files are available, then it's unclear how much variation there is. In this analysis, we generate a phylogeny so we know exactly what the truth is. From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @Zanini. These parameter combinations represent increasing levels of entropy. With this uncertainty, we re-sample our sequences and attempt to reconstruct the phylogeny. From these re-sampled phylogenies, we calculate the distance between each new tree and the original perfectly known tree. The results demonstrate the additional variance that can be added to a tree on top of the variance that other analysis will consider. In a study of real sequences, the entropy can be calculated from the FASTQ file then compared to a similar entropy level for simulated data. The variation in tree distance for that level of entropy can be seen as a measure of the un-accounted-for variance in the results. 
 
-*Analysis might need to be run again. Errors in his scripts mean it might require contacting him.*
+- Parameter settings for the most recent run (I will try to define them, but my ignorance will shine through).
+    - 300: Length of the 'true' root sequence
+    - 0.75:	Proportion of invariant positions in the root sequence
+    - 1: Generate the root sequence randomly?
+    - 20: Number of tips in the 'true' simulated phylogeny
+    - 1: Evolution rate (in tree time unit)
+    - 29:Beta shape prm_1 (alpha) for base call probability
+    - 0.05: Beta shape prm_2 (beta) for base call probability
+    - 500: Monte Carlo iterations for sampling tip probabilistic sequences
+    - TN93: Distance
+    - Indels: None
+
+The results are displayed as some sort of graph. I'll maybe need to show some phylo trees and the plots of distance versus entropy.
+
+
+
 
 ## SARS-CoV-2
 
