@@ -8,7 +8,7 @@
 
 # How many Monte Carlo samples:
 N=$(ls -l seqs/seqs-mc*.fasta | wc -l)
-echo Calculating phylogeny for $N trees...
+echo Calculating phylogeny for $N trees fasttree...
 
 # For each set of sampled tips, 
 # reconstruct the phylogeny:
