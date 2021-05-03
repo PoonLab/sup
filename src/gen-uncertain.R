@@ -1,6 +1,11 @@
-library(dplyr)
-library(ggplot2); theme_set(theme_bw())
-library(sung)
+suppressPackageStartupMessages({
+    library(ggplot2); theme_set(theme_bw())
+    library(sung)
+})
+
+message("gen-uncertain.R")
+
+system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet gen-uncertain.R; fi")
 
 source('utils.R')
 
@@ -18,30 +23,38 @@ btshp <- load_beta_shapes(fname.prm = 'prm-btshp.csv', args = args)
 prm <- read.csv('prm.csv')
 n.repl <- get_prm(prm,'sample.tips.n.mc')
 
+
+# Deletions specifications:
+# NEW - 2021-04-27, copied from sung/test-for-sung.R
+prm.del <- list(alpha = 1,
+                beta  = 6,
+                pos   = list(c(5:15),
+                             c(600:635)))
+
 # Draw replicates from the probabilistic sequences
 # defined by the Beta-Uniform uncertainty model:
-seqs <- sung::draw_fasta_beta_unif(fastafile = fastafile, 
-                                   prm.beta  = btshp, 
+seqs <- sung::draw_fasta_beta_unif(fastafile = fastafile,
+                                   prm.beta  = btshp,
                                    n.repl    = n.repl, 
-                                   prm.del = NULL,
+                                   prm.del   = NULL, #prm.del,
                                    alphabet.type = 'nucleotide')
 
 # Save the replicates to FASTA files:
 path.seqs <- paste0('seqs/seqs-prm-',args[1],'-mc')
-sung::export_fasta(seqs.replicates = seqs, 
+sung::export_fasta(seqs.replicates = seqs,
                    fasta.name = path.seqs)
 
 
-# Save the total entropy 
+# Save the total entropy
 # (summed over the sequence length):
 entr <- lapply(seqs, '[[', 3)
 sum.entropy <- sapply(entr, sum, na.rm=T)
 fname.out = 'entropy-prmset.out'
-write.table(x = t(c(prmset = args[1], 
-                    s1 = btshp[1], 
-                    s2 = btshp[2], 
-                    mean(sum.entropy))), 
+write.table(x = t(c(prmset = args[1],
+                    s1 = btshp[1],
+                    s2 = btshp[2],
+                    mean(sum.entropy))),
             file = fname.out,
-            append = TRUE, sep = ',', 
-            row.names = FALSE, 
+            append = TRUE, sep = ',',
+            row.names = FALSE,
             col.names = FALSE, quote = FALSE)
