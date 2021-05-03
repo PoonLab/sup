@@ -6,6 +6,12 @@
 
 # To install tn93, see: https://github.com/veg/tn93
 
+figgy=`whereis figlet`
+figgylen=${#figgy}
+if [ $figgylen > 10 ]; then 
+    figlet "dist-tn93.sh"
+fi
+
 echo "Start TN93 distances calculations..."
 
 x=$(ls seqs/seqs-prm-*.fasta)

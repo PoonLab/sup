@@ -6,12 +6,17 @@
 # RAxML documentation:
 # https://cme.h-its.org/exelixis/web/software/raxml/index.html
 
+figgy=`whereis figlet`
+figgylen=${#figgy}
+if [ $figgylen > 10 ]; then 
+    figlet Analysis.R
+fi
 
 PRMSET=$1
 
 # How many Monte Carlo samples:
 N=$(ls -l seqs/seqs-prm-$PRMSET*.fasta | wc -l)
-echo Calculating phylogeny for $N trees...
+echo "Calculating phylogeny for $N trees (raxml)..."
 
 # For each set of sampled tips, 
 # reconstruct the phylogeny:
