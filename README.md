@@ -67,6 +67,7 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
         - [x] Sources of uncertainty
         - [x] Description of SAM files (with and without paired reads)
         - [x] Description of InSilicoSeq (and other things from David's work)
+        - [ ] Revise & rewrite
     - Methods
         - [x] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods; largely re-used from David's work)
         - [x] Sampling from normalized probabilities or from multinomial posteriors (justification)
@@ -75,8 +76,12 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
         - [x] Description of Covid Data
         - [x] Pangolin description (incl. bootstrap support)
         - [x] Pangolin results summary/vis
+        - [ ] Intro to David's work
+        - [ ] Goal of David's work
+        - [ ] Results from David's work
+        - [ ] Takeaways from David's work
     - Conclusions
-        - [ ] For phylogenies in general (Lean heavily on David's work)
+        - [ ] For phylogenies in general (lean heavily on David's work)
         - [x] For Covid data
 
 
