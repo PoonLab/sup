@@ -6,5 +6,5 @@ phylosim.n.tips, 20, Number of tips in the 'true' simulated phylogeny
 phylosim.evol.rate, 1.0, Evolution rate (in tree time unit)
 beta.shape.p1, 29, Beta shape prm_1 (alpha) for base call probability
 beta.shape.p2, 0.05, Beta shape prm_2 (beta) for base call probability
-sample.tips.n.mc, 500, Monte Carlo iterations for sampling tip probabilistic sequences
+sample.tips.n.mc, 3, Monte Carlo iterations for sampling tip probabilistic sequences
 

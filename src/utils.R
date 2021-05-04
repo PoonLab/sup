@@ -250,7 +250,7 @@ plot_prmset_distrib <- function(fname) { #fname='prm-btshp.csv'
         ggplot(aes(x=x, y=y))+
         geom_line(aes(colour=prmset), size=2, alpha=0.8)+
         scale_y_log10(limits = c(1e-12, 1e3))+
-        coord_cartesian(xlim = c(0.5,1))+
+        #coord_cartesian(xlim = c(0.5,1))+
         ggtitle('Beta Density of Base Call Probability')+
         xlab('Base call probability') + ylab('density')
     plot(g)

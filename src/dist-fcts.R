@@ -127,7 +127,8 @@ dist.kernel <- function(tree1, tree2,
     # prmset = 1 ; mc = 7
 
     # WARNING: file name template hard-coded!
-    fastafiles <- list.files("seqs", pattern = "seqs-prm-1.*.fasta.out$", full.names = TRUE)
+    fastafiles <- list.files("seqs", pattern = ".fasta.out$",
+        full.names = TRUE)
     n <- length(fastafiles)
     if(n==0){
         stop(paste("CANNOT FIND seqs/*.fasta.out FOR PRM SET #",
