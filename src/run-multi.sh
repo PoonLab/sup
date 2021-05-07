@@ -3,7 +3,7 @@
 ./clean.sh
 
 # Install missing R packages where Rscript can find them.
-Rscript check-R-packages.R
+#Rscript check-R-packages.R
 
 # Generate the true phylogeny.
 # Parameters taken from prm.csv

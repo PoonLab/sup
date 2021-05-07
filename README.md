@@ -1,13 +1,4 @@
-### Specific to this branch - con branch (Following naming convention)
-Primarily working on rewriting the parse-sam.R code to increase speed and memory management. This makes 4 general changes... 
-1. Initially read in files by chunks, using `stringr::read_lines_chunked()` (see `parse.sam()`)
-2. Use data tables to store results (including data read from sam) and use data table row operations whenever possible.
-3. Vecotrize functions where possible (see - `parse.sam.line()`, `apply.cigar() )
-4. Make use of parallel capabilities through `parallel::mclapply()` for file reading and vectorized functions.
-
-# Original README
-# sup
-Sequencing Uncertainty Propagation
+# sup - Sequencing Uncertainty Propagation
 
 ## Objectives
 
@@ -33,11 +24,14 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 
 
 - `doc`: Documentation of the methods
-- `src`: source code for uncertainty propagation analysis
+- `src`: source code for uncertainty generation and propagation analysis
+	- `run-multi.sh` is the main pipeline.
+	- Generates a phylogeny, generates uncertainty on top of this phylogeny, estimates the trees, then calculates the distance between each tree and the tree without uncertainty.
 - `reads-seq-err`: Estimation of the sequencing error of DNA fragment by Illumina instruments using simulations from from the software *InSilicoSeq*.
 - `data`: Data related to sequencing uncertainty.
     - `seqs`: fasta sequence data for HIV data.
     - `zanini`: HIV patient data for Zanini et. al (2015). Population Genomics of Intrapatient HIV-1 Evolution. doi: https://doi.org/10.7554/eLife.11282.
+    	- `multinomial-zanini.R` is the workhorse
     - `parsed_covid`: sequence uncertainty matrices (S) for SARS-CoV-2 data (raw sam files are too for GitHub, but filenames correspond to [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra) runs).
     - `sampled_covid`: fasta files generated from `parsed_covid`
 - `doc`: Documentation of the methods.
@@ -55,6 +49,7 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
         - TODO: samples from S should be based on posterior distribution (Neg Binom) to incorporate number of reads at each site.
     - `pangolin_results.r` analyses output from pangolin, especially with respect to variance.
 - `gsun`: a few files for uncertainty generation testing
+	- Early draft files
 - `misc`: a few files for calculating testing RF distance
 - `ms`: start of the paper
 
