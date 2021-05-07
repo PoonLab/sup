@@ -67,18 +67,20 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
         - [x] Sources of uncertainty
         - [x] Description of SAM files (with and without paired reads)
         - [x] Description of InSilicoSeq (and other things from David's work)
+        - [ ] More citations to support opinions
         - [ ] Revise & rewrite
     - Methods
         - [x] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods; largely re-used from David's work)
         - [x] Sampling from normalized probabilities or from multinomial posteriors (justification)
         - [x] Sequence-level uncertainty measures, and their use in analysis of genetic data
+        - [ ] Beta distribution to generate uncertainty
     - Application
         - [x] Description of Covid Data
-        - [x] Pangolin description (incl. bootstrap support)
+        - [x] Pangolin description (incl. support)
         - [x] Pangolin results summary/vis
         - [ ] Intro to David's work
-        - [ ] Goal of David's work
-        - [ ] Results from David's work
+        - [x] Goal of David's work
+        - [ ] Results from David's work (after re-running)
         - [ ] Takeaways from David's work
     - Conclusions
         - [ ] For phylogenies in general (lean heavily on David's work)

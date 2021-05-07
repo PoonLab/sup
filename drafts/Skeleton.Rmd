@@ -73,7 +73,7 @@ ords <- lapply(
     read.csv
     ) %>%
     bind_rows() %>%
-    separate(col = taxon, 
+    separate(col = taxon,
         into = c("dummy", "acc", "lik", "subs"),
         sep = "_") %>%
     mutate(nsubs = str_count(subs, "2"),
@@ -84,10 +84,10 @@ ords <- lapply(
 
 ```
 
-TODO
+TODO (with input from David/Art)
 
 - Ensure I'm using pangolin/pangoLEARN in proper contexts
-    - Right now, I'm using them as synonyms (bad)
+    - Right now, I'm using them as synonyms (bad?)
 - Nomenclature:
     - $\nps$ is "nucleotide-level uncertainty sequence" or simply "uncertainty matrix"?
         - "Uncertainty matrix" is a misnomer - the entries are the probabilitity of basis call. Is there a better term? 
@@ -96,7 +96,7 @@ TODO
     - "sequence-level uncertainty sequence" or "genome likelihood"?
         - Genome likelihood is used in other contexts; their formulations are model-based but have the same interpretation.
 - Notation:
-    - subscript $j$ for arbitrary locations on the genome - double check that this is consistent throughout.
+    - I use subscript $j$ for arbitrary locations on the genome - double check that this is consistent throughout.
 - Style: 
     - Ensure I use $\ie$, not i.e.
     - I'm really bad at tense.
@@ -411,9 +411,9 @@ For analyses that require a set of sequences, the likelihoods for the set of seq
 
 # Applications
 
-## HIV
+## Generated Uncertainty as Evaluation
 
-If only FASTA files are available, then it's unclear how much variation there is. In this analysis, we generate a phylogeny so we know exactly what the truth is. From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @Zanini. These parameter combinations represent increasing levels of entropy. With this uncertainty, we re-sample our sequences and attempt to reconstruct the phylogeny. From these re-sampled phylogenies, we calculate the distance between each new tree and the original perfectly known tree. The results demonstrate the additional variance that can be added to a tree on top of the variance that other analysis will consider. In a study of real sequences, the entropy can be calculated from the FASTQ file then compared to a similar entropy level for simulated data. The variation in tree distance for that level of entropy can be seen as a measure of the un-accounted-for variance in the results. 
+If only FASTA files are available, then it's unclear how much variation there is. FASTQ files have a measure of uncertainty at each position, but this does not tell us whether the added uncertainty has a large or a small effect on the results. In this analysis, we generate a phylogeny so we know exactly what the truth is. From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @Zanini. These parameter combinations represent increasing levels of entropy. With this uncertainty, we re-sample our sequences and attempt to reconstruct the phylogeny. From these re-sampled phylogenies, we calculate the distance between each new tree and the original perfectly known tree. The results demonstrate the additional variance that can be added to a tree on top of the variance that other analysis will consider. In a study of real sequences, the entropy can be calculated from the FASTQ file then compared to a similar entropy level for simulated data. The variation in tree distance for that level of entropy can be seen as a measure of the un-accounted-for variance in the results. 
 
 - Parameter settings for the most recent run (I will try to define them, but my ignorance will shine through).
     - 300: Length of the 'true' root sequence
@@ -424,10 +424,15 @@ If only FASTA files are available, then it's unclear how much variation there is
     - 29:Beta shape prm_1 (alpha) for base call probability
     - 0.05: Beta shape prm_2 (beta) for base call probability
     - 500: Monte Carlo iterations for sampling tip probabilistic sequences
-    - TN93: Distance
-    - Indels: None
+    - TN93: Distance (nucleotide)
+    - Tree distances: ~~Kernel~~, Robinson-Foulds, Kuhner-Felsenstein, shared?
+        - Shared: proportion of nodes in a tree that DO NOT have the same descendance as a reference tree. To calculate, the ancestors of every node (tip and internal) are stored in a list. This list is compared to the ancestor list for the reference tree (i.e. the tree calculated prior to gen-uncertain). The distance is measured as 1 minus the proportion of ancestors that are shared.
+        - I need a reference for this.
+    - ~~In~~Dels: 5:15, 200:250
 
 The results are displayed as some sort of graph. I'll maybe need to show some phylo trees and the plots of distance versus entropy.
+
+
 
 
 
@@ -575,7 +580,7 @@ Wishlist
 
 ```{r ordered_lik, caption="\label{fig:ord}The decrease in the likelihood as more/different alternative base calls are made. It is important to note that these are not substitutions relative to a main sequence, but rather possible alternatives based on the error probabilities inherent in the sequencing process."}
 ggplot(ords) +
-    aes(x = order, y = lik, group = factor(acc)) + 
+    aes(x = order, y = lik, group = factor(acc)) +
     geom_line(alpha = 0.2) +
     theme(legend.position = "none")
 ```
@@ -592,6 +597,10 @@ Our method does not preclude tertiary analyses to test for systematic errors or 
 
 This study should not be taken in any way as a criticism of the pangolin lineage assignment procedure. Rather, pangolin was chosen as it is a state-of-the art tool based on the best available algorithms for phylogeny reconstruction. The phylogeny created by this team has been a vital resource for researchers and for public health professionals. In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations. 
 
+- Other things that could be added here:
+    - Resample to get variance around representative sequence for a given lineage (e.g. HIV)
+        - Can be done with just FASTQ files (less accurate)
+    - Given a canonical reference seqeunce for a lineage, find level of entropy that makes it a different sequence
 
 # Appendix: Results for all lineages
 
@@ -601,13 +610,13 @@ This study should not be taken in any way as a criticism of the pangolin lineage
 
 \scriptsize
 
-```{r big_kable, caption='\label{tab:pango}Results for re-sampling analysis all accession numbers in our analysis. The "Conseq" column refers to the lineage designated to the consensus sequence. "Mode" refers to the most common lineage across all re-samples, with "Mode\#" indicating the number of re-samples with this lineage. "Runner Up" and "RU \#" are the second most likely lineage designation and the number with that designation, respectively. "Unique" is the total number of unique lineage designations, and "Atoms" are the total number of lineage designations that were only observed for a single re-sample.'}
+```{r big_kable, caption='\label{tab:pango}Results for re-sampling analysis all accession numbers in our analysis. The "Conseq" column refers to the lineage designated to the consensus sequence. "Mode" refers to the most common lineage across all re-samples, with "Mode\\#" indicating the number of re-samples with this lineage. "Runner Up" and "RU \\#" are the second most likely lineage designation and the number with that designation, respectively. "Unique" is the total number of unique lineage designations, and "Atoms" are the total number of lineage designations that were only observed for a single re-sample.'}
 seq_info$taxon <- taxons
 seq_info <- arrange(seq_info, mode, mode_n) %>%
     select(taxon, everything())
-seq_info <- rename(seq_info, Accession = taxon, Conseq = called, 
-    Mode = mode, `Mode \#` = mode_n, `Mode \#/N`= perc,
-    `Runner-Up` = runner_up, `RU\#` = ru_n, 
+seq_info <- rename(seq_info, Accession = taxon, Conseq = called,
+    Mode = mode, `Mode \\#` = mode_n, `Mode \\#/N` = perc,
+    `Runner-Up` = runner_up, `RU\\#` = ru_n,
     Unique = unique, Atoms = atom)
 knitr::kable(seq_info, row.names = FALSE)
 ```
