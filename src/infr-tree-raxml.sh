@@ -29,7 +29,7 @@ TREE_NAME=tree-raxml-prm-$PRMSET-mc
 for i in $(seq 1 $N) 
 do
   # Phylogeny inference:
-  raxmlHPC $RAXML_OPT -s seqs/seqs-prm-$PRMSET-mc-$i.fasta -n $TREE_NAME-$i.out > trees/RAxML-prm-$PRMSET-$i.out
+  raxmlHPC $RAXML_OPT -s seqs/seqs-prm-$PRMSET-mc-$i.fasta -n $TREE_NAME-$i.out > trees/RAxML-prm-$PRMSET-mc-$i.out
 done
 
 echo "Unrooting ..."
