@@ -5,6 +5,7 @@ data/ord_covid
 *.sam
 data/sampled_covid
 data/unc_covid/metadata.tsv
+*log.txt
 
 .DS_Store
 
