@@ -221,7 +221,7 @@ plot_tn93_distances <- function(df) {
 
 
     q <- df %>%
-        mutate(ps = paste0("prmset #", rmset)) %>%
+        mutate(ps = paste0("prmset #", prmset)) %>%
         ggplot() +
         geom_histogram(aes(x = Distance),
                        binwidth = 0.02) +
