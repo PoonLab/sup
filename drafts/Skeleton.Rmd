@@ -430,13 +430,94 @@ If only FASTA files are available, then it's unclear how much variation there is
         - I need a reference for this.
     - ~~In~~Dels: 5:15, 200:250
 
-The results are displayed as some sort of graph. Distance between true tree and sampled ones versus entropy is a nice.
+The results are displayed as some sort of graph. Distance between true tree and sampled ones versus entropy is a nice. Average/sd of within-tree TN93 is interesting as well. Clusters are all 1, for some reason.
 
 - TODO:
 	- Import analysis visualization script
 	- Calculate important/interesting statistics
 	- Describe the beta parameters
 		- Re-run with a finer scale but fewer iterations
+
+```{r}
+options(scipen=6)
+
+# Method of Moments for Beta distribution
+mom <- function(xbar, s){
+    tmp <- xbar * (1 - xbar) / s - 1
+    alpha <- xbar * tmp
+    beta <- (1 - xbar) * tmp
+    return(c(xbar = xbar, s = s, alpha = alpha, beta = beta))
+}
+
+
+pad <- function(x, pad = -3){
+    x <- as.character(x)
+    if (length(gregexpr("\\.", x)[[1]]) > 1) {
+        stop("Invalid number.")
+    }
+    if (pad < 0) {
+        if (grepl("\\.", x)) {
+            # nchar of everything after the decimal
+            n <- nchar(strsplit(x, "\\.")[[1]][2])
+            if (n < abs(pad)) {
+                x <- paste0(x, 
+                    paste0(rep(0, abs(pad) - n),
+                        collapse = ""),
+                    collapse = "")
+            }
+        } else {
+            x <- paste0(x, ".")
+            x <- paste0(x,
+                paste0(rep(0, abs(pad)), collapse = ""),
+                collapse = "")
+        }
+    } else { # pad > 0
+    # nchar of everything before the decimal
+        n <- nchar(strsplit(x, "\\.")[[1]][1])
+        x <- paste0(rep(0, max(0, pad - n)), x)
+    }
+    x
+}
+
+
+bt <- rbind(
+    mom(0.0001, 0.00001),
+    mom(0.0002, 0.00001),
+    mom(0.0005, 0.00001),
+    mom(0.001, 0.0001),
+    mom(0.0023, 0.0001),
+    mom(0.005, 0.0001),
+    mom(0.01, 0.001),
+    mom(0.05, 0.01)
+)
+
+xseq <- seq(0, 0.075, 0.0001)
+
+bts <- lapply(seq_len(nrow(bt)), function(x) {
+    thislabel <- paste0(
+        "xbar=", pad(bt[x, 1], -4),
+        ", s=", pad(bt[x, 2], -5),
+        " | alpha=", pad(round(bt[x, 3], 3), -3),
+        ", beta=", pad(round(bt[x, 4], 3), -3),
+        collapse = ""
+    )
+    data.frame(x = xseq,
+        y = dbeta(xseq,
+            shape1 = bt[x, 3],
+            shape2 = bt[x, 4]),
+        prm = thislabel)
+}) %>% bind_rows()
+
+ggplot(bts) +
+    aes(x = x, y = y, colour = prm) +
+    geom_line(size = 1) +
+    scale_colour_viridis_d(option = 1) +
+    coord_cartesian(ylim = c(0, 40)) +
+    theme_dark() +
+    labs(x = "x", y = "Probability Density",
+        colour = "Parameters")
+```
+
 
 
 
@@ -470,7 +551,7 @@ In \ref{fig:covidcalls}, each row represents resamples from one SAM file. Each b
 \end{figure}
 --->
 
-```{r sampled_bars, fig.height=11, fig.width=13, caption='\label{fig:covidcalls}Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with %fewer than 100 observations was grouped into the "Other" category.'}
+```{r sampled_bars, fig.height=11, fig.width=13, caption='\\label{fig:covidcalls}Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with %fewer than 100 observations was grouped into the "Other" category.'}
 max_label <- 250
 other_label <- 100
 
@@ -582,7 +663,7 @@ Wishlist
 - Set difference of lineages with ordered likelihoods versus re-sampling (\ie which lineage assignments were unique to each method). 
 - Overarching conclusion
 
-```{r ordered_lik, caption="\label{fig:ord}The decrease in the likelihood as more/different alternative base calls are made. It is important to note that these are not substitutions relative to a main sequence, but rather possible alternatives based on the error probabilities inherent in the sequencing process."}
+```{r ordered_lik, caption="\\label{fig:ord}The decrease in the likelihood as more/different alternative base calls are made. It is important to note that these are not substitutions relative to a main sequence, but rather possible alternatives based on the error probabilities inherent in the sequencing process."}
 ggplot(ords) +
     aes(x = order, y = lik, group = factor(acc)) +
     geom_line(alpha = 0.2) +
@@ -614,14 +695,14 @@ This study should not be taken in any way as a criticism of the pangolin lineage
 
 \scriptsize
 
-```{r big_kable, caption='\label{tab:pango}Results for re-sampling analysis all accession numbers in our analysis. The "Conseq" column refers to the lineage designated to the consensus sequence. "Mode" refers to the most common lineage across all re-samples, with "Mode\\#" indicating the number of re-samples with this lineage. "Runner Up" and "RU \\#" are the second most likely lineage designation and the number with that designation, respectively. "Unique" is the total number of unique lineage designations, and "Atoms" are the total number of lineage designations that were only observed for a single re-sample.'}
+```{r big_kable, caption='\\label{tab:pango}Results for re-sampling analysis all accession numbers in our analysis. The "Conseq" column refers to the lineage designated to the consensus sequence. "Mode" refers to the most common lineage across all re-samples, with "Mode #" indicating the number of re-samples with this lineage. "Runner Up" and "RU #" are the second most likely lineage designation and the number with that designation, respectively. "Unique" is the total number of unique lineage designations, and "Atoms" are the total number of lineage designations that were only observed for a single re-sample.'}
 seq_info$taxon <- taxons
 seq_info <- arrange(seq_info, mode, mode_n) %>%
     select(taxon, everything())
 seq_info <- rename(seq_info, Accession = taxon, Conseq = called,
-    Mode = mode, `Mode \\#` = mode_n, `Mode \\#/N` = perc,
-    `Runner-Up` = runner_up, `RU\\#` = ru_n,
-    Unique = unique, Atoms = atom)
+    Mode = mode, `Mode #` = mode_n, `Mode #/N` = perc,
+    `Runner-Up` = runner_up, `RU #` = ru_n,
+    Unique = unique, Atoms = atoms)
 knitr::kable(seq_info, row.names = FALSE)
 ```
 
