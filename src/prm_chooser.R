@@ -4,7 +4,7 @@ options(scipen=6)
 
 pad <- function(x, pad = -3){
     x <- as.character(x)
-    if(length(gregexpr("\\.", x)[[1]]) > 1) {
+    if (length(gregexpr("\\.", x)[[1]]) > 1) {
         stop("Invalid number.")
     }
     if (pad < 0) {
