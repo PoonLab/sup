@@ -430,9 +430,13 @@ If only FASTA files are available, then it's unclear how much variation there is
         - I need a reference for this.
     - ~~In~~Dels: 5:15, 200:250
 
-The results are displayed as some sort of graph. I'll maybe need to show some phylo trees and the plots of distance versus entropy.
+The results are displayed as some sort of graph. Distance between true tree and sampled ones versus entropy is a nice.
 
-
+- TODO:
+	- Import analysis visualization script
+	- Calculate important/interesting statistics
+	- Describe the beta parameters
+		- Re-run with a finer scale but fewer iterations
 
 
 

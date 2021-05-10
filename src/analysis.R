@@ -20,11 +20,13 @@ tmp  <- list()
 tmps <- list()
 for (i in seq_along(rdatas)) {
     load(rdatas[[i]])
+    # between each inferred trees
     tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
                             d.kf   = dist.list$d.kf,
                             d.sh   = dist.list$d.sh,
                             d.kern = dist.list$d.kern,
                             prmset = as.numeric(dist.list$prmset))
+    # benchmark (differece from "true" tree)
     tmps[[i]] <- data.frame(d.rf   = dist.list$d.rf.star,
                             d.kf   = dist.list$d.kf.star,
                             d.sh   = dist.list$d.sh.star,
@@ -32,8 +34,8 @@ for (i in seq_along(rdatas)) {
                             prmset = as.numeric(dist.list$prmset))
     prmsimlabel <- dist.list[["prmsimlab"]]
 }
-df_d  <- do.call("rbind", tmp)
-df_ds <- do.call("rbind", tmps)
+df_d  <- do.call("rbind", tmp) # between inferred
+df_ds <- do.call("rbind", tmps) # inferred versus certain
 
 
 # Retrieve the sequence entropy for each prm set:
