@@ -26,6 +26,7 @@ pad <- function(x, pad = -3){
     x
 }
 
+# Method of Moments for Beta distribution
 mom <- function(xbar, s){
     tmp <- xbar * (1 - xbar) / s - 1
     alpha <- xbar * tmp
@@ -33,26 +34,25 @@ mom <- function(xbar, s){
     return(c(xbar = xbar, s = s, alpha = alpha, beta = beta))
 }
 
+# Choose beta parameters based on mean and sd
 bt <- rbind(
     mom(0.0001, 0.00001),
     mom(0.0002, 0.00001),
     mom(0.0005, 0.00001),
     mom(0.001, 0.0001),
-    mom(0.0025, 0.0001),
     mom(0.005, 0.0001),
     mom(0.01, 0.001),
-    mom(0.025, 0.001),
-    mom(0.05, 0.005)
+    mom(0.05, 0.01)
 )
 
 xseq <- seq(0, 0.075, 0.0001)
 
 bts <- lapply(seq_len(nrow(bt)), function(x) {
     thislabel <- paste0(
-        "xbar=", pad(bt[x, 1], -4),
+        "x̄=", pad(bt[x, 1], -4),
         ", s=", pad(bt[x, 2], -5),
-        " | alpha=", pad(round(bt[x, 3], 3), -3),
-        ", beta=", pad(round(bt[x, 4], 3), -3),
+        " | α=", pad(round(bt[x, 3], 3), -3),
+        ", β=", pad(round(bt[x, 4], 3), -3),
         collapse = ""
     )
     data.frame(x = xseq,
