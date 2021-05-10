@@ -4,12 +4,16 @@ options(scipen=6)
 
 pad <- function(x, pad = -3){
     x <- as.character(x)
+    if(length(gregexpr("\\.", x)[[1]]) > 1) {
+        stop("Invalid number.")
+    }
     if (pad < 0) {
         if (grepl("\\.", x)) {
+            # nchar of everything after the decimal
             n <- nchar(strsplit(x, "\\.")[[1]][2])
             if (n < abs(pad)) {
                 x <- paste0(x, 
-                    paste0(rep(0, abs(pad) - n), 
+                    paste0(rep(0, abs(pad) - n),
                         collapse = ""),
                     collapse = "")
             }
@@ -19,8 +23,9 @@ pad <- function(x, pad = -3){
                 paste0(rep(0, abs(pad)), collapse = ""),
                 collapse = "")
         }
-    } else {
-        n <- nchar(x)
+    } else { # pad > 0
+    # nchar of everything before the decimal
+        n <- nchar(strsplit(x, "\\.")[[1]][1])
         x <- paste0(rep(0, max(0, pad - n)), x)
     }
     x
@@ -40,6 +45,7 @@ bt <- rbind(
     mom(0.0002, 0.00001),
     mom(0.0005, 0.00001),
     mom(0.001, 0.0001),
+    mom(0.0023, 0.0001),
     mom(0.005, 0.0001),
     mom(0.01, 0.001),
     mom(0.05, 0.01)
@@ -64,12 +70,12 @@ bts <- lapply(seq_len(nrow(bt)), function(x) {
 
 ggplot(bts) +
     aes(x = x, y = y, colour = prm) +
-    geom_line() +
-    scale_colour_brewer(type = "div", palette = 8) +
+    geom_line(size = 1) +
+    scale_colour_viridis_d(option = 1) +
     coord_cartesian(ylim = c(0, 40)) +
     theme_dark() +
     labs(x = "x", y = "Probability Density",
         colour = "Parameters")
 
-write.table(bt[, 3:4], file = "prm.btshp",
-    row.names = FALSE, col.names = FALSE)
+write.table(bt[, 3:4], file = "prm-btshp.csv",
+    row.names = FALSE, col.names = FALSE, sep = ", ")
