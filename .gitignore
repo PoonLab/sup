@@ -49,13 +49,17 @@ vignettes/*.pdf
 rsconnect/
 
 # LaTeX outputs:
-*.aux
-*.log
-*.gz
-*.bbl
-*.blg
-*.out
+*aux
+*log
+*gz
+*bbl
+*blg
+*out&
 ms/*.toc
+drafts/*.aux
+drafts/*.out
+
+
 
 # Reads sequencing error simulations:
 reads-seq-err/plot*.pdf
