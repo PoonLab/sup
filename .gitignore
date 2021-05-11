@@ -56,8 +56,8 @@ rsconnect/
 *blg
 *out&
 ms/*.toc
-drafts/*.aux
-drafts/*.out
+drafts/Skeleton.aux
+drafts/*out
 
 
 
