@@ -24,13 +24,13 @@ for (i in seq_along(rdatas)) {
     tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
                             d.kf   = dist.list$d.kf,
                             d.sh   = dist.list$d.sh,
-                            d.kern = dist.list$d.kern,
+                            #d.kern = dist.list$d.kern,
                             prmset = as.numeric(dist.list$prmset))
     # benchmark (differece from "true" tree)
     tmps[[i]] <- data.frame(d.rf   = dist.list$d.rf.star,
                             d.kf   = dist.list$d.kf.star,
                             d.sh   = dist.list$d.sh.star,
-                            d.kern = dist.list$d.kern.star,
+                            #d.kern = dist.list$d.kern.star,
                             prmset = as.numeric(dist.list$prmset))
     prmsimlabel <- dist.list[["prmsimlab"]]
 }
@@ -87,10 +87,10 @@ df_tn93 <- dist.tn93()
 # Number of clusters based on TN93 distance:
 thresh <- c(0.02, 0.30)
 
-df_tn93_clustr_1 <- dist.tn93() %>%
+df_tn93_clustr_1 <- df_tn93 %>%
     clstr_num(dist.thresh.mean = thresh[1])
 
-df_tn93_clustr_2 <- dist.tn93() %>%
+df_tn93_clustr_2 <- df_tn93 %>%
     clstr_num(dist.thresh.mean = thresh[2])
 
 # ---- Plot Fcts ----
