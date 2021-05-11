@@ -415,6 +415,13 @@ For analyses that require a set of sequences, the likelihoods for the set of seq
 
 If only FASTA files are available, then it's unclear how much variation there is. FASTQ files have a measure of uncertainty at each position, but this does not tell us whether the added uncertainty has a large or a small effect on the results. In this analysis, we generate a phylogeny so we know exactly what the truth is. From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @Zanini. These parameter combinations represent increasing levels of entropy. With this uncertainty, we re-sample our sequences and attempt to reconstruct the phylogeny. From these re-sampled phylogenies, we calculate the distance between each new tree and the original perfectly known tree. The results demonstrate the additional variance that can be added to a tree on top of the variance that other analysis will consider. In a study of real sequences, the entropy can be calculated from the FASTQ file then compared to a similar entropy level for simulated data. The variation in tree distance for that level of entropy can be seen as a measure of the un-accounted-for variance in the results. 
 
+Our simulation was set up as follows. The 300 nucleotide long base sequence and its evolutionary tree with 20 terminal nodes were simulated using the functions in the PhyloSim R package. Error probabilities were introduced based on random draws from a beta distribution. The mean values of this beta distribution were chosen to represent reasonable amounts of error, then the standard deviations were chosen based on the order of magnitude of the mean, then the corresponding shape parameters were found (see Figure \ref{fig:btshp}). 
+New sequences were simulated from this uncertainty based on sampling from the uncertainty matrix defined by these error probabilities, with the remaining probability distributed uniformly across the other bases (see Section \ref{fdskfdsf}).
+We also set the probability of deletion based on a beta distribution with shape parameters 1 and 6, but only for nucleotide positions 5 to 15 and 200 to 250. 
+The sequence uncertainty generation process was repeated 300 times for each parameter set (the original sequence and evolutionary tree were the same for all simulations). 
+
+To summarise the results of this simulation, we looked at the distance between the trees as well as the distance between nodes within each tree. We looked at the Robinson-Foulds distance \citep{xxx}, Kuhner-Felsenstein distance \citep{xxx}, and a distance based on shared ancestry. The shared ancestry distance has calculated by calculating the set of ancestors at each node (both internal and terminal), recording the set of all ancestry sets for each tree, then enumerating the number of ancestry sets that two trees share. This definition of distance works especially well for our application since the nodes in each tree are all deviations from the same initial set of nodes, and thus would have exactly the same ancestry were it not for our generated uncertainty. The distance within a tree is calculated as the mean of the TN93 distance between nodes.
+
 - Parameter settings for the most recent run (I will try to define them, but my ignorance will shine through).
     - 300: Length of the 'true' root sequence
     - 0.75:	Proportion of invariant positions in the root sequence
@@ -428,17 +435,24 @@ If only FASTA files are available, then it's unclear how much variation there is
     - Tree distances: ~~Kernel~~, Robinson-Foulds, Kuhner-Felsenstein, shared?
         - Shared: proportion of nodes in a tree that DO NOT have the same descendance as a reference tree. To calculate, the ancestors of every node (tip and internal) are stored in a list. This list is compared to the ancestor list for the reference tree (i.e. the tree calculated prior to gen-uncertain). The distance is measured as 1 minus the proportion of ancestors that are shared.
         - I need a reference for this.
-    - ~~In~~Dels: 5:15, 200:250
+    - ~~In~~Dels: 5:15, 200:250; TODO: find the mean/sd of the error probability
 
 The results are displayed as some sort of graph. Distance between true tree and sampled ones versus entropy is a nice. Average/sd of within-tree TN93 is interesting as well. Clusters are all 1, for some reason.
 
 - TODO:
-	- Import analysis visualization script
+	- Import analysis visualization code
+	    - DONE: Beta distribution shapes
+	    - TODO: Hist of dist to certain tree
+	    - TODO: Hist of within-tree TN93, with certaintree highlighted
+	        - Also, a description of this
 	- Calculate important/interesting statistics
+	    - Mean/sd distance to certain tree
+	    - 
 	- Describe the beta parameters
-		- Re-run with a finer scale but fewer iterations
+		- DONE: Re-run with a finer scale but fewer iterations
+		- TODO: Explain them
 
-```{r}
+```{r prm.btshp, caption="\\label{fig:btshp}The parameters used to add uncertainty to the known sequences. The mean and sd of the beta distribution were chosen, then the corresponding shape parameters were determined."}
 options(scipen=6)
 
 # Method of Moments for Beta distribution
