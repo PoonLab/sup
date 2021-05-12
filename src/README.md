@@ -16,6 +16,7 @@ The general algorithm:
 ## Dependencies
 
 - raxml (https://cme.h-its.org/exelixis/web/software/raxml)
+    - github link: https://github.com/stamatak/standard-RAxML
 - tn93 (https://github.com/veg/tn93)
 
 ## Files in this directory 
