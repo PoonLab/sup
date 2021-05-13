@@ -449,6 +449,17 @@ The results are displayed as some sort of graph. Distance between true tree and 
 		- DONE: Re-run with a finer scale but fewer iterations
 		- TODO: Explain them
 
+
+```{r}
+prmset <- read.csv(here("src", "entropy-prmset.out"), header = F)
+colnames(prmset) <- c("prmset", "s1", "s2", "entropy")
+
+prmset$mean <- prmset$s1/(prmset$s1 + prmset$s2)
+beta_var <- function(a, b) (a * b) / ((a + b)^2*(a + b + 1))
+prmset$var <- beta_var(prmset$s1, prmset$s2)
+knitr::kable(arrange(prmset, prmset))
+```
+
 ```{r prm.btshp, caption="\\label{fig:btshp}The parameters used to add uncertainty to the known sequences. The mean and sd of the beta distribution were chosen, then the corresponding shape parameters were determined."}
 options(scipen=6)
 
@@ -491,31 +502,20 @@ pad <- function(x, pad = -3){
 }
 
 
-bt <- rbind(
-    mom(0.0001, 0.00001),
-    mom(0.0002, 0.00001),
-    mom(0.0005, 0.00001),
-    mom(0.001, 0.0001),
-    mom(0.0023, 0.0001),
-    mom(0.005, 0.0001),
-    mom(0.01, 0.001),
-    mom(0.05, 0.01)
-)
-
 xseq <- seq(0, 0.075, 0.0001)
 
-bts <- lapply(seq_len(nrow(bt)), function(x) {
+bts <- lapply(seq_len(nrow(prmset)), function(x) {
     thislabel <- paste0(
-        "xbar=", pad(bt[x, 1], -4),
-        ", s=", pad(bt[x, 2], -5),
-        " | alpha=", pad(round(bt[x, 3], 3), -3),
-        ", beta=", pad(round(bt[x, 4], 3), -3),
+        "xbar=", pad(prmset[x, 5], -4),
+        ", s=", pad(prmset[x, 6], -5),
+        " | alpha=", pad(round(prmset[x, 2], 3), -3),
+        ", beta=", pad(round(prmset[x, 3], 3), -3),
         collapse = ""
     )
     data.frame(x = xseq,
         y = dbeta(xseq,
-            shape1 = bt[x, 3],
-            shape2 = bt[x, 4]),
+            shape1 = prmset[x, 2],
+            shape2 = prmset[x, 3]),
         prm = thislabel)
 }) %>% bind_rows()
 
@@ -525,9 +525,12 @@ ggplot(bts) +
     scale_colour_viridis_d(option = 1) +
     coord_cartesian(ylim = c(0, 40)) +
     theme_dark() +
+    theme(legend.position = c(0.8, 0.75)) +
     labs(x = "x", y = "Probability Density",
         colour = "Parameters")
 ```
+
+
 
 
 ```{r tree_distances, caption="\\label{tree_distances}Distances between inferred trees."}
