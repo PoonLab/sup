@@ -90,15 +90,15 @@ TODO (with input from David/Art)
     - Right now, I'm using them as synonyms (bad?)
 - Nomenclature:
     - $\nps$ is "nucleotide-level uncertainty sequence" or simply "uncertainty matrix"?
-        - "Uncertainty matrix" is a misnomer - the entries are the probabilitity of basis call. Is there a better term? 
+        - "Uncertainty matrix" is a misnomer - the entries are the probability of basis call. Is there a better term? 
         - Maybe "Call Probability Matrix"?
+        - I realize now that David calls it the "Probabilistic Sequence".
     - Nucleotide "position", "location", or "locus"?
     - "sequence-level uncertainty sequence" or "genome likelihood"?
         - Genome likelihood is used in other contexts; their formulations are model-based but have the same interpretation.
 - Notation:
     - I use subscript $j$ for arbitrary locations on the genome - double check that this is consistent throughout.
 - Style: 
-    - Ensure I use $\ie$, not i.e.
     - I'm really bad at tense.
 
 # Intro
@@ -107,15 +107,15 @@ Extracting DNA/RNA from biological samples is a complex process that involves ma
 
 When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical examples are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients.
 
-The different sources of uncertainty described above impact our observations of the actual genetic sequences. There are standard approaches to deal with identifiable observation errors. Base calls that are ambiguous (from equivocal chromatograph curves or because of genuine polymorphisms) are assigned ambiguity codes (\eg Y for C or T, R for A or G, etc.). Alignment methods are heuristic methods based on similarity scores that generally do not quantify the uncertainty of alignment. Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes (with some exceptions, e.g. @depristoFrameworkVariationDiscovery2011).
+The different sources of uncertainty described above impact our observations of the actual genetic sequences. There are standard approaches to deal with identifiable observation errors. Base calls that are ambiguous (from equivocal chromatograph curves or because of genuine polymorphisms) are assigned ambiguity codes (\eg Y for C or T, R for A or G, etc.). Alignment methods are heuristic methods based on similarity scores that generally do not quantify the uncertainty of alignment. Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes (with some exceptions, \eg @depristoFrameworkVariationDiscovery2011).
 
-In 1998, @ewingBaseCallingAutomatedSequencer1998 and @richterichEstimationErrorsRaw1998 both showed that estimates of the base call quality (called Phred scores) can be an accurate estimate of the number of errors that the machines at the time would make. Modern machines still report these Phred scores, but methods for adjusting/recalibrating these scores for greater accuracy have been proposed [@liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009] For most analyses, these scores are used to censor the base calls (i.e., label them "N" rather than A, T, C, or G) if the base call error probability is too high or there are too few reads and a given location. It is commonplace to remove the sequence from analysis if the total sequence error probability is too high [see, e.g., @doroninaPhylogeneticPositionEmended2005, @robaskyRoleReplicatesError2014, @oraweAccountingUncertaintyDNA2015]. The error probability is deemed too high based on a strict threshold (e.g. 1\% chance of error), but these thresholds aren't necessarily standard across studies.
+In 1998, @ewingBaseCallingAutomatedSequencer1998 and @richterichEstimationErrorsRaw1998 both showed that estimates of the base call quality (called Phred scores) can be an accurate estimate of the number of errors that the machines at the time would make (although later studies dispute this accuracy). Modern machines still report these Phred scores, but methods for adjusting/recalibrating these scores for greater accuracy have been proposed [@liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009] For most analyses, these scores are used to censor the base calls (\ie, label them "N" rather than A, T, C, or G) if the base call error probability is too high or there are too few reads and a given location. It is commonplace to remove the sequence from analysis if the total sequence error probability is too high [see, \eg @doroninaPhylogeneticPositionEmended2005, @robaskyRoleReplicatesError2014, @oraweAccountingUncertaintyDNA2015]. The error probability is deemed "too high" based on a strict threshold (\eg 1\% chance of error), but these thresholds aren't standard across studies.
 
-Some studies have incorporated the error probabilities using genome likelihoods. @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011 incoporate the adjusted Phred scores into a likelihood framework that allows them to more accurately estimate population-level allele distributions. @fumagalliQuantifyingPopulationGenetic2013a present a new estimator for population genetic diversity based on such analyses. @kuoEAGLEExplicitAlternative2018 use genome likelihoods to perform hypothesis tests that evaluate whether a given genome sequence is consistent with a given alternative sequence, after accounting for the errors. As with any parametric model-based approach, genome likelihoods use assumptions about the errors in order to make conclusions about the underlying patterns. 
+Some studies have incorporated the error probabilities using genome likelihoods. @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011 incorporate the adjusted Phred scores into a likelihood framework that allows them to more accurately estimate population-level allele distributions. @fumagalliQuantifyingPopulationGenetic2013a present a new estimator for population genetic diversity based on such analyses. @kuoEAGLEExplicitAlternative2018 use genome likelihoods to perform hypothesis tests that evaluate whether a given genome sequence is consistent with a given alternative sequence after accounting for the errors. As with any parametric model-based approach, genome likelihoods use assumptions about the errors in order to make conclusions about the underlying patterns. 
 
 Few other authors have considered the uncertainty present in the sequences in downstream analyses. One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagating sequence-level uncertainty into determining whether two subjects have the same alleles as well as incorporating the sequence-level uncertainty into confidence intervals for allele frequency.
 
-In our work, we present a simple, general framework that can be incorporated into any analysis of genetic sequence data. This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis. Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns in the data. In doing so, we gain generalizability at the expense of computation time. Our technique is amenable to any appropriate quality score adjustments prior to building the uncertainty matrix.
+In our work, we present a simple, general framework that can be incorporated into any analysis of genetic sequence data. This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis. Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns in the data. In doing so, we gain more accurate estimation of the errors at the expense of computation time. Our technique is amenable to any appropriate quality score adjustments prior to building the uncertainty matrix.
 
 
 
@@ -219,7 +219,7 @@ Below is an example for a \slps $\sps$:
 \end{center}
 \label{default}
 \end{table}%
-Sampling from $\sps$, we will have for example \sq{ACATCA} $12\%$ of the time. Large genomes, such as SARS-CoV-2, will result in vanishly small probabilities for all sequences, and thus work on the log scale is often preferred.  
+Sampling from $\sps$, we will have for example \sq{ACATCA} $12\%$ of the time. Large genomes, such as SARS-CoV-2, will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale are often preferred.
 
 
 ## Deletions and Insertions
@@ -266,16 +266,13 @@ The representation of deletions and insertions with a \slps (not nucleotide-leve
 ## Constructing The Uncertainty Matrix
 
 
-Fragment sequencing error is an error that is quantified with quality (or "Phred") score attributed to each base call from sequencing instrument. 
-The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$. \cite{ewingBaseCallingAutomatedSequencer1998} (where $Q$ typically ranges between 1 and 60). The FASTQ file format is the standard representation for combining sequence and observation error.
-Hence, the uncertainty associated to the base call is quantified by defining the probability that the observed nucleotide is the correct one: 
+Fragment sequencing error is an error that is quantified with quality (or "Phred") score attributed to each base call from sequencing instrument. The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$. \cite{ewingBaseCallingAutomatedSequencer1998} (where $Q$ typically ranges between 1 and 60). The FASTQ file format is the standard representation for combining sequence and observation error. The uncertainty associated to the base call is quantified by defining the probability that the observed nucleotide is the correct one: 
 \begin{equation}
 \label{eq:basecall}
 \pr{\text{nucleotide}=X \,\,|\,\, \text{observed nucleotide} = X} = 1 - \epsilon
 \end{equation}
 
-Unfortunately, this base-call probability relates to only one \emph{focal} nucleotide and we have no information on the probability for the three other possible nucleotides. 
-Hence, we must make a modelling choice regarding the distribution of the remaining probabilities. 
+Unfortunately, for FASTQ files, this base-call probability relates to only one \emph{focal} nucleotide and we have no information on the probability for the three other possible nucleotides. Hence, we must make a modelling choice regarding the distribution of the remaining probabilities. 
 
 ### SAM Files
 
@@ -338,11 +335,11 @@ d\\
 ### Consensus sequence FASTA files
 
 - Analysis will not draw any firm conclusions, but...
-    - stress testing for your analysis, e.g. could resample genomes at different overall error rates, then simulate error rates from overall rate at each location, then see how much it F's up your analysis.
+    - stress testing for your analysis, \eg could resample genomes at different overall error rates, then simulate error rates from overall rate at each location, then see how much it F's up your analysis.
 
 In the absense of any measured uncertainty we are constrained with what we can do. Any uncertainty that we impose upon the data will be a principled assumption. However, imposing our assumptions can still be very useful as a "stress test" of our analysis; we can assume different levels/types of uncertainty and quantify the stability of our results.
 
-The error probability at any given nucleotide location can be simulated as a beta distribution, i.e. 
+The error probability at any given nucleotide location can be simulated as a beta distribution, \ie 
 
 $$
 \epsilon_j \sim\text{Beta}(\alpha, \beta)
@@ -433,7 +430,7 @@ To summarise the results of this simulation, we looked at the distance between t
     - 500: Monte Carlo iterations for sampling tip probabilistic sequences
     - TN93: Distance (nucleotide)
     - Tree distances: ~~Kernel~~, Robinson-Foulds, Kuhner-Felsenstein, shared?
-        - Shared: proportion of nodes in a tree that DO NOT have the same descendance as a reference tree. To calculate, the ancestors of every node (tip and internal) are stored in a list. This list is compared to the ancestor list for the reference tree (i.e. the tree calculated prior to gen-uncertain). The distance is measured as 1 minus the proportion of ancestors that are shared.
+        - Shared: proportion of nodes in a tree that DO NOT have the same descendance as a reference tree. To calculate, the ancestors of every node (tip and internal) are stored in a list. This list is compared to the ancestor list for the reference tree (\ie the tree calculated prior to gen-uncertain). The distance is measured as 1 minus the proportion of ancestors that are shared.
         - I need a reference for this.
     - ~~In~~Dels: 5:15, 200:250; TODO: find the mean/sd of the error probability
 
@@ -692,12 +689,12 @@ Our proposed methods can result in a drastic increase in compuatational expense.
 
 Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model. The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
 
-Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption. We cannot account for systematic errors, such as those present due to human errors (e.g. mis-calibrated machines or that one lab in @blank that kept giving the same mutations). Our method allows for adjustments of the base call quality score (such as those in @blank), as well as more sophisticated definitions genome likelihoods (such as those in @blank2).
+Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption. We cannot account for systematic errors, such as those present due to human errors (\eg mis-calibrated machines or that one lab in @blank that kept giving the same mutations). Our method allows for adjustments of the base call quality score (such as those in @blank), as well as more sophisticated definitions genome likelihoods (such as those in @blank2).
 
 This study should not be taken in any way as a criticism of the pangolin lineage assignment procedure. Rather, pangolin was chosen as it is a state-of-the art tool based on the best available algorithms for phylogeny reconstruction. The phylogeny created by this team has been a vital resource for researchers and for public health professionals. In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations. 
 
 - Other things that could be added here:
-    - Resample to get variance around representative sequence for a given lineage (e.g. HIV)
+    - Resample to get variance around representative sequence for a given lineage (\eg HIV)
         - Can be done with just FASTQ files (less accurate)
     - Given a canonical reference seqeunce for a lineage, find level of entropy that makes it a different sequence
 
