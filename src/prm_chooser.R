@@ -41,12 +41,9 @@ mom <- function(xbar, s){
 
 # Choose beta parameters based on mean and sd
 bt <- rbind(
-    mom(0.0001, 0.00001),
-    mom(0.0002, 0.00001),
-    mom(0.0005, 0.00001),
-    mom(0.001, 0.0001),
-    mom(0.0023, 0.0001),
-    mom(0.005, 0.0001),
+    mom(0.0002, 0.0001),
+    mom(0.0023, 0.001),
+    mom(0.005, 0.001),
     mom(0.01, 0.001),
     mom(0.05, 0.01)
 )
