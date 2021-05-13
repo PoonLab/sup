@@ -9,7 +9,7 @@
 figgy=`whereis figlet`
 figgylen=${#figgy}
 if [ $figgylen > 10 ]; then 
-    figlet Analysis.R
+    figlet infr-tree-raxml.R
 fi
 
 PRMSET=$1
