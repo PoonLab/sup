@@ -80,7 +80,7 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
     - Conclusions
         - [ ] For phylogenies in general (lean heavily on David's work)
         - [x] For Covid data
-
+		- [ ] Other uses: instead of a canonical representation, the probability sequence could be calculated based on the estimated population frequency of alleles at polymorphism sites.
 
 ### Nice-to-Haves
 

@@ -690,7 +690,8 @@ The short run files produced by next generation sequencing platforms include val
 
 Our proposed methods can result in a drastic increase in compuatational expense. Even the method base on ordering the sequences by likelihood can result in re-running the analysis numerous times. However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results. The so-called "consensus sequence" is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity. 
 
-Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model. The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
+Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model. The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness. 
+For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
 
 Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption. We cannot account for systematic errors, such as those present due to human errors (e.g. mis-calibrated machines or that one lab in @blank that kept giving the same mutations). Our method allows for adjustments of the base call quality score (such as those in @blank), as well as more sophisticated definitions genome likelihoods (such as those in @blank2).
 
