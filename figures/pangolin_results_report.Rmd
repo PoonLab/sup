@@ -45,6 +45,9 @@ badlins <- names(badlins[which(badlins < 4500)])
 cat(length(badlins), " runs were removed for having too few samples.")
 lins <- filter(lins, !taxon %in% badlins)
 
+write.csv(lins, here("data", "output", "lins.csv"),
+    row.names = FALSE)
+
 #### Visualize the uncertainty in the base calls ----
 taxons <- sort(unique(lins$taxon))
 length(taxons)

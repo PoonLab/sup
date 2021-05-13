@@ -42,25 +42,8 @@ library(patchwork)
 ```{r load_sampled, include=FALSE}
 
 # Read in CSV files
-csvs <- list.files(here("data/", "pangolineages"),
-    pattern = "*_d.csv",
-    full.names = TRUE)
-
-# Remove any copies
-csvs <- csvs[!grepl("-1", csvs)]
-
-# Bring them into one data frame
-lins <- bind_rows(lapply(csvs, read.csv))
-
-# Taxon is encoded as _ACCSESSIONNUMBER.ID, split into ACCESSIONNUMBER and ID
-lins <- lins %>%
-    separate(col = "taxon", sep = "\\.",
-        into = c("taxon", "sample")) %>%
-    mutate(taxon = str_replace(taxon, "\\_", ""))
-
-badlins <- table(lins$taxon)
-badlins <- names(badlins[which(badlins < 4500)])
-lins <- filter(lins, !taxon %in% badlins)
+lins <- read.csv(here("data", "output", "lins.csv"),
+    header = TRUE)
 
 taxons <- sort(unique(lins$taxon))
 
