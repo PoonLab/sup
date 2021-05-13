@@ -2,6 +2,7 @@ library(tidyr)
 library(dplyr)
 library(ggplot2) ; theme_set(theme_bw())
 library(gridExtra)
+library(here)
 
 source("dist-fcts.R")
 source("utils.R")
@@ -16,26 +17,26 @@ rdatas <- system("ls *treedist*RData", intern = TRUE)
 
 # ---- Distances ----
 
-tmp  <- list()
-tmps <- list()
+btwn_tmp  <- list()
+certain_tmp <- list()
 for (i in seq_along(rdatas)) {
     load(rdatas[[i]])
     # between each inferred trees
-    tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
+    btwn_tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
                             d.kf   = dist.list$d.kf,
                             d.sh   = dist.list$d.sh,
                             #d.kern = dist.list$d.kern,
                             prmset = as.numeric(dist.list$prmset))
-    # benchmark (differece from "true" tree)
-    tmps[[i]] <- data.frame(d.rf   = dist.list$d.rf.star,
+    # benchmark (difference from "true" tree)
+    certain_tmp[[i]] <- data.frame(d.rf   = dist.list$d.rf.star,
                             d.kf   = dist.list$d.kf.star,
                             d.sh   = dist.list$d.sh.star,
                             #d.kern = dist.list$d.kern.star,
                             prmset = as.numeric(dist.list$prmset))
     prmsimlabel <- dist.list[["prmsimlab"]]
 }
-df_d  <- do.call("rbind", tmp) # between inferred
-df_ds <- do.call("rbind", tmps) # inferred versus certain
+between_df  <- do.call("rbind", btwn_tmp) # between inferred
+certain_df <- do.call("rbind", certain_tmp) # inferred versus certain
 
 
 # Retrieve the sequence entropy for each prm set:
@@ -73,8 +74,13 @@ digest_distances <- function(df) {
 
 
 
-df_d_m  <- digest_distances(df_d)
-df_d_ms <- digest_distances(df_ds)
+between  <- digest_distances(between_df)
+certain <- digest_distances(certain_df)
+
+saveRDS(between,
+    file = here("data", "output", "between-inferreddistances.RDS"))
+saveRDS(certain,
+    file = here("data", "output", "inferred-to-certain-distance.RDS"))
 
 # ---- TN93 distances ----
 
@@ -95,7 +101,7 @@ df_tn93_clustr_2 <- df_tn93 %>%
 
 # ---- Plot Fcts ----
 
-plot_analysis_dig <- function(dfm, subtitle = "") {
+plot_distances_by_entropy <- function(dfm, subtitle = "") {
 
     # Mean, min, max
     g_mmm <- dfm %>%
@@ -146,7 +152,7 @@ plot_analysis_dig <- function(dfm, subtitle = "") {
                 g.sd  = g_sd))
 }
 
-plot_analysis <- function(df, subtitle="") {
+plot_distance_hist <- function(df, subtitle="") {
 
     dfl <- pivot_longer(df, -prmset,
                         names_to = "distance.type",
@@ -175,7 +181,7 @@ plot_analysis <- function(df, subtitle="") {
                 g.dens = g_dens))
 }
 
-plot_analysis_join <- function(df_d_m, df_d_ms) {
+plot_dist_between_and_certain <- function(df_d_m, df_d_ms) {
     df_d_m$ID  <- paste(df_d_m$distance.type, df_d_m$prmset)
     df_d_ms$ID <- paste(df_d_ms$distance.type, df_d_ms$prmset)
 
@@ -280,13 +286,13 @@ plot_prmset_distrib("prm-btshp.csv")
 dev.off()
 
 
-g  <- plot_analysis(df_d, "b/w inferred trees")
-g0 <- plot_analysis(df_ds, "from benchmark")
+g  <- plot_distance_hist(between_df, "b/w inferred trees")
+g0 <- plot_distance_hist(certain_df, "from benchmark")
 
-g_digest  <- plot_analysis_dig(df_d_m, "b/w inferred trees")
-g_digest0 <- plot_analysis_dig(df_d_ms, "from benchmark")
+g_digest  <- plot_distances_by_entropy(between, "b/w inferred trees")
+g_digest0 <- plot_distances_by_entropy(certain, "from benchmark")
 
-g_j <- plot_analysis_join(df_d_m, df_d_ms)
+g_j <- plot_dist_between_and_certain(between, certain)
 
 
 fname <- paste0("plot-analysis-", prmsimlabel, ".pdf")
@@ -306,11 +312,11 @@ plot(g_j)
 g_tn93 <- plot_tn93_distances(df_tn93)
 
 g_tn93_clustr_1 <- plot_clstr_num(df_tn93_clustr_1,
-                                subtitle = paste("Threshold(mean) =",
-                                                 thresh[1]))
+    subtitle = paste("Threshold(mean) =",
+        thresh[1]))
 g_tn93_clustr_2 <- plot_clstr_num(df_tn93_clustr_2,
-                                subtitle = paste("Threshold(mean) =",
-                                                 thresh[2]))
+    subtitle = paste("Threshold(mean) =",
+        thresh[2]))
 plot(g_tn93$g.hist)
 grid.arrange(g_tn93$g.ptrng,
              g_tn93_clustr_1,
