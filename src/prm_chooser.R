@@ -40,28 +40,29 @@ mom <- function(xbar, s){
 }
 
 # Choose beta parameters based on mean and sd
-bt <- rbind(
+prmset <- rbind(
     mom(0.0002, 0.0001),
-    mom(0.0023, 0.001),
+    mom(0.0025, 0.001),
     mom(0.005, 0.001),
-    mom(0.01, 0.001),
-    mom(0.05, 0.01)
+    mom(0.008, 0.001),
+    mom(0.0125, 0.001),
+    mom(0.05, 0.005)
 )
 
 xseq <- seq(0, 0.075, 0.0001)
 
-bts <- lapply(seq_len(nrow(bt)), function(x) {
+bts <- lapply(seq_len(nrow(prmset)), function(x) {
     thislabel <- paste0(
-        "x̄=", pad(bt[x, 1], -4),
-        ", s=", pad(bt[x, 2], -5),
-        " | α=", pad(round(bt[x, 3], 3), -3),
-        ", β=", pad(round(bt[x, 4], 3), -3),
+        "x̄=", pad(prmset[x, 1], -4),
+        ", s=", pad(prmset[x, 2], -4),
+        " | α=", pad(round(prmset[x, 3], 3), -3),
+        ", β=", pad(round(prmset[x, 4], 3), -3),
         collapse = ""
     )
     data.frame(x = xseq,
         y = dbeta(xseq,
-            shape1 = bt[x, 3],
-            shape2 = bt[x, 4]),
+            shape1 = prmset[x, 3],
+            shape2 = prmset[x, 4]),
         prm = thislabel)
 }) %>% bind_rows()
 
@@ -71,8 +72,9 @@ ggplot(bts) +
     scale_colour_viridis_d(option = 1) +
     coord_cartesian(ylim = c(0, 40)) +
     theme_dark() +
+    theme(legend.position = c(0.8, 0.8)) +
     labs(x = "x", y = "Probability Density",
         colour = "Parameters")
 
-write.table(bt[, 3:4], file = "prm-btshp.csv",
+write.table(prmset[, 3:4], file = "prm-btshp.csv",
     row.names = FALSE, col.names = FALSE, sep = ", ")
