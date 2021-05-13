@@ -72,7 +72,7 @@ src/seqs/seqs*fasta*
 src/trees/*.out
 src/trees/*.nwk
 src/trees/RAxML*.out*
-src/*.out
+src/raxml.out
 
 
 # Plots:
