@@ -78,9 +78,9 @@ between  <- digest_distances(between_df)
 certain <- digest_distances(certain_df)
 
 saveRDS(between,
-    file = here("data", "output", "between-inferreddistances.RDS"))
+    file = here("data", "output", "between-inferred-distances.RDS"))
 saveRDS(certain,
-    file = here("data", "output", "inferred-to-certain-distance.RDS"))
+    file = here("data", "output", "inferred-to-certain-distances.RDS"))
 
 # ---- TN93 distances ----
 
