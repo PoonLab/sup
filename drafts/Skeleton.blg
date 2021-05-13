@@ -4,11 +4,12 @@ The top-level auxiliary file: Skeleton.aux
 The style file: plainnat.bst
 Database file #1: supbib.bib
 Warning--I didn't find a database entry for "Zanini"
+Warning--I didn't find a database entry for "xxx"
 Warning--I didn't find a database entry for "blank"
 Warning--I didn't find a database entry for "blank2"
 You've used 15 entries,
             2773 wiz_defined-function locations,
-            739 strings with 9445 characters,
+            740 strings with 9448 characters,
 and the built_in function-call counts, 9211 in all, are:
 = -- 840
 > -- 680
@@ -47,4 +48,4 @@ warning$ -- 0
 while$ -- 72
 width$ -- 0
 write$ -- 261
-(There were 3 warnings)
+(There were 4 warnings)
