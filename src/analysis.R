@@ -64,10 +64,14 @@ digest_distances <- function(df) {
                   q.hi = quantile(value, probs = p_hi, na.rm = TRUE),
                   minv = min(value, na.rm = TRUE),
                   maxv = max(value, na.rm = TRUE),
-                  n = sum(!is.na(value))) %>%
+                  n = sum(!is.na(value)),
+                  .groups = "drop") %>%
         mutate(cv = s / m)
 
-    res <- left_join(tmp, df_ent, by = "prmset")
+    beta_var <- function(a, b) (a * b) / ((a + b)^2*(a + b + 1))
+    res <- left_join(tmp, df_ent, by = "prmset") %>%
+        mutate(beta_mean = s1 / (s1 + s2),
+            beta_var = beta_var(s1, s2))
 
     return(res)
 }
