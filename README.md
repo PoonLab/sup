@@ -38,7 +38,6 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 - `src`: source code for uncertainty propagation analysis, based on simulated sequences with beta-distributed uncertainty at each site.
     - `run-multi.sh` is where the magic happens.
     - `prm.csv` includes the parameters for the simulation and analysis.
-- `reads-seq-err`: Estimation of the sequencing error of DNA fragment by Illumina instruments using simulations from from the software *InSilicoSeq*.
 - `sung`: source code for `sung` (Sequence UNcertainty Generation) R package.
     - Written by David Champredon and Art Poon.
 - `covid`: source code for cluster allocation analysis of SARS-CoV-2 sam files. (Note: I recognize that "covid" is the disease and "SARS-CoV-2" is the virus, but covid is easier to type.)
