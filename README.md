@@ -21,6 +21,7 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
     - These contain a Phred score for each base call. This phred score is calculated similarly to the process for SAM files, but only the uncertainty for the most probable base is reported.
 3. FASTA files
     - Contain no information about sequence uncertainty.
+    - However, uncertainty can be generated around FASTA to investigate how sensitive the methods are to the assumption of certainty in the conseq.
 
 
 - `doc`: Documentation of the methods
