@@ -35,7 +35,7 @@ library(tidyr)
 library(ggplot2)
 library(stringr)
 library(here)
-
+library(patchwork)
 ```
 
 
@@ -530,7 +530,31 @@ ggplot(bts) +
 ```
 
 
+```{r tree_distances, caption="\\label{tree_distances}Distances between inferred trees."}
+between <- readRDS(here("data", "output",
+    "between-inferred-distances.RDS"))
+certain <- readRDS(here("data", "output",
+    "inferred-to-certain-distances.RDS"))
 
+gg_btwn <- ggplot(between) +
+    aes(x = entropy, y = m, ymin = q.lo, ymax = q.hi) +
+    geom_ribbon(alpha = 0.2) +
+    facet_wrap(~ distance.type, nrow = 1) +
+    geom_line() +
+    labs(x = "Entropy", y = "Average Distance", 
+        title = "Average distance between inferred trees")
+
+
+gg_crtn <- ggplot(certain) +
+    aes(x = entropy, y = m, ymin = q.lo, ymax = q.hi) +
+    geom_ribbon(alpha = 0.2) +
+    facet_wrap(~ distance.type, nrow = 1) +
+    geom_line() +
+    labs(x = "Entropy", y = "Average Distance", 
+        title = "Average distance from inferred trees to certain tree")
+
+gg_btwn / gg_crtn
+```
 
 
 ## SARS-CoV-2
