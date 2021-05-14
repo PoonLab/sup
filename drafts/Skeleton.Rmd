@@ -2,28 +2,20 @@
 title: "Variance in Variants: Propagating Genome Sequence Uncertainty into Downstream Analyses"
 author: "David Champredon&ast;, Devan Becker&ast;, Connor Chato, Gopi Gugan, Art Poon"
 date: "&ast;contributed equally"
-font: 13pt
 output:
     pdf_document:
-        citation_package: natbib
         number_sections: yes
         keep_tex: yes
         includes:
             in_header: 
-                - ../ms/latex-macro.tex
+                - preamble.tex
 #classoption:
+documentclass: article
+fontsize: 12pt
 #    - table
 #    - "aspectratio=1610"
-header-includes:
-    - \usepackage{xspace}
-    - \usepackage{xcolor}
-    - \usepackage{float} # Place figures exactly "here" (option "H")
-    - \usepackage{longtable, booktabs}
-    - \usepackage{mathptmx}
-    - \usepackage{lineno}
-    - \usepackage{setspace}
-    - \doublespacing
-    - \pagewiselinenumbers
+
+
 bibliography: supbib.bib
 #csl: apa.csl
 abstract: |
@@ -95,36 +87,39 @@ TODO (with input from David/Art)
 
 Generating a genetic sequence from a biological sample is a complex process that involves many steps.
 Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
-If working with RNA, then we must use reverse transcription to convert the RNA into DNA.
-For some next-generation sequencing (NGS) applications, we have to generate a sequencing library by random shearing of nucleic acids into fragments that are ligated onto special `adaptors'. 
+If working with RNA, then we must use a reverse transcriptase reaction to convert the RNA into DNA.
+PCR amplification is often employed to enrich the sample for the target of interest.
+For some next-generation sequencing (NGS) protocols, we have to generate a sequencing library by random shearing of nucleic acids into fragments that are ligated onto special `adaptors'.
 NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies [REF].
 <!-- https://www.nature.com/articles/nbt.1585 -->
-In addition, the short reads produced by NGS platforms need to be aligned &mdash; either by alignment against a reference genome, *de novo* assembly, or a combination of the two &mdash; to reconstruct the complete sequence using one or more bioinformatic programs.
-Errors can be introduced any one of these steps  [@beerenwinkelUltradeepSequencingAnalysis2011, @oraweAccountingUncertaintyDNA2015].
+In addition, the short reads produced by NGS platforms need to be aligned &mdash; either by alignment against a reference genome, *de novo* assembly, or a combination of the two &mdash; to reconstruct a consensus sequence using one or more bioinformatic programs.
+Errors can be introduced any one of these steps  (@beerenwinkelUltradeepSequencingAnalysis2011, @oraweAccountingUncertaintyDNA2015).
 
 
-In some cases, the variation induced by measurement error is directly quantified and encoded into the output.
-For example, ambiguous base calls from sequence chromatograms are assigned ambiguity codes (\eg Y for C or T, R for A or G) when the base calling program cannot determine which base is dominant. 
-In 1998, @ewingBaseCallingAutomatedSequencer1998 and @richterichEstimationErrorsRaw1998 both showed that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
-Even though the accuracy of Phred quality scores has been disputed and other methods for quantifying error probabilities have been proposed [@liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009], Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
+In some cases, naturally occurring variation, \ie genetic polymorphisms, or variation induced by experimental error is directly quantified and encoded into the output.
+For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T, R for A or G) when the base calling program cannot determine which base is dominant. 
+@ewingBaseCallingAutomatedSequencer1998 and @richterichEstimationErrorsRaw1998 both showed that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
+Even though the accuracy of Phred quality scores has been disputed, and other methods for quantifying error probabilities have been proposed (@liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009), Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
 Generally, these scores are used to censor the base calls (\ie label them "N" rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold.
 It is also common practice to remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg @doroninaPhylogeneticPositionEmended2005, @robaskyRoleReplicatesError2014, @oraweAccountingUncertaintyDNA2015.
-
 Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihood of partial or full sequences. 
 For example, @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011 incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity (@fumagalliQuantifyingPopulationGenetic2013a).
-@kuoEAGLEExplicitAlternative2018 use genome likelihoods to perform hypothesis tests that evaluate whether a given genome sequence is consistent with a given alternative sequence after accounting for the errors. 
-As with any parametric model-based approach, genome likelihoods use assumptions about the errors in order to make conclusions about the underlying patterns. 
+@kuoEAGLEExplicitAlternative2018 recently used a similar approach to develop a statistical test of test whether a given genome sequence is consistent with an alternative sequence. 
 
 
-Few other authors have considered the uncertainty present in the sequences in downstream analyses. One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagating sequence-level uncertainty into determining whether two subjects have the same alleles as well as incorporating the sequence-level uncertainty into confidence intervals for allele frequency.
+Other than filtering data, the uncertainty present in the sequences are seldom propagated to downstream analyses.
+For example, methods for sequence alignment and homology searches generally employ heuristic algorithms that utilize similarity scores that do not explicitly incorporate the probabilities of sequencing errors.
+Moreover, methods to reconstruct the evolutionary relationships among sequences as a phylogenetic tree tend to interpret ambiguous base calls as completely missing data, although some exceptions are found in the literature, \eg @depristoFrameworkVariationDiscovery2011.
+This problem is exacerbated when each sequence represents the consensus of diverse copies of a genome, such as rapidly evolving virus populations where genuine polymorphisms are confounded with sequencing error.
+One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagating sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies.
 
-Alignment methods are heuristic methods based on similarity scores that generally do not quantify the uncertainty of alignment.
-Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes (with some exceptions, \eg @depristoFrameworkVariationDiscovery2011).
-When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical examples are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients.
 
-
-In our work, we present a simple, general framework that can be incorporated into any analysis of genetic sequence data. This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis. Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns in the data. In doing so, we gain more accurate estimation of the errors at the expense of computation time. Our technique is amenable to any appropriate quality score adjustments prior to building the uncertainty matrix.
-
+Here we present a simple general-purpose framework that can be incorporated into any analysis of genetic sequence data.
+This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis.
+Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns in the data.
+In so doing, we can gain more accurate estimation of the errors at the expense of computation time.
+Our technique is amenable to any appropriate quality score adjustments prior to building the uncertainty matrix.
+We demonstrate the impact of propagating sequence uncertainty by applying our methods to the problem of classifying SARS-CoV-2 genomes into predefined clusters known as `lineages', several of which correspond to variants carrying mutations that are known to confer an advantage to virus transmission or infectivity.
 
 
 
@@ -132,7 +127,8 @@ In our work, we present a simple, general framework that can be incorporated int
 
 ## Probabilistic Representation of Sequences
 
-Here, we describe two theoretical frameworks to model sequence uncertainty at the \emph{nucleotide level} or at the \emph{sequence level}. In both frameworks, the sequence of nucleotides from a biological sample is not treated as a certain observation, but rather as a collection of possible sequences.
+Here, we describe two theoretical frameworks to model sequence uncertainty at the \emph{nucleotide level} or at the \emph{sequence level}.
+In both frameworks, the sequence of nucleotides from a biological sample is not treated as a single unambiguous observation (known without error), but rather as a collection of possible sequences.
 
 ### Nucleotide-level uncertainty
 
@@ -148,8 +144,10 @@ To represent the uncertainty at each location along the genome, we introduce fol
 }\label{eq:nps}
 \end{equation}
 
-Each column represents the nucleotide position, each row one of the four nucleotide \sq{A,C,G,T} as well as an empty position "\sq{-}"" that symbolizes a genuine deletion (not caused by missing data).
-Hence, $\nps$ is a $5\times\ell$ matrix. Its elements represent the probability that a nucleotide is at given position:
+Each column represents a position in a nucleotide sequence of length $\ell$.
+Each row represents one of the four nucleotides \sq{A,C,G,T}, as well as an empty position "\sq{-}"" that symbolizes a genuine deletion, \ie not caused by missing data.
+Hence, $\nps$ is a $5\times\ell$ matrix. 
+Its elements represent the probability that a nucleotide is at given position:
 
 \begin{equation}
 \nps_{\sq{n},j} = \pr{\text{nucleotide \sq{n} is at position }j}
@@ -157,26 +155,39 @@ Hence, $\nps$ is a $5\times\ell$ matrix. Its elements represent the probability 
 with the special case for a deletion:
 
 \begin{equation}
-\nps_{\sq{-},j} = \pr{\text{empty position }j}
+\nps_{\sq{-},j} = \pr{\text{empty position }j}.
 \end{equation}
 Note that we have for all $1\leq j \leq \ell$:
 \begin{equation}
 \sum_{n\in \{ \sq{A,C,G,T,-} \} } \nps_{n, j} = 1
 \end{equation}
-Also, the sequence length is stochastic if $\nps_{\sq{-},i}>0$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-\nps_{\sq{-},i})$. 
+Also, the sequence length is stochastic if $0<\nps_{\sq{-},i}<1$ for at least one $i$. The probability that the sequence has the maximum length $\ell$ is $\prod_{i=1}^\ell (1-\nps_{\sq{-},i})$. 
 We call the matrix $\nps$ the \emph{\nlps} of a biological sample.
 The nucleotide (or deletion) drawn at each position is independent from all the others, so there are $5^\ell$ possible different sequences for a given probabilistic nucleotide sequence, but these sequences are *not* equally probable. 
 
 
+A major limitation of this probabilistic representation of a sequence is that we lose any information on linkage disequilibrium.
+Every nucleotide is an independent observation.
+As we will later demonstrate, a matrix populated from short read data 
+
+
+
 ### Sequence-level uncertainty
 
-Out of the $5^\ell$ possible sequences, the nucleotide uncertainty may assign a positive probability to sequences that are not biologically possible.
-As an alternative representation and to reduce the space of possible sequences, let's assume we have enough information (either directly observed from data or simulated) to generate a set of sequences $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of all $m$ biologically possible sequences. Note that the $\sps_i$ do not have necessarily the same length. 
-The observed genetic sequence, $s$, is a sample from a specified distribution $a$:
+A significant problem of storing probabilities at the level of individual nucleotides is that there are an enormous number of possible sequences ($5^\ell$).
+For example, the reference SARS-CoV-2 genome is 29,903 nucleotides, and a substantial number of naturally-occurring sequence insertions have been described.
+Thus, we expect that $\ell$ exceeds 30,000, such that the total number of possible sequences is greater than $10^{20970}$.
+The majority of these possible sequences are not biologically plausible.
+Therefore, we formulate an ordered subset $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of the first $m$ most likely sequences, which are ranked in descending order by the joint probability of nucleotide composition.
+This compact representation drastically reduces the space of all possible sequences, \ie $m\ll 5^\ell$.
+Note that the $\sps_i$ do not have necessarily the same length. 
+The observed genetic sequence, $s$, is a sample from a specified discrete probability distribution $a$:
 \begin{equation}
-\pr{s = \sps_i} = a(i)
+\pr{s = \sps_i} = a(i).
 \end{equation}
-We call the set $\sps$ the \emph{\slps}. Note that, because $a$ is a distribution, we must have $\sum_{i=1}^m a(i) = 1$. 
+Moreover, $s$ is guaranteed to be a member of $\sps$ if $\nps_{s(j), j} > 0.5\;\forall\;j$ where $s(j)$ is the $j$-th nucleotide of $s$; indeed, it is guaranteed to the highest ranked member $i=0$.
+We refer to any member of the set $\sps$ as a \emph{\slps}.
+Note that because $a$ is a probability distribution, we must have $\sum_{i=1}^m a(i) = 1$. In other words, this probability is conditional on the sequence being in $\sps$.
 
 
 If we have the following \nlps:
@@ -210,7 +221,7 @@ $$
 
 \noindent Like above, there is still a 0.2694 probability that the sequence is \sq{ACATGA}, but now there is a chance that position 4 is deleted. For example, with probability 0.038 the sequence is \sq{ACA-GA}.
 
-Below is an example for a \slps $\sps$:
+Below is an example for a \slps $\sps$ for $m=5$:
 \begin{table}[H]
 \begin{center}
 \begin{tabular}{lc}
@@ -226,8 +237,12 @@ Below is an example for a \slps $\sps$:
 \end{tabular}
 \end{center}
 \label{default}
-\end{table}%
-Sampling from $\sps$, we will have for example \sq{ACATCA} $12\%$ of the time. Large genomes, such as SARS-CoV-2, will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale are often preferred.
+\end{table}
+
+For example, sampling from $\sps$ we expect to observe \sq{ACATCA} $12\%$ of the time.
+Large genomes, such as SARS-CoV-2, will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale are often preferred.
+
+
 
 
 ## Deletions and Insertions
