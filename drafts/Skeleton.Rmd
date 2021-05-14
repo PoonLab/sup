@@ -1,7 +1,7 @@
 ---
 title: "Variance in Variants: Propagating Genome Sequence Uncertainty into Downstream Analyses"
-author: "David Champredon, Devan Becker, Art Poon, Connor Chato, Gopi Gugan"
-date: ""
+author: "David Champredon&ast;, Devan Becker&ast;, Connor Chato, Gopi Gugan, Art Poon"
+date: "&ast;contributed equally"
 font: 13pt
 output:
     pdf_document:
@@ -19,6 +19,11 @@ header-includes:
     - \usepackage{xcolor}
     - \usepackage{float} # Place figures exactly "here" (option "H")
     - \usepackage{longtable, booktabs}
+    - \usepackage{mathptmx}
+    - \usepackage{lineno}
+    - \usepackage{setspace}
+    - \doublespacing
+    - \pagewiselinenumbers
 bibliography: supbib.bib
 #csl: apa.csl
 abstract: |
@@ -28,7 +33,7 @@ abstract: |
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 
 library(dplyr)
 library(tidyr)
@@ -67,6 +72,7 @@ ords <- lapply(
 
 ```
 
+
 TODO (with input from David/Art)
 
 - Ensure I'm using pangolin/pangoLEARN in proper contexts
@@ -84,19 +90,38 @@ TODO (with input from David/Art)
 - Style: 
     - I'm really bad at tense.
 
-# Intro
 
-Extracting DNA/RNA from biological samples is a complex process that involves many steps: extraction of the genetic material of interest (avoiding contamination with foreign/unwanted genetic material); reverse transcription (if RNA); DNA fragmentation of the genome into smaller segments; amplification of the fragmented sequences using PCR; sequencing the fragments (\eg with fluorescent techniques); putting back the small fragments together by aligning them (de novo) or mapping them to benchmark libraries. Errors can be introduced at each of these steps for various reasons [@beerenwinkelUltradeepSequencingAnalysis2011, @oraweAccountingUncertaintyDNA2015] and some errors can be quantified (\eg sequencing quality scores from chromatographs). 
+# Introduction
 
-When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical examples are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients.
+Generating a genetic sequence from a biological sample is a complex process that involves many steps.
+Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
+If working with RNA, then we must use reverse transcription to convert the RNA into DNA.
+For some next-generation sequencing (NGS) applications, we have to generate a sequencing library by random shearing of nucleic acids into fragments that are ligated onto special `adaptors'. 
+NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies [REF].
+<!-- https://www.nature.com/articles/nbt.1585 -->
+In addition, the short reads produced by NGS platforms need to be aligned &mdash; either by alignment against a reference genome, *de novo* assembly, or a combination of the two &mdash; to reconstruct the complete sequence using one or more bioinformatic programs.
+Errors can be introduced any one of these steps  [@beerenwinkelUltradeepSequencingAnalysis2011, @oraweAccountingUncertaintyDNA2015].
 
-The different sources of uncertainty described above impact our observations of the actual genetic sequences. There are standard approaches to deal with identifiable observation errors. Base calls that are ambiguous (from equivocal chromatograph curves or because of genuine polymorphisms) are assigned ambiguity codes (\eg Y for C or T, R for A or G, etc.). Alignment methods are heuristic methods based on similarity scores that generally do not quantify the uncertainty of alignment. Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes (with some exceptions, \eg @depristoFrameworkVariationDiscovery2011).
 
-In 1998, @ewingBaseCallingAutomatedSequencer1998 and @richterichEstimationErrorsRaw1998 both showed that estimates of the base call quality (called Phred scores) can be an accurate estimate of the number of errors that the machines at the time would make (although later studies dispute this accuracy). Modern machines still report these Phred scores, but methods for adjusting/recalibrating these scores for greater accuracy have been proposed [@liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009] For most analyses, these scores are used to censor the base calls (\ie, label them "N" rather than A, T, C, or G) if the base call error probability is too high or there are too few reads and a given location. It is commonplace to remove the sequence from analysis if the total sequence error probability is too high [see, \eg @doroninaPhylogeneticPositionEmended2005, @robaskyRoleReplicatesError2014, @oraweAccountingUncertaintyDNA2015]. The error probability is deemed "too high" based on a strict threshold (\eg 1\% chance of error), but these thresholds aren't standard across studies.
+In some cases, the variation induced by measurement error is directly quantified and encoded into the output.
+For example, ambiguous base calls from sequence chromatograms are assigned ambiguity codes (\eg Y for C or T, R for A or G) when the base calling program cannot determine which base is dominant. 
+In 1998, @ewingBaseCallingAutomatedSequencer1998 and @richterichEstimationErrorsRaw1998 both showed that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
+Even though the accuracy of Phred quality scores has been disputed and other methods for quantifying error probabilities have been proposed [@liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009], Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
+Generally, these scores are used to censor the base calls (\ie label them "N" rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold.
+It is also common practice to remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg @doroninaPhylogeneticPositionEmended2005, @robaskyRoleReplicatesError2014, @oraweAccountingUncertaintyDNA2015.
 
-Some studies have incorporated the error probabilities using genome likelihoods. @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011 incorporate the adjusted Phred scores into a likelihood framework that allows them to more accurately estimate population-level allele distributions. @fumagalliQuantifyingPopulationGenetic2013a present a new estimator for population genetic diversity based on such analyses. @kuoEAGLEExplicitAlternative2018 use genome likelihoods to perform hypothesis tests that evaluate whether a given genome sequence is consistent with a given alternative sequence after accounting for the errors. As with any parametric model-based approach, genome likelihoods use assumptions about the errors in order to make conclusions about the underlying patterns. 
+Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihood of partial or full sequences. 
+For example, @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011 incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity (@fumagalliQuantifyingPopulationGenetic2013a).
+@kuoEAGLEExplicitAlternative2018 use genome likelihoods to perform hypothesis tests that evaluate whether a given genome sequence is consistent with a given alternative sequence after accounting for the errors. 
+As with any parametric model-based approach, genome likelihoods use assumptions about the errors in order to make conclusions about the underlying patterns. 
+
 
 Few other authors have considered the uncertainty present in the sequences in downstream analyses. One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagating sequence-level uncertainty into determining whether two subjects have the same alleles as well as incorporating the sequence-level uncertainty into confidence intervals for allele frequency.
+
+Alignment methods are heuristic methods based on similarity scores that generally do not quantify the uncertainty of alignment.
+Methods to reconstruct phylogenies usually leave out the uncertainty complexity and settle for sequences composed of the most frequent nucleotides and/or ignore ambiguity codes (with some exceptions, \eg @depristoFrameworkVariationDiscovery2011).
+When the phylogenic tree to infer is based on pathogen sequences infecting hosts, the potential genetic diversity of the infection adds a complexity in phylogeny reconstruction. Typical examples are epidemiological studies reconstructing transmission trees from viral genetic sequences (\eg HIV, HepC) sampled from infected patients.
+
 
 In our work, we present a simple, general framework that can be incorporated into any analysis of genetic sequence data. This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis. Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns in the data. In doing so, we gain more accurate estimation of the errors at the expense of computation time. Our technique is amenable to any appropriate quality score adjustments prior to building the uncertainty matrix.
 
