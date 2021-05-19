@@ -167,25 +167,27 @@ The nucleotide (or deletion) drawn at each position is independent from all the 
 
 
 A major limitation of this probabilistic representation of a sequence is that we lose any information on linkage disequilibrium.
-Every nucleotide is an independent observation.
+We assume that every nucleotide is an independent observation.
 For example, a matrix populated from short read data from a diverse population would not store the information that two polymorphisms were always observed in the same reads, \ie in complete linkage disequilibrium.
+We also lose information about autocorrelation in sequencing error, such as clusters of miscalled bases associated with later cycles of sequencing-by-synthesis platforms.
 Sequence chromatograms are affected by the same loss of information.
+
 
 
 ### Sequence-level uncertainty
 
-A significant problem of storing probabilities at the level of individual nucleotides is that there are an enormous number of possible sequences ($5^\ell$).
+A significant problem of storing probabilities at the level of individual nucleotides is that generating a sequence from this matrix requires drawing $\ell$ independent outcomes.
 For example, the reference SARS-CoV-2 genome is 29,903 nucleotides, and a substantial number of naturally-occurring sequence insertions have been described.
-Thus, we expect that $\ell$ exceeds 30,000, such that the total number of possible sequences is greater than $10^{20970}$.
+Thus, we expect that $\ell$ exceeds 30,000.
 The majority of these possible sequences are not biologically plausible.
 Therefore, we formulate an ordered subset $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of the first $m$ most likely sequences, which are ranked in descending order by the joint probability of nucleotide composition.
-This compact and approximate representation drastically reduces the space of all possible sequences, \ie $m\ll 5^\ell$.
 Note that the $\sps_i$ do not have necessarily the same length. 
 The observed genetic sequence, $s$, is a sample from a specified discrete probability distribution $a$:
 \begin{equation}
 \pr{s = \sps_i} = a(i).
 \end{equation}
-Moreover, $s$ is guaranteed to be a member of $\sps$ if $\nps_{s(j), j} > 0.5\;\forall\;j$ where $s(j)$ is the $j$-th nucleotide of $s$; indeed, it is guaranteed to the highest ranked member $i=0$.
+This compact and approximate representation drastically reduces the number of operations to one sample, after some pre-processing to calcualte $a$.
+The observed consensus sequence $s$ is guaranteed to be a member of $\sps$ if $\nps_{s(j), j} > 0.5\;\forall\;j$ where $s(j)$ is the $j$-th nucleotide of $s$; indeed, it is guaranteed to the highest ranked member $i=0$.
 We refer to any member of the set $\sps$ as a \emph{\slps}.
 Note that because $a$ is a probability distribution, we must have $\sum_{i=1}^m a(i) = 1$. In other words, this probability is conditional on the sequence being in $\sps$.
 
@@ -202,7 +204,7 @@ $$
 \sq{-} & 0 & 0 & 0 & 0 & 0 & 0\cr
 }
 $$
-then there are $2\times 3 \times 2^3 \times 3 = 144$ possible sequences. 
+such that there are $2\times 3 \times 2^3 \times 3 = 144$ possible sequences. 
 The most likely sequence has the highest joint nucleotide probability: \sq{ACATGA} with probability 0.2694 ($0.9\times 0.8\times 0.99 \times 0.7 \times 0.9 \times 0.6$).
 If there is a positive probability of deletion for at least one position, then the sequence has a variable length. 
 Let us take the same example as above, but modify one position to have a possible empty state:
@@ -287,7 +289,7 @@ The representation of deletions and insertions with a \slps (not nucleotide-leve
 ## Constructing The Uncertainty Matrix
 
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with quality (or "Phred") score attributed to each base call produced by sequencing instrument.
-The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ \cite{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60.
+The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ (@ewingBaseCallingAutomatedSequencer1998), where $Q$ typically ranges between 1 and 60, depending on the sequencing platform and version of base-calling software.
 More formally, the probability that the base call is correct is expressed as: 
 \begin{equation}
 \label{eq:basecall}
@@ -300,17 +302,28 @@ Therefore, we must assume that these probabilities are uniformly distributed.
 Raw short read data are typically recorded in a FASTQ format that stores both the sequences (base calls) and base-specific quality scores.
 Since the reads often correspond to different locations of the target nucleic acid, \eg randomly sheared genomic DNA, it is necessary to align the reads to identify base calls on different reads that represent the same genome position.
 This alignment step can be accomplished by mapping reads to a reference genome, by the *de novo* assembly of reads, or a hybrid approach that incorporates both methods.
-The aligned outputs are frequently recorded in the SAM format, which is a tabular data format with application-specific encodings such as the CIGAR serialization of pairwise alignments.
+The aligned outputs are frequently recorded in the SAM format, which is a tabular data format with application-specific data types.
+Each row represents a short read, including the optimal placement of the read with respect to the reference sequence (as an integer offset), and an application-specific serialization of the edit operations required to align the read to the reference, called the compact idiosyncratic gapped alignment report (CIGAR, @li2009sequence).
 
 
+We suggest the following algorithm to construct the nucleotide-level probabilistic sequence from the contents of a SAM alignment file.
+First, we initialize an empty $5\times\ell$ matrix $\nps'$.
+Iterating through each row of the SAM file, the position and CIGAR string determine the location of each base in the alignment.
+We map each base to the corresponding row and column in $\nps$ and increment the value at that position by the corresponding quality score.
 
-The nucleotide-level probabilistic sequence can be constructed from this alignment. The algorithm that we suggest is as follows.
 
-We begin by initializing an empty $5\times\ell$ matrix $\nps'$. Each label in Figure \ref{fig:sam} has an associated probability score. These labels denote a row in $\nps$, and their location on the genome denotes the columns, say ($\sq{A}, j$). At this entry, we add the corresponding quality score to whatever was there before.
+Each label in Figure \ref{fig:sam} has an associated probability score. These labels denote a row in $\nps$, and their location on the genome denotes the columns, say ($\sq{A}, j$). At this entry, we add the corresponding quality score to whatever was there before.
 
 By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$. For our proposed propagation methods, it is convenient to work with $\nps'$ until probabilities are necessary.
 
-It is important to note that many NGS platforms use paired reads where the same genome is read in both directions. In these situations, the two reads are not independent and should not be treated as such. Our implementation involves taking the average of the qualtiy scores. If the quality scores were 90% $\sq{A}$ for one read and 95% $\sq{A}$ in the second read, then 0.925 is added to the $\sq{A}$ row in $\nps'$. If the two reads were 60% $\sq{A}$ and 55% $\sq{C}$ in the two reads, then the average of 0.6 and (1-0.55)/3 would be added to the $\sq{A}$ row, the average of (1-0.55)/6 and 0.55 would be added to the $\sq{C}$ row, and the average of (1-0.55)/3 and (1-0.6)/3 would be added to the other rows. This is equivalent to simply determining which reads are paired and dividing all values in their column by two before adding it to $\nps'$. This is advantageous as it allows us to parallelize the reading of SAM files without needing to know which read it is paired with.
+It is important to note that many NGS platforms use paired reads where the same genome is read in both directions.
+In these situations, the two reads are not independent and should not be treated as such. 
+Our implementation involves taking the average of the qualtiy scores.
+If the quality scores were 90% $\sq{A}$ for one read and 95% $\sq{A}$ in the second read, then 0.925 is added to the $\sq{A}$ row in $\nps'$.
+If the two reads were 60% $\sq{A}$ and 55% $\sq{C}$ in the two reads, then the average of 0.6 and (1-0.55)/3 would be added to the $\sq{A}$ row, the average of (1-0.55)/6 and 0.55 would be added to the $\sq{C}$ row, and the average of (1-0.55)/3 and (1-0.6)/3 would be added to the other rows.
+This is equivalent to simply determining which reads are paired and dividing all values in their column by two before adding it to $\nps'$.
+This is advantageous as it allows us to parallelize the reading of SAM files without needing to know which read it is paired with.
+
 
 ### Consensus sequence FASTQ files
 
