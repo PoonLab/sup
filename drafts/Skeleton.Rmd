@@ -288,6 +288,10 @@ The representation of deletions and insertions with a \slps (not nucleotide-leve
 
 ## Constructing The Uncertainty Matrix
 
+### Sequence chromatograms
+
+
+### SAM files
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with quality (or "Phred") score attributed to each base call produced by sequencing instrument.
 The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ (@ewingBaseCallingAutomatedSequencer1998), where $Q$ typically ranges between 1 and 60, depending on the sequencing platform and version of base-calling software.
 More formally, the probability that the base call is correct is expressed as: 
@@ -309,88 +313,87 @@ Each row represents a short read, including the optimal placement of the read wi
 We suggest the following algorithm to construct the nucleotide-level probabilistic sequence from the contents of a SAM alignment file.
 First, we initialize an empty $5\times\ell$ matrix $\nps'$.
 Iterating through each row of the SAM file, the position and CIGAR string determine the location of each base in the alignment.
-We map each base to the corresponding row and column in $\nps$ and increment the value at that position by the corresponding quality score.
+We map each base to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
+By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$.
+For our proposed propagation methods, it is convenient to work with $\nps'$ until probabilities are necessary.
 
 
-Each label in Figure \ref{fig:sam} has an associated probability score. These labels denote a row in $\nps$, and their location on the genome denotes the columns, say ($\sq{A}, j$). At this entry, we add the corresponding quality score to whatever was there before.
-
-By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$. For our proposed propagation methods, it is convenient to work with $\nps'$ until probabilities are necessary.
-
-It is important to note that many NGS platforms use paired reads where the same genome is read in both directions.
-In these situations, the two reads are not independent and should not be treated as such. 
-Our implementation involves taking the average of the qualtiy scores.
-If the quality scores were 90% $\sq{A}$ for one read and 95% $\sq{A}$ in the second read, then 0.925 is added to the $\sq{A}$ row in $\nps'$.
-If the two reads were 60% $\sq{A}$ and 55% $\sq{C}$ in the two reads, then the average of 0.6 and (1-0.55)/3 would be added to the $\sq{A}$ row, the average of (1-0.55)/6 and 0.55 would be added to the $\sq{C}$ row, and the average of (1-0.55)/3 and (1-0.6)/3 would be added to the other rows.
-This is equivalent to simply determining which reads are paired and dividing all values in their column by two before adding it to $\nps'$.
-This is advantageous as it allows us to parallelize the reading of SAM files without needing to know which read it is paired with.
+Some NGS platforms use paired-end reads where the same nucleic acid template is read in both directions.
+In these situations, we simply adjust all values by a factor of two.
+For bases where the paired-end reads overlap, this has the effect of averaging the base probability $1-\epsilon$.
+For example, if these values are 90% for $\sq{A}$ in one read and 95% $\sq{A}$ in its mate, then 0.925 is added to the $\sq{A}$ row in $\nps'$.
+If the two reads were 60% $\sq{A}$ and 55% $\sq{C}$ at the same position, then we would increment the corresponding column vector by ($0.375$, $0.341\bar{6}$, $0.141\bar{6}$, $0.141\bar{6}$).
+Bases outside of the overlapping region contribute a maximum of 0.5 to $\nps'$, because the base call on the other read is missing data.
+This approach has the advantage of making the parsing of SAM files trivially parallelizable, since we do not need to know how reads are paired.
+In addition, the coverage calculated from $\nps'$ is scaled to the number of templates, not the number of reads.
 
 
 ### Consensus sequence FASTQ files
 
-For most published genome sequences, the short read files are not available. It is common to find the so-called consensus sequence, which is the sequence that represents the most commonly called base at each location, along with a single quality score for each location. The methods for obtaining Phred scores when converting a SAM file to a consensus FASTQ differ by software [@liAdjustQualityScores2004, @keithSimulatedAnnealingAlgorithm2002, @liMappingShortDNA2008], but generally involve a computation that includes all of the Phred scores of the bases that agree with the consensus (\eg if the short reads have \sq{A} with Phred of 30, \sq{A} with a Phred of 31, and \sq{C} with phred of 15, then the Phred scores of 30 and 31 are combined in software-defined way, usually incorporating extra information on top of the Phred score). 
+Full length or partial genome sequences are now frequently the product of next-generation sequencing, by taking the consensus of the aligned or assembled read data.
+However, the original read data are often not published alongside the consensus sequence.
+Some consensus sequences are released in a format where the bases are annotated with quality scores, \eg FASTQ.
+There are several programs that provide methods to convert a SAM file into a consensus FASTQ file (@liAdjustQualityScores2004, @keithSimulatedAnnealingAlgorithm2002, @liMappingShortDNA2008).
+These programs use slightly different methods for generated consensus quality scores, but generally filter quality scores for the majority base.
+For example, suppose there are three reads with the following base calls at position $j$: \sq{A} with $Q=30$, \sq{A} with $Q=31$, and \sq{C} with $Q=15$.
+Calculation of the consensus quality score will thereby exclude the $Q=15$ value.
 
-As a first simplifying step, we ignore insertions and deletions. 
-Given a base call and its associated quality score at each position, we can assume that the other bases  are all equally likely with probability $\epsilon/3$. 
-For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$. The probabilistic sequence is:
+
+This omission makes it challenging for us to generate an $\nps$ matrix from a consensus FASTQ file.
+Given the consensus base and its associated quality score at position $j$, we must assume that the other bases are all equally likely with probability $\epsilon_j/3$. 
+For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$.
+The probabilistic sequence is:
 \begin{equation}
 S = 
 \begin{pmatrix}
 1-10^{-6} & 10^{-3}/3  & 1-10^{-5} & 10^{-1}/3 & 10^{-4}/3  \\
 10^{-6}/3 & 1-10^{-3}  & 10^{-5}/3 & 10^{-1}/3 & 10^{-4}/3  \\
 10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 10^{-1}/3 & 1-10^{-4} \\
-10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 1-10^{-1} & 10^{-4}/3\\
-0&0&0&0&0 \\
+10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 1-10^{-1} & 10^{-4}/3 \\
+0 & 0 & 0 & 0 & 0 \\
 \end{pmatrix}
 \end{equation}
+Usually, the genetic sequence \sq{ACATG} would be considered as certain and quality scores discarded. 
+In contrast, the probability of the sequence \sq{ACATG} is only 0.899 within the probabilistic sequence framework.
 
-Usually, the genetic sequence \sq{ACATG} would be considered as certain and quality scores discarded. In contrast, within the probabilistic sequence framework the probability the sequence is \sq{ACATG} is only 0.899 ${\displaystyle(=(1-10^{-6})\times (1-10^{-3})\times (1-10^{-5})\times (1-10^{-1})\times (1-10^{-4}))}$.
 
-Insertions and deletions (``indels'') can be included in the uniform framework. Here, we propose that the nucleotides probabilities are defined conditional on an indel but other models are possible. 
-For a given position, the error probability is $\epsilon = 10^{-Q/10}$ ($Q$ is the quality score) and we assume the probability a deletion happens at this position is $d$.  Conditional on not being deleted, the probability to have the base called is $(1-d)(1-\epsilon)$ and the other three nucleotides can occur with probability $(1-d)\epsilon/3$. 
+Incorporating insertions and deletions (`indels') in the absence of raw data is also challenging.
+If one is willing to assume global deletion rate, then it is possible to extend the parameterization of $\nps$.
+For example, if the probability of a single nucleotide deletion is $d$, then the probability of the called base is $(1-d_j)(1-\epsilon_j)$ and the other three nucleotides have probability $(1-d)\epsilon_j/3$.
 Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
 \begin{equation}
-\begin{pmatrix}
-(1-d)(1-\epsilon)  \\
-(1-d)\,\epsilon / 3  \\
-(1-d)\,\epsilon / 3  \\
-(1-d)\,\epsilon / 3  \\
-d\\
-\end{pmatrix}
+\nps(,j) = 
+\bordermatrix{
+&\scriptscriptstyle{j}  \cr
+\sq{A} & (1 - d)(1-\epsilon_j) \cr
+\sq{C} & (1 - d)\epsilon_j/3 \cr
+\sq{G} & (1 - d)\epsilon_j/3 \cr
+\sq{T} & (1 - d)\epsilon_j/3 \cr
+\sq{-} & d \cr
+}
 \label{eq:deletion}
 \end{equation}
+Insertion rates are more challenging because the composition of the insertion sequence will vary by position, and even within a given position.
 
 
 ### Consensus sequence FASTA files
 
-- Analysis will not draw any firm conclusions, but...
-    - stress testing for your analysis, \eg could resample genomes at different overall error rates, then simulate error rates from overall rate at each location, then see how much it F's up your analysis.
-
-In the absense of any measured uncertainty we are constrained with what we can do. Any uncertainty that we impose upon the data will be a principled assumption. However, imposing our assumptions can still be very useful as a "stress test" of our analysis; we can assume different levels/types of uncertainty and quantify the stability of our results.
-
-The error probability at any given nucleotide location can be simulated as a beta distribution, \ie 
-
+If we do not have access to any base quality information, \eg the consensus sequence is published as a FASTA file, then our ability to populate $\nps$ is severely limited.
+Any uncertainty that we impose upon the data will be a principled assumption. 
+The error probability at the $j$ position of the consensus sequence can be simulated as a beta distribution, \ie 
 $$
 \epsilon_j \sim\text{Beta}(\alpha, \beta)
 $$
+The called base at position $j$ has probability $1-\epsilon$, and the remaining bases are assigned $\epsilon_j/3$. 
+To incorporate deletions, another probability $d$ can be generated as the *gap probability*. 
+With these defined, the nucleotide-level probabilistic sequence at the $j$th column (assuming the base call at location $j$ was $\sq{A}$) can be written as above.
+This probabilistic sequence is completely fabricated, \ie not based on any empirical data.
+However, the sensitivity of an analysis can be evaluated by choosing different values of $\alpha$, $\beta$, and $d$ (\eg based on previous studies) and propagating these uncertainties into downstream analyses.
 
-The called base at position $j$ will be assigned $1- \epsilon$ as the probability, then the remaining bases (not includeing a gap) will be assigned $\epsilon_j/3$. To incorporate gaps, another probability $d$ can be generated as the "gap probability". With these defiend, the nucleotide-level uncertainty sequence at the $j$th column (supposing the base call at location $j$ was $\sq{A}$) can be generated as:
+<!--However, imposing our assumptions can still be very useful as a `stress test' of our analysis; we can assume different levels/types of uncertainty and quantify the stability of our results.-->
 
-$$
-\nps = 
-\bordermatrix{
-&\scriptscriptstyle{j}  \cr
-\sq{A} & (1 - d/4)(1-\epsilon_j) \cr
-\sq{C} & (1 - d/4)\epsilon_j/3 \cr
-\sq{G} & (1 - d/4)\epsilon_j/3 \cr
-\sq{T} & (1 - d/4)\epsilon_j/3 \cr
-\sq{-} & d \cr
-}
-$$
-
-This uncertainty sequence is completely fabricated, but downstream analyses can be evaluated by choosing values of $\alpha$, $\beta$, and $d$ based on previous studies and propagating these uncertainties into downstream analysis.
 
 ## Propagation of uncertainty via resampling
-
 
 The most general way to propagate uncertainty is through resampling. Given $\nps$ and assuming that locations are independent (or pre-defining biologically-reasonable sequences and calculating their probabilities), uncertainty can be propagated by re-sampling the sequences according to their probability and re-running the analysis on each set of sampled sequences (I don't have a citation for this, but I believe Peter Piper sampled a set of sampled sequences). 
 
