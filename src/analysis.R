@@ -169,7 +169,7 @@ ggplot(certain_long) +
     facet_wrap(~ distance, scales = "free_x") +
     labs(y = "Mean and SD of Beta Dist",
         x = 'Distance from "certain" tree',
-        title = "KDE for distances of all trees",
+        title = 'KDE for distances between "certain" and simulated trees',
         subtitle = paste("Bandwidth = 0.03",
             "1000 trees for each parameter combo",
             "ordered by mean error rate (but note that the sd changes)",
