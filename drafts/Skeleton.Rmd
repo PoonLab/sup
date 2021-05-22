@@ -89,9 +89,8 @@ Generating a genetic sequence from a biological sample is a complex process that
 Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
 If working with RNA, then we must use a reverse transcriptase reaction to convert the RNA into DNA.
 PCR amplification is often employed to enrich the sample for the target of interest.
-For some next-generation sequencing (NGS) protocols, we have to generate a sequencing library by random shearing of nucleic acids into fragments that are ligated onto special `adaptors'.
-NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies [REF].
-<!-- https://www.nature.com/articles/nbt.1585 -->
+For some next-generation sequencing (NGS) protocols, we have to generate a sequencing library by random shearing of nucleic acids into fragments that are ligated onto special 'adaptors'.
+NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies [@fullerChallengesSequencingSynthesis2009].
 In addition, the short reads produced by NGS platforms need to be aligned &mdash; either by alignment against a reference genome, *de novo* assembly, or a combination of the two &mdash; to reconstruct a consensus sequence using one or more bioinformatic programs.
 Errors can be introduced any one of these steps  (@beerenwinkelUltradeepSequencingAnalysis2011, @oraweAccountingUncertaintyDNA2015).
 
@@ -119,7 +118,7 @@ This framework involves converting the uncertainty scores into a matrix of proba
 Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns in the data.
 In so doing, we can gain more accurate estimation of the errors at the expense of computation time.
 Our technique is amenable to any appropriate quality score adjustments prior to building the uncertainty matrix.
-We demonstrate the impact of propagating sequence uncertainty by applying our methods to the problem of classifying SARS-CoV-2 genomes into predefined clusters known as `lineages', several of which correspond to variants carrying mutations that are known to confer an advantage to virus transmission or infectivity.
+We demonstrate the impact of propagating sequence uncertainty by applying our methods to the problem of classifying SARS-CoV-2 genomes into predefined clusters known as 'lineages', several of which correspond to variants carrying mutations that are known to confer an advantage to virus transmission or infectivity.
 
 
 
@@ -357,7 +356,7 @@ Usually, the genetic sequence \sq{ACATG} would be considered as certain and qual
 In contrast, the probability of the sequence \sq{ACATG} is only 0.899 within the probabilistic sequence framework.
 
 
-Incorporating insertions and deletions (`indels') in the absence of raw data is also challenging.
+Incorporating insertions and deletions ('indels') in the absence of raw data is also challenging.
 If one is willing to assume global deletion rate, then it is possible to extend the parameterization of $\nps$.
 For example, if the probability of a single nucleotide deletion is $d$, then the probability of the called base is $(1-d_j)(1-\epsilon_j)$ and the other three nucleotides have probability $(1-d)\epsilon_j/3$.
 Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
