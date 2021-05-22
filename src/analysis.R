@@ -24,12 +24,14 @@ for (i in seq_along(rdatas)) {
     load(rdatas[[i]])
     # between each inferred trees
     btwn_tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
+                            d.wrf   = dist.list$d.wrf,
                             d.kf   = dist.list$d.kf,
                             d.sh   = dist.list$d.sh,
                             #d.kern = dist.list$d.kern,
                             prmset = as.numeric(dist.list$prmset))
     # benchmark (difference from "true" tree)
     certain_tmp[[i]] <- data.frame(d.rf   = dist.list$d.rf.star,
+                            d.wrf   = dist.list$d.wrf.star,
                             d.kf   = dist.list$d.kf.star,
                             d.sh   = dist.list$d.sh.star,
                             #d.kern = dist.list$d.kern.star,
@@ -88,36 +90,6 @@ saveRDS(certain,
     file = here("data", "output", "inferred-to-certain-distances.RDS"))
 
 # Pre-plot wrangling
-
-pad <- function(x, pad = -3){
-    x <- as.character(x)
-    if (length(gregexpr("\\.", x)[[1]]) > 1) {
-        stop("Invalid number.")
-    }
-    if (pad < 0) {
-        if (grepl("\\.", x)) {
-            # nchar of everything after the decimal
-            n <- nchar(strsplit(x, "\\.")[[1]][2])
-            if (n < abs(pad)) {
-                x <- paste0(x, 
-                    paste0(rep(0, abs(pad) - n),
-                        collapse = ""),
-                    collapse = "")
-            }
-        } else {
-            x <- paste0(x, ".")
-            x <- paste0(x,
-                paste0(rep(0, abs(pad)), collapse = ""),
-                collapse = "")
-        }
-    } else { # pad > 0
-    # nchar of everything before the decimal
-        n <- nchar(strsplit(x, "\\.")[[1]][1])
-        x <- paste0(rep(0, max(0, pad - n)), x)
-    }
-    x
-}
-
 options(scipen = 6)
 meanset <- select(certain, prmset, s1, s2,
         beta_mean, beta_var) %>%

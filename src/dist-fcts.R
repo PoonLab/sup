@@ -2,12 +2,16 @@
 ###  DEFINE THE DISTANCE FUNCTIONS
 ###
 
+# https://www.rdocumentation.org/packages/phangorn/versions/2.5.5/topics/treedist
+
 suppressPackageStartupMessages({
     library(dplyr);
     library(ggplot2);
     library(ape);
     library(phytools);
-    library(phylobase)})
+    library(phylobase);
+    library(phanghorn)
+})
 source('treekernel.R')
 
 # ---- Tree distances ----
@@ -32,6 +36,14 @@ dist.RF <- function(tree1, tree2, normalize=TRUE) {
 
     return(res)
 }
+
+#' Weighted Robinson-Foulds distance
+#' @param tree1 `ape::phylo` object. First tree.
+#' @param tree2 `ape::phylo` object. Second tree.
+dist.wRF <- function(tree1, tree2, normalize = TRUE) {
+    phangorn::wRF.dist(tree1, tree2, normalize)
+}
+
 
 #' Kuhner-Felsenstein distance.
 #' @param tree1 `ape::phylo` object. First tree.
