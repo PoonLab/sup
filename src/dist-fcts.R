@@ -2,7 +2,9 @@
 ###  DEFINE THE DISTANCE FUNCTIONS
 ###
 
+# Weighted Robinson Foulds from:
 # https://www.rdocumentation.org/packages/phangorn/versions/2.5.5/topics/treedist
+# 
 
 suppressPackageStartupMessages({
     library(dplyr);
