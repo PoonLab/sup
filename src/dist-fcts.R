@@ -149,11 +149,15 @@ dist.kernel <- function(tree1, tree2,
                    prmset))
     }
     tmp <- list()
-    for(i in 1:n){  # i=2
-        mc <- .extract_mc(fastafiles[i])
-        tmp[[i]] <- read.csv(fastafiles[i])
-        tmp[[i]]$mc <- mc
-        tmp[[i]]$prmset <- prmset
+    for(j in 1:n){  # i=2
+        # Error checking: some output files had 0 rows.
+        this_csv <- read.csv(fastafiles[j])
+        if (nrow(this_csv)) {
+                mc <- .extract_mc(fastafiles[j])
+                tmp[[j]] <- this_csv
+                tmp[[j]]$mc <- mc
+                tmp[[j]]$prmset <- prmset
+            }
     }
     df <- do.call('rbind', tmp)
     return(df)
