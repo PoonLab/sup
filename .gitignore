@@ -4,6 +4,8 @@ data/ord_covid
 data/unc_covid/*.RDS
 *.sam
 data/sampled_covid
+data/pangolineages
+data/pangordlineages
 data/unc_covid/metadata.tsv
 *log.txt
 

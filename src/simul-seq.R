@@ -73,7 +73,7 @@ setRateMultipliers(root.seq,ev.proc,0,invar.pos)
 # Define the evolution tree
 # and how spreaded it is:
 n.tips   <- get_prm(prm,'phylosim.n.tips')
-tree.sim <- ape::rcoal(n.tips)
+tree.sim <- ape::rtree(n.tips)
 tree.sim$tip.label <- paste('seq', 1:n.tips, sep='_')
 message(paste('Tree with',n.tips,'tips built.'))
 
