@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
     library(ape);
     library(phytools);
     library(phylobase);
-    library(phanghorn)
+    library(phangorn)
 })
 source('treekernel.R')
 
