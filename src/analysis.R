@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2) ; theme_set(theme_bw())
 library(gridExtra)
 library(here)
+library(ggridges)
 
 source("dist-fcts.R")
 source("utils.R")
@@ -68,7 +69,7 @@ digest_distances <- function(df) {
                   .groups = "drop") %>%
         mutate(cv = s / m)
 
-    beta_var <- function(a, b) (a * b) / ((a + b)^2*(a + b + 1))
+    beta_var <- function(a, b) (a * b) / ((a + b)^2 * (a + b + 1))
     res <- left_join(tmp, df_ent, by = "prmset") %>%
         mutate(beta_mean = s1 / (s1 + s2),
             beta_var = beta_var(s1, s2))
@@ -86,6 +87,95 @@ saveRDS(between,
 saveRDS(certain,
     file = here("data", "output", "inferred-to-certain-distances.RDS"))
 
+# Pre-plot wrangling
+
+pad <- function(x, pad = -3){
+    x <- as.character(x)
+    if (length(gregexpr("\\.", x)[[1]]) > 1) {
+        stop("Invalid number.")
+    }
+    if (pad < 0) {
+        if (grepl("\\.", x)) {
+            # nchar of everything after the decimal
+            n <- nchar(strsplit(x, "\\.")[[1]][2])
+            if (n < abs(pad)) {
+                x <- paste0(x, 
+                    paste0(rep(0, abs(pad) - n),
+                        collapse = ""),
+                    collapse = "")
+            }
+        } else {
+            x <- paste0(x, ".")
+            x <- paste0(x,
+                paste0(rep(0, abs(pad)), collapse = ""),
+                collapse = "")
+        }
+    } else { # pad > 0
+    # nchar of everything before the decimal
+        n <- nchar(strsplit(x, "\\.")[[1]][1])
+        x <- paste0(rep(0, max(0, pad - n)), x)
+    }
+    x
+}
+
+options(scipen = 6)
+meanset <- select(certain, prmset, s1, s2,
+        beta_mean, beta_var) %>%
+    distinct() %>%
+    filter(prmset != 11) %>%
+    arrange(prmset) %>%
+    mutate(beta_mean = sapply(beta_mean, pad, -4)) %>%
+    mutate(beta_var = sapply(beta_var, pad, -4)) %>%
+    mutate(meansd = factor(paste(beta_mean, beta_var,
+            sep = ", "),
+        ordered = TRUE))
+    
+xseq <- seq(0, 0.075, 0.0001)
+beta_dists <- lapply(seq_len(nrow(meanset)), function(i) {
+    data.frame(x = xseq,
+        y = dbeta(xseq,
+            shape1 = meanset$s1[i],
+            shape2 = meanset$s2[i]),
+        label = meanset$meansd[i]
+    )
+}) %>% bind_rows()
+
+ggplot(beta_dists) +
+    aes(x = x, y = y, colour = label) +
+    geom_line() +
+    geom_line(size = 1) +
+    scale_colour_viridis_d() +
+    coord_cartesian(ylim = c(0, 40)) +
+    theme_dark() +
+    theme(legend.position = c(0.9, 0.7)) +
+    labs(x = "x", y = "Probability Density",
+        colour = "Parameters")
+
+certain_long <- pivot_longer(certain_df, -prmset,
+    names_to = "distance.type", values_to = "value") %>%
+    filter(prmset != 11) %>%
+    dplyr::left_join(meanset, by = "prmset") %>%
+    mutate(distance = case_when(
+        distance.type == "d.kf" ~ "Kuhner-Felsenstein",
+        distance.type == "d.rf" ~ "Robinson-Foulds",
+        distance.type == "d.sh" ~ "Shared Ancestry",
+        TRUE ~ as.character(distance.type)
+    ))
+rm(meanset)
+
+ggplot(certain_long) +
+    aes(x = value, y = meansd, fill = meansd) +
+    geom_density_ridges(bandwidth = 0.03) +
+    facet_wrap(~ distance, scales = "free_x") +
+    labs(y = "Mean and SD of Beta Dist",
+        x = 'Distance from "certain" tree',
+        title = 'KDE for distances between "certain" and simulated trees',
+        subtitle = paste("Bandwidth = 0.03",
+            "1000 trees for each parameter combo",
+            "ordered by mean error rate (but note that the sd changes)",
+            sep = "; ")) +
+    theme(legend.position = "none")
+
 # ---- TN93 distances ----
 
 # Warning, these are distances between sequences
@@ -102,232 +192,3 @@ df_tn93_clustr_1 <- df_tn93 %>%
 
 df_tn93_clustr_2 <- df_tn93 %>%
     clstr_num(dist.thresh.mean = thresh[2])
-
-# ---- Plot Fcts ----
-
-plot_distances_by_entropy <- function(dfm, subtitle = "") {
-
-    # Mean, min, max
-    g_mmm <- dfm %>%
-        ggplot(aes(x = entropy, y = m)) +
-        geom_point(# ymin=minv, ymax=maxv,
-                   # colour=prmset,
-                   aes(shape = distance.type),
-                   size = 1, alpha = 0.7) +
-        geom_line() +
-        geom_ribbon(aes(ymin = minv, ymax = maxv), alpha = 0.2) +
-        scale_x_log10() +
-        facet_wrap(~distance.type, nrow = 1, scales = "fixed") +
-        ggtitle("Tree distance (mean, min, max)",
-                subtitle) +
-        ylab("distance") +
-        guides(colour = FALSE, shape = FALSE) +
-        theme(panel.grid.major.x = element_blank())
-
-    # Standard-deviation:
-    g_sd <- dfm %>%
-        ggplot(aes(x = entropy, y = s,
-                   colour = distance.type)) +
-        geom_line(size = 1) +
-        geom_point(size = 3, alpha = 0.7) +
-        scale_x_log10() +
-        # facet_wrap(~distance.type, nrow=1)+
-        ggtitle("Tree distance standard-deviation", subtitle) +
-        ylab("SD distance") +
-        xlab("entropy") +
-        # guides(colour=FALSE)+
-        theme(panel.grid.major.x = element_blank())
-
-    # Coefficient of variation
-    g_cv <- dfm %>%
-        ggplot(aes(x = entropy, y = cv,
-                   colour = distance.type)) +
-        geom_line(size = 1) +
-        geom_point(size = 3, alpha = 0.7) +
-        scale_x_log10() +
-        # facet_wrap(~distance.type, nrow=1)+
-        ggtitle("Tree distance coeff. of variation", subtitle) +
-        ylab("CV distance") +
-        xlab("prmset") +
-        # guides(colour=FALSE) +
-        theme(panel.grid.major.x = element_blank())
-    return(list(g.mmm = g_mmm,
-                g.cv  = g_cv,
-                g.sd  = g_sd))
-}
-
-plot_distance_hist <- function(df, subtitle="") {
-
-    dfl <- pivot_longer(df, -prmset,
-                        names_to = "distance.type",
-                        values_to = "value")
-
-    g_hist <- dfl %>%
-        ggplot() +
-        geom_histogram(aes(x = value), bins = 20) +
-        facet_grid(prmset~distance.type,
-                   scales = "free_y") +
-        ggtitle("Tree distance", subtitle) +
-        xlab("distance") +
-        theme(panel.grid = element_blank())
-
-    g_dens <- dfl %>%
-        ggplot() +
-        geom_density(aes(x = value, fill = prmset, color = prmset),
-                     alpha = 0.5, adjust = 2) +
-        facet_grid(prmset ~ distance.type,
-                   scales = "free") +
-        ggtitle("Tree distance", subtitle) +
-        xlab("Parameter set") +
-        theme(panel.grid = element_blank())
-
-    return(list(g.hist = g_hist,
-                g.dens = g_dens))
-}
-
-plot_dist_between_and_certain <- function(df_d_m, df_d_ms) {
-    df_d_m$ID  <- paste(df_d_m$distance.type, df_d_m$prmset)
-    df_d_ms$ID <- paste(df_d_ms$distance.type, df_d_ms$prmset)
-
-    dfj <- left_join(df_d_m, df_d_ms, by = "ID")
-    g2 <- ggplot(dfj) +
-        geom_point(aes(x = m.x, y = m.y,
-                       shape = distance.type.x,
-                       colour = factor(prmset.x)),
-                       size = 2) +
-        geom_segment(aes(x = m.x, xend = m.x,
-                         y = m.y - s.y, yend = m.y + s.y,
-                         colour = factor(prmset.x))) +
-        geom_segment(aes(x = m.x - s.x, xend = m.x + s.x,
-                         y = m.y, yend = m.y,
-                         colour = factor(prmset.x))) +
-        geom_smooth(method = "lm",
-                    aes(x = m.x, y = m.y,
-                        colour = factor(prmset.x),
-                        fill = factor(prmset.x)),
-                    alpha = 0.1) +
-        xlab("RF distance between inferred trees") +
-        ylab("RF distance from Benchmark") +
-        ggtitle("RF distances (mean +/- sd)") +
-        geom_vline(xintercept = 0) +
-        geom_hline(yintercept = 0)
-    return(g2)
-}
-
-
-#' Plot TN93 distances within all trees
-#' across all parameter sets and MC iterations
-#' @param df Data frame as output by the function `dist.tn93()`
-plot_tn93_distances <- function(df) {
-    df_entropy <- get_entropy_prmset()
-
-    dfs <- df %>%
-        group_by(prmset) %>%
-        summarise(m = mean(Distance),
-                  d.min = min(Distance),
-                  d.max = max(Distance),
-                  d.lo = quantile(Distance, probs = 0.05),
-                  d.hi = quantile(Distance, probs = 0.95)
-                  ) %>%
-        left_join(df_entropy, by = "prmset")
-
-
-    q <- df %>%
-        mutate(ps = paste0("prmset #", prmset)) %>%
-        ggplot() +
-        geom_histogram(aes(x = Distance),
-                       binwidth = 0.02) +
-        facet_wrap(~ ps, ncol = 1) +
-        xlab("TN93 distance")
-
-    g <- dfs %>%
-        ggplot(aes(x = entropy, y = m)) +
-        geom_line() +
-        geom_pointrange(aes(ymin = d.lo,
-                            ymax = d.hi),
-                        size = 1) +
-        scale_x_log10() +
-        ylab("TN93 distance") +
-        ggtitle("Raw TN93 distances")
-
-    return(list(g.ptrng = g,
-                g.hist  = q))
-}
-
-
-plot_clstr_num <- function(dfclst,
-                           subtitle="") {
-    df_entropy <- get_entropy_prmset()
-
-    dfs <- dfclst %>%
-        group_by(prmset) %>%
-        summarise(m = mean(n.clusters),
-                  d.min = min(n.clusters),
-                  d.max = max(n.clusters),
-                  d.lo = quantile(n.clusters, probs = 0.05),
-                  d.hi = quantile(n.clusters, probs = 0.95)) %>%
-        left_join(df_entropy, by = "prmset")
-
-    g <- dfs %>%
-        ggplot(aes(x = entropy, y = m)) +
-        geom_line() +
-        geom_pointrange(aes(ymin = d.min,
-                            ymax = d.max)) +
-        scale_x_log10() +
-        ylab("Number of clusters") +
-        ggtitle("Number of clusters (TN93-based)",
-                subtitle)
-
-    return(g)
-}
-
-
-# ---- RUN ----
-# The effect of changing the first shape parameter on the
-# base call distribution
-pdf("plot-proba-basecall-beta.pdf")
-plot_prmset_distrib("prm-btshp.csv")
-dev.off()
-
-
-g  <- plot_distance_hist(between_df, "b/w inferred trees")
-g0 <- plot_distance_hist(certain_df, "from benchmark")
-
-g_digest  <- plot_distances_by_entropy(between, "b/w inferred trees")
-g_digest0 <- plot_distances_by_entropy(certain, "from benchmark")
-
-g_j <- plot_dist_between_and_certain(between, certain)
-
-
-fname <- paste0("plot-analysis-", prmsimlabel, ".pdf")
-pdf(fname, width = 12, height = 10)
-plot(g$g.hist)
-#plot(g$g.dens)
-plot(g_digest$g.mmm)
-grid.arrange(g_digest$g.sd, g_digest$g.cv, nrow = 1)
-
-plot(g0$g.hist)
-#plot(g0$g.dens)
-plot(g_digest0$g.mmm)
-grid.arrange(g_digest0$g.sd, g_digest0$g.cv, nrow = 1)
-
-plot(g_j)
-
-g_tn93 <- plot_tn93_distances(df_tn93)
-
-g_tn93_clustr_1 <- plot_clstr_num(df_tn93_clustr_1,
-    subtitle = paste("Threshold(mean) =",
-        thresh[1]))
-g_tn93_clustr_2 <- plot_clstr_num(df_tn93_clustr_2,
-    subtitle = paste("Threshold(mean) =",
-        thresh[2]))
-plot(g_tn93$g.hist)
-grid.arrange(g_tn93$g.ptrng,
-             g_tn93_clustr_1,
-             g_tn93_clustr_2,
-             ncol = 1)
-
-dev.off()
-
-
-message("Analysis completed.")
