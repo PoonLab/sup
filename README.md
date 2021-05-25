@@ -54,32 +54,38 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
 
 # Roadmap to the Paper
 
-- WRITE
-    - Intro
-        - [x] Intro paragraphss
-        - [x] Relevant literature
-        - [x] Sources of uncertainty
-        - [x] Description of SAM files (with and without paired reads)
-        - [x] Description of InSilicoSeq (and other things from David's work)
-        - [ ] More citations to support opinions
-        - [ ] Revise & rewrite
-    - Methods
-        - [x] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods; largely re-used from David's work)
-        - [x] Sampling from normalized probabilities or from multinomial posteriors (justification)
-        - [x] Sequence-level uncertainty measures, and their use in analysis of genetic data
-        - [ ] Beta distribution to generate uncertainty
-    - Application
-        - [x] Description of Covid Data
-        - [x] Pangolin description (incl. support)
-        - [x] Pangolin results summary/vis
-        - [x] Intro to David's work
-        - [x] Goal of David's work
-        - [ ] Results from David's work (after re-running)
-        - [ ] Takeaways from David's work
-    - Conclusions
-        - [ ] For phylogenies in general (lean heavily on David's work)
-        - [x] For Covid data
-		- [x] Other uses: instead of a canonical representation, the probability sequence could be calculated based on the estimated population frequency of alleles at polymorphism sites.
+- Revisions
+    - [ ] Ensure consistent naming conventions (esp. seq unc matrix versus probability sequence)
+    - [ ] Check: Where should I use Pngolin versus PangoLEARN?
+    - [ ] Nucleotide "position" is probably best
+    - [ ] Check tense
+    - [x] One sentence = one line in Rmd
+- Intro
+    - [x] Intro paragraphss
+    - [x] Relevant literature
+    - [x] Sources of uncertainty
+    - [x] Description of SAM files (with and without paired reads)
+    - [x] Description of InSilicoSeq (and other things from David's work)
+    - [ ] More citations to support opinions (or change opinion if citation disagrees)
+    - [ ] Revise
+- Methods
+    - [x] Uncertainty Matrices (and sequence-level uncertainty, similar to likelihoods; largely re-used from David's work)
+    - [x] Sampling from normalized probabilities or from multinomial posteriors (justification)
+    - [x] Sequence-level uncertainty measures, and their use in analysis of genetic data
+    - [ ] Beta distribution to generate uncertainty
+    - [ ] Parsing deletions in SAM files
+- Application
+    - [x] Description of Covid Data
+    - [x] Pangolin description (incl. support)
+    - [x] Pangolin results summary/vis
+    - [x] Intro to David's work
+    - [x] Goal of David's work
+    - [ ] Results from David's work (after re-running)
+    - [ ] Takeaways from David's work
+- Conclusions
+    - [ ] For phylogenies in general (lean heavily on David's work)
+    - [x] For Covid data
+	- [x] Other uses: instead of a canonical representation, the probability sequence could be calculated based on the estimated population frequency of alleles at polymorphism sites.
 
 ### Nice-to-Haves
 
