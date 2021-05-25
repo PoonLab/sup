@@ -25,14 +25,14 @@ for (i in seq_along(rdatas)) {
     load(rdatas[[i]])
     # between each inferred trees
     btwn_tmp[[i]]  <- data.frame(d.rf   = dist.list$d.rf,
-                            #d.wrf   = dist.list$d.wrf,
+                            d.wrf   = dist.list$d.wrf,
                             d.kf   = dist.list$d.kf,
                             d.sh   = dist.list$d.sh,
                             #d.kern = dist.list$d.kern,
                             prmset = as.numeric(dist.list$prmset))
     # benchmark (difference from "true" tree)
     certain_tmp[[i]] <- data.frame(d.rf   = dist.list$d.rf.star,
-                            #d.wrf   = dist.list$d.wrf.star,
+                            d.wrf   = dist.list$d.wrf.star,
                             d.kf   = dist.list$d.kf.star,
                             d.sh   = dist.list$d.sh.star,
                             #d.kern = dist.list$d.kern.star,
@@ -85,12 +85,10 @@ digest_distances <- function(df) {
 between  <- digest_distances(between_df)
 certain <- digest_distances(certain_df)
 
-if (FALSE) {
-    saveRDS(between,
-        file = here("data", "output", "between-inferred-distances.RDS"))
-    saveRDS(certain,
-        file = here("data", "output", "inferred-to-certain-distances.RDS"))
-}
+saveRDS(between,
+    file = here("data", "output", "between-inferred-distances.RDS"))
+saveRDS(certain,
+    file = here("data", "output", "inferred-to-certain-distances.RDS"))
 
 
 if(do_tn93){
