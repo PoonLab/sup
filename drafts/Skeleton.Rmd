@@ -288,7 +288,10 @@ The representation of deletions and insertions with a \slps (not nucleotide-leve
 
 ## Constructing The Uncertainty Matrix
 
+<!--
 ### Sequence chromatograms
+For sequences derived from conventional capillary-based methods, the uncertainty of base calls can be quantified from the sequence chromatogram.
+-->
 
 
 ### SAM files
@@ -395,10 +398,12 @@ However, the sensitivity of an analysis can be evaluated by choosing different v
 
 ## Propagation of uncertainty via resampling
 
-The most general way to propagate uncertainty is through resampling. Given $\nps$ and assuming that locations are independent (or pre-defining biologically-reasonable sequences and calculating their probabilities), uncertainty can be propagated by re-sampling the sequences according to their probability and re-running the analysis on each set of sampled sequences (I don't have a citation for this, but I believe Peter Piper sampled a set of sampled sequences). 
+The most general way to propagate uncertainty is through resampling.
+Given $\nps$ and assuming that individual nucleotides are independent outcomes &mdash; or precomputing a reduced set of $m$ sequences and calculating the distribution $a$ of their joint probabilities &mdash; we can propagate uncertainy by running downstream analyses on each set of sampled sequences.
 
-Re-sampling can either be done simply based on the nucleotide-level uncertainty as a multinomial distribution. If the $j$th column of $\nps$ is (0.5, 0.2,0.2,0.09.0.01), then we could sample $\sq{A}$ with 50\% probability, $\sq{C}$ with 20\%, etc. However, this disregards the coverage at each location, thereby disregarding the variance of the error probabilities.
-
+At a nucleotide level, we are sampling from a multinomial distribution.
+If the $j$th column of $\nps$ is (0.5, 0.2,0.2,0.09.0.01), then we could sample $\sq{A}$ with 50\% probability, $\sq{C}$ with 20\%, etc.
+However, this disregards the coverage at each location, thereby disregarding the variance of the error probabilities.
 To incorporate the variance of the errors, a Dirichlet-Multinomial sampling scheme can be derived by assuming that the error probabilities follow a Dirichlet prior and the bases follow a multinomial likelihood. For each base at each location, the entry for $\nps'$ is defined as the sum of the probabilities (one minus the error probabilities). Thes values can be used as the parameters in the Dirichlet prior, from which base probabilities can be sampled. 
 
 For example, if the $j$th column of $\nps'$ is (1200.45, 200.09, 100.74, 121.11, 0), then possible base probabilities could be (0.743, 0.126, 0.062, 0.070, 0), (0.739, 0.121, 0.066, 0.074, 0), or (0.744, 0.128, 0.056, 0.071, 0). In contrast, if the $j$th column of $\nps'$ were (12.4, 1.2, 0.4, 1.7, 0), then some samples from the Dirichlet distribution might be (0.759, 0.059, 0.029, 0.153, 0), (0.916, 0.065, 0.009, 0.009, 0), or (0.779, 0.117, 0, 0.104, 0). The lower coverage is incorporated into the analysis by the increase in the variance of the Dirichlet distribution.
