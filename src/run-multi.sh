@@ -35,6 +35,7 @@ done
 
 # Run analysis once all is done:
 wait $pids
+Rscript data-prep.R
 Rscript analysis.R
 
 echo " * * run-multi.sh completed * * "

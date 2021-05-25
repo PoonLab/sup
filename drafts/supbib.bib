@@ -1,13 +1,3 @@
-@article{li2009sequence,
-  title={The sequence alignment/map format and SAMtools},
-  author={Li, Heng and Handsaker, Bob and Wysoker, Alec and Fennell, Tim and Ruan, Jue and Homer, Nils and Marth, Gabor and Abecasis, Goncalo and Durbin, Richard},
-  journal={Bioinformatics},
-  volume={25},
-  number={16},
-  pages={2078--2079},
-  year={2009},
-  publisher={Oxford University Press}
-}
 
 @article{abrahamsonNonergodicGroundMotionModels,
   title = {Non-Ergodic {{Ground}}-{{Motion Models}} for {{California}}},
@@ -65,7 +55,6 @@
   copyright = {http://creativecommons.org/licenses/by/3.0/},
   file = {/home/devan/Zotero/storage/QM786DB4/Alkhamis et al. - 2015 - Phylodynamics of H5N1 Highly Pathogenic Avian Infl.pdf;/home/devan/Zotero/storage/TH4U54D2/2773.html},
   journal = {Viruses},
-  keywords = {Bayesian inference,Europe,H5N1,highly pathogenic avian influenza,phylodynamic models,phylogeography,Russia,surveillance},
   language = {en},
   number = {6}
 }
@@ -133,6 +122,7 @@
   abstract = {Marginal likelihood estimates to compare models using Bayes factors frequently accompany Bayesian phylogenetic inference. Approaches to estimate marginal likelihoods have garnered increased attention over the past decade. In particular, the introduction of path sampling (PS) and stepping-stone sampling (SS) into Bayesian phylogenetics has tremendously improved the accuracy of model selection. These sampling techniques are now used to evaluate complex evolutionary and population genetic models on empirical data sets, but considerable computational demands hamper their widespread adoption. Further, when very diffuse, but proper priors are specified for model parameters, numerical issues complicate the exploration of the priors, a necessary step in marginal likelihood estimation using PS or SS. To avoid such instabilities, generalized SS (GSS) has recently been proposed, introducing the concept of ``working distributions'' to facilitate\textemdash or shorten\textemdash the integration process that underlies marginal likelihood estimation. However, the need to fix the tree topology currently limits GSS in a coalescent-based framework. Here, we extend GSS by relaxing the fixed underlying tree topology assumption. To this purpose, we introduce a ``working'' distribution on the space of genealogies, which enables estimating marginal likelihoods while accommodating phylogenetic uncertainty. We propose two different ``working'' distributions that help GSS to outperform PS and SS in terms of accuracy when comparing demographic and evolutionary models applied to synthetic data and real-world examples. Further, we show that the use of very diffuse priors can lead to a considerable overestimation in marginal likelihood when using PS and SS, while still retrieving the correct marginal likelihood using both GSS approaches. The methods used in this article are available in BEAST, a powerful user-friendly software package to perform Bayesian evolutionary analyses.},
   file = {/home/devan/Zotero/storage/J7RHG2F9/Baele et al. - 2016 - Genealogical Working Distributions for Bayesian Mo.pdf},
   journal = {Systematic Biology},
+  keywords = {BEAST,Methodology},
   number = {2}
 }
 
@@ -219,6 +209,7 @@
   copyright = {2015 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved.},
   file = {/home/devan/Zotero/storage/PNVISY35/Bedford et al. - 2015 - Global circulation patterns of seasonal influenza .pdf},
   journal = {Nature},
+  keywords = {BEAST},
   language = {en},
   number = {7559}
 }
@@ -273,6 +264,22 @@
   number = {Pt 11},
   pmcid = {PMC3326349},
   pmid = {18931062}
+}
+
+@article{briandGeneralizedRobinsonFouldsDistance2020,
+  title = {A Generalized {{Robinson}}-{{Foulds}} Distance for Labeled Trees},
+  author = {Briand, Samuel and Dessimoz, Christophe and {El-Mabrouk}, Nadia and Lafond, Manuel and Lobinska, Gabriela},
+  year = {2020},
+  month = nov,
+  volume = {21},
+  pages = {779},
+  issn = {1471-2164},
+  doi = {10.1186/s12864-020-07011-0},
+  abstract = {The Robinson-Foulds (RF) distance is a well-established measure between phylogenetic trees. Despite a lack of biological justification, it has the advantages of being a proper metric and being computable in linear time. For phylogenetic applications involving genes, however, a crucial aspect of the trees ignored by the RF metric is the type of the branching event (e.g. speciation, duplication, transfer, etc).Here, we extend RF to trees with labeled internal nodes by including a node flip operation, alongside edge contractions and extensions. We explore properties of this extended RF distance in the case of a binary labeling. In particular, we show that contrary to the unlabeled case, an optimal edit path may require contracting ``good'' edges, i.e. edges shared between the two trees. We provide a 2-approximation algorithm which is shown to perform well empirically. Looking ahead, computing distances between labeled trees opens up a variety of new algorithmic directions. Implementation and simulations available at https://github.com/DessimozLab/pylabeledrf.},
+  file = {/home/devan/Zotero/storage/VJRDQT6R/Briand et al. - 2020 - A generalized Robinson-Foulds distance for labeled.pdf},
+  journal = {BMC Genomics},
+  language = {en},
+  number = {S10}
 }
 
 @article{brockmanQualityScoresSNP2008,
@@ -591,7 +598,7 @@
   abstract = {Relaxed molecular clock models allow divergence time dating and "relaxed phylogenetic" inference, in which a time tree is estimated in the face of unequal rates across lineages. We present a new method for relaxing the assumption of a strict molecular clock using Markov chain Monte Carlo to implement Bayesian modeling averaging over random local molecular clocks. The new method approaches the problem of rate variation among lineages by proposing a series of local molecular clocks, each extending over a subregion of the full phylogeny. Each branch in a phylogeny (subtending a clade) is a possible location for a change of rate from one local clock to a new one. Thus, including both the global molecular clock and the unconstrained model results, there are a total of 22n-2 possible rate models available for averaging with 1, 2, ..., 2n - 2 different rate categories.},
   file = {/home/devan/Zotero/storage/QLIAJ4H9/Drummond and Suchard - 2010 - Bayesian random local clocks, or one rate to rule .pdf},
   journal = {BMC Biology},
-  keywords = {Clock Model,Markov Chain Monte Carlo,Molecular Clock,Much Recent Common Ancestor,Transition Kernel},
+  keywords = {BEAST,Methodology},
   number = {1}
 }
 
@@ -608,7 +615,6 @@
   abstract = {In phylogenetics, the unrooted model of phylogeny and the strict molecular clock model are two extremes of a continuum. Despite their dominance in phylogenetic inference, it is evident that both are biologically unrealistic and that the real evolutionary process lies between these two extremes. Fortunately, intermediate models employing relaxed molecular clocks have been described. These models open the gate to a new field of ``relaxed phylogenetics.'' Here we introduce a new approach to performing relaxed phylogenetic analysis. We describe how it can be used to estimate phylogenies and divergence times in the face of uncertainty in evolutionary rates and calibration times. Our approach also provides a means for measuring the clocklikeness of datasets and comparing this measure between different genes and phylogenies. We find no significant rate autocorrelation among branches in three large datasets, suggesting that autocorrelated models are not necessarily suitable for these data. In addition, we place these datasets on the continuum of clocklikeness between a strict molecular clock and the alternative unrooted extreme. Finally, we present analyses of 102 bacterial, 106 yeast, 61 plant, 99 metazoan, and 500 primate alignments. From these we conclude that our method is phylogenetically more accurate and precise than the traditional unrooted model while adding the ability to infer a timescale to evolution.},
   file = {/home/devan/Zotero/storage/5CZGTT36/Drummond et al. - 2006 - Relaxed Phylogenetics and Dating with Confidence.pdf;/home/devan/Zotero/storage/3Z69VU23/article.html},
   journal = {PLOS Biology},
-  keywords = {Animal phylogenetics,Autocorrelation,Evolutionary rate,Phylogenetic analysis,Phylogenetics,Plant phylogenetics,Sequence alignment,Trees},
   language = {en},
   number = {5}
 }
@@ -692,6 +698,24 @@
   journal = {The Canadian Journal of Statistics / La Revue Canadienne de Statistique},
   keywords = {methods,revisit},
   number = {3}
+}
+
+@article{fullerChallengesSequencingSynthesis2009,
+  title = {The Challenges of Sequencing by Synthesis},
+  author = {Fuller, Carl W. and Middendorf, Lyle R. and Benner, Steven A. and Church, George M. and Harris, Timothy and Huang, Xiaohua and Jovanovich, Stevan B. and Nelson, John R. and Schloss, Jeffery A. and Schwartz, David C. and Vezenov, Dmitri V.},
+  year = {2009},
+  month = nov,
+  volume = {27},
+  pages = {1013--1023},
+  publisher = {{Nature Publishing Group}},
+  issn = {1546-1696},
+  doi = {10.1038/nbt.1585},
+  abstract = {DNA sequencing-by-synthesis (SBS) technology, using a polymerase or ligase enzyme as its core biochemistry, has already been incorporated in several second-generation DNA sequencing systems with significant performance. Notwithstanding the substantial success of these SBS platforms, challenges continue to limit the ability to reduce the cost of sequencing a human genome to \$100,000 or less. Achieving dramatically reduced cost with enhanced throughput and quality will require the seamless integration of scientific and technological effort across disciplines within biochemistry, chemistry, physics and engineering. The challenges include sample preparation, surface chemistry, fluorescent labels, optimizing the enzyme-substrate system, optics, instrumentation, understanding tradeoffs of throughput versus accuracy, and read-length/phasing limitations. By framing these challenges in a manner accessible to a broad community of scientists and engineers, we hope to solicit input from the broader research community on means of accelerating the advancement of genome sequencing technology.},
+  copyright = {2009 Nature Publishing Group},
+  file = {/home/devan/Zotero/storage/LJYW3K7I/Fuller et al_2009_The challenges of sequencing by synthesis.pdf;/home/devan/Zotero/storage/3XXJPHPW/nbt.html},
+  journal = {Nature Biotechnology},
+  language = {en},
+  number = {11}
 }
 
 @article{fumagalliQuantifyingPopulationGenetic2013a,
@@ -839,6 +863,22 @@
   language = {en},
   number = {3},
   pmid = {21212231}
+}
+
+@article{granville2classMaintenanceModel2020,
+  title = {A 2-Class Maintenance Model with Dynamic Server Behavior},
+  author = {Granville, Kevin and Drekic, Steve},
+  year = {2020},
+  month = apr,
+  volume = {28},
+  pages = {34--96},
+  issn = {1134-5764, 1863-8279},
+  doi = {10.1007/s11750-019-00509-1},
+  abstract = {We analyze a 2-class maintenance system within a single-server polling model framework. There are C + f machines in the system, where C is the cap on the number of machines that can be turned on simultaneously (and hence, be at risk of failure), and the excess f machines comprise a maintenance float which can be used to replace machines that are taken down for repair. The server's behavior is dynamic, capable of switching queues upon a machine failure or service completion depending on both queue lengths. This generalized server behavior permits the analysis of several classic service policies, including preemptive resume priority, non-preemptive priority, and exhaustive. More complicated polices can also be considered, such as thresholdbased ones and a version of the Bernoulli service rule. The system is modeled as a level-dependent quasi-birth-and-death process and matrix analytic methods are used to find the steady-state joint queue length distribution, as well as the distribution for the sojourn time of a broken machine. An upper bound on the expected number of working machines as a function of C is derived, and Little's Law is used to find the relationship between the expected number of working machines and the expected sojourn time of a failed machine when f = 0 or f {$\geq$} 1. Several numerical examples are presented, including how one might optimize an objective function depending on the mean number of working machines, with penalty costs attributed to increasing C or f .},
+  file = {/home/devan/Zotero/storage/ABW5FFGH/Granville and Drekic - 2020 - A 2-class maintenance model with dynamic server be.pdf},
+  journal = {TOP},
+  language = {en},
+  number = {1}
 }
 
 @article{grenfellUnifyingEpidemiologicalEvolutionary2004,
@@ -1025,6 +1065,24 @@
   language = {en}
 }
 
+@article{kucharskiCOVID19ResponseIllustrates2020,
+  title = {The {{COVID}}-19 Response Illustrates That Traditional Academic Reward Structures and Metrics Do Not Reflect Crucial Contributions to Modern Science},
+  author = {Kucharski, Adam J. and Funk, Sebastian and Eggo, Rosalind M.},
+  year = {2020},
+  month = oct,
+  volume = {18},
+  pages = {e3000913},
+  publisher = {{Public Library of Science}},
+  issn = {1545-7885},
+  doi = {10.1371/journal.pbio.3000913},
+  abstract = {The COVID-19 pandemic has motivated many open and collaborative analytical research projects with real-world impact. However, despite their value, such activities are generally overlooked by traditional academic metrics. Science is ultimately improved by analytical work, whether ensuring reproducible and well-documented code to accompany papers, developing and maintaining flexible tools, sharing and curating data, or disseminating analysis to wider audiences. To increase the impact and sustainability of modern science, it will be crucial to ensure these analytical activities\textemdash and the people who do them\textemdash are valued in academia.},
+  file = {/home/devan/Zotero/storage/INQW39LS/Kucharski et al. - 2020 - The COVID-19 response illustrates that traditional.pdf;/home/devan/Zotero/storage/7M76NRF5/article.html},
+  journal = {PLOS Biology},
+  keywords = {Careers,COVID 19,Employment,Motivation,Open data,Pandemics,Reproducibility,Software engineering},
+  language = {en},
+  number = {10}
+}
+
 @article{kuehnIncorporatingNonergodicPath2019,
   title = {Incorporating {{Nonergodic Path Effects}} into the {{NGA}}-{{West2 Ground}}-{{Motion Prediction Equations}}},
   author = {Kuehn, Nicolas M. and Abrahamson, Norman A. and Walling, Melanie A.},
@@ -1184,6 +1242,7 @@
   doi = {10.3201/eid2008.130910},
   abstract = {An understanding of the global migration dynamics of highly pathogenic avian influenza A(H5N1) virus is helpful for surveillance and disease preventio...},
   file = {/home/devan/Zotero/storage/7UYMZ8A6/Li et al. - Global and Local Persistence of Influenza A(H5N1) .pdf},
+  keywords = {BaTS,BEAST,Migrate,MUSCLE},
   language = {en-us}
 }
 
@@ -1525,9 +1584,153 @@
   copyright = {Copyright \textcopyright{} 2013, The International Biometric Society},
   file = {/home/devan/Zotero/storage/TF3LQEGA/Palacios and Minin - 2013 - Gaussian Process-Based Bayesian Nonparametric Infe.pdf},
   journal = {Biometrics},
-  keywords = {Coalescent,Data augmentation,Doubly intractable distribution,Point process,Thinning},
+  keywords = {revisit},
   language = {en},
   number = {1}
+}
+
+@incollection{paradisAnalysisMacroevolutionPhylogenies2012,
+  title = {Analysis of {{Macroevolution}} with {{Phylogenies}}},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {203--312},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_6},
+  abstract = {Reconstructing the history of species is a necessary step in understanding the mechanisms of biological evolution. Once a phylogeny has been estimated, a lot of questions on how species have evolved can be addressed. Why are some taxonomic groups more diverse than others? How have species traits evolved? Have some traits favored diversification? Are some traits linked through evolution?},
+  file = {/home/devan/Zotero/storage/C44Y3YTF/Paradis_2012_Analysis of Macroevolution with Phylogenies.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Akaike Information Criterion,Data Frame,Extinction Rate,Generalize Little Square,Phylogenetic Signal},
+  language = {en},
+  series = {Use {{R}}!}
+}
+
+@incollection{paradisDevelopingImplementingPhylogenetic2012,
+  title = {Developing and {{Implementing Phylogenetic Methods}} in {{R}}},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {331--358},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_8},
+  abstract = {We have seen several times in this book that it is not necessary to know R in depth to use it for data analysis, even to tackle complex analyses. On the other hand, we need to know more of the language and R's features to develop and implement methods with it.},
+  file = {/home/devan/Zotero/storage/B7XMEXH8/Paradis_2012_Developing and Implementing Phylogenetic Methods in R.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Application Programmer Interface,Branch Length,Phylogenetic Method,Recursive Call,Simple Interface},
+  language = {en},
+  series = {Use {{R}}!}
+}
+
+@incollection{paradisFirstStepsPhylogeneticists2012,
+  title = {First {{Steps}} in {{R}} for {{Phylogeneticists}}},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {9--27},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_2},
+  abstract = {It is clear that some experience with R greatly helps in handling the materials presented in this book. In the last few years, the practice and teaching of R has increased dramatically. So it is likely that most readers will already be familiar with R. The goal of this chapter is more to remind the most fundamental notions of R, rather than to give a formal introduction for new users. It is focused on the topics required for the present book, and does not cover all introductory concepts and notions about R.},
+  file = {/home/devan/Zotero/storage/M7RNUJF8/Paradis_2012_First Steps in R for Phylogeneticists.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Command Line Interface,Data Frame,Numeric Indexing,Numeric Vector,Simple Text},
+  language = {en},
+  series = {Use {{R}}!}
+}
+
+@incollection{paradisIntroduction2012,
+  title = {Introduction},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {1--8},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_1},
+  abstract = {Phylogenetics is the science of the evolutionary relationships among species. Recently, the term has come to include broader issues such as estimating rates of evolution, dating divergence among species, reconstructing ancestral characters, or quantifying adaptation, all these using phylogenies as frameworks.},
+  file = {/home/devan/Zotero/storage/VUCJYVWB/Paradis_2012_Introduction.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Methodological Development,Phylogenetic Method,Strategic Choice,Strategic Consideration,Text Editor},
+  language = {en},
+  series = {Use {{R}}!}
+}
+
+@incollection{paradisPhylogeneticData2012,
+  title = {Phylogenetic {{Data}} in {{R}}},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {29--80},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_3},
+  abstract = {This chapter details how phylogenetic data are handled in R. The issues discussed here will interest all users. Issues relative to implementation and programming are discussed in Chapter 8.},
+  file = {/home/devan/Zotero/storage/NBMCLS4M/Paradis_2012_Phylogenetic Data in R.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Base Frequency,Branch Length,Character String,Data Frame,Mode Character},
+  language = {en},
+  series = {Use {{R}}!}
+}
+
+@incollection{paradisPhylogenyEstimation2012,
+  title = {Phylogeny {{Estimation}}},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {123--202},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_5},
+  abstract = {Reconstructing the evolutionary relationships among living species is one of the oldest problems in biology. There have been some real advances during the past two decades, but several difficulties remain.},
+  file = {/home/devan/Zotero/storage/HZ2YWB7K/Paradis_2012_Phylogeny Estimation.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Akaike Information Criterion,Branch Length,Markov Chain Monte Carlo,Substitution Model,Substitution Rate},
+  language = {en},
+  series = {Use {{R}}!}
+}
+
+@incollection{paradisPlottingPhylogenies2012,
+  title = {Plotting {{Phylogenies}}},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {81--121},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_4},
+  abstract = {Drawing phylogenetic trees has been important for a long time in the study of biological evolution, as illustrated by Darwin's only figure in his Origin of Species [49]. A plotted phylogeny is the usual way to summarize the results of a phylogenetic anlysis. This also gives the essence of the evolutionary processes and patterns.},
+  file = {/home/devan/Zotero/storage/BYE6G8XK/Paradis_2012_Plotting Phylogenies.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Branch Length,Extra Space,Node Label,Phylogenetic Network,Unrooted Tree},
+  language = {en},
+  series = {Use {{R}}!}
+}
+
+@incollection{paradisSimulatingPhylogeniesEvolutionary2012,
+  title = {Simulating {{Phylogenies}} and {{Evolutionary Data}}},
+  booktitle = {Analysis of {{Phylogenetics}} and {{Evolution}} with {{R}}},
+  author = {Paradis, Emmanuel},
+  editor = {Paradis, Emmanuel},
+  year = {2012},
+  pages = {313--330},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-1743-9_7},
+  abstract = {Data simulation has a critical place in evolutionary biology. Because evolutionary patterns and processes unroll over long time spans, their simulations has become an important ingredient of evolutionary research [e.g., 8]. From a statistical inference point of view, it is necessary to simulate data to assess the statistical properties of hypothesis tests and parameter estimators. This practice still needs to be generalized: it is quite common to read papers describing new data analysis methods without presenting some simulation results in order to asses the bias and variance of the estimators, or the type I and II error rates of the test. On the other hand, the recent rise in uses of simulation procedures for statistical inference (e.g., Markov chains Monte Carlo) has emphasized the need for simulating data under a wide range of situations.},
+  file = {/home/devan/Zotero/storage/5QSARGTX/Paradis_2012_Simulating Phylogenies and Evolutionary Data.pdf},
+  isbn = {978-1-4614-1743-9},
+  keywords = {Branch Length,Evolutionary Data,Extinct Species,Extinction Probability,Multivariate Normal Distribution},
+  language = {en},
+  series = {Use {{R}}!}
 }
 
 @article{parkerCorrelatingViralPhenotypes2008,
@@ -1620,6 +1823,23 @@
   number = {11}
 }
 
+@article{posada-cespedesVpipeComputationalPipeline2020,
+  title = {V-Pipe: A Computational Pipeline for Assessing Viral Genetic Diversity from High-Throughput Sequencing Data},
+  shorttitle = {V-Pipe},
+  author = {{Posada-C{\'e}spedes}, Susana and Seifert, David and Topolsky, Ivan and Metzner, Karin J. and Beerenwinkel, Niko},
+  year = {2020},
+  month = jun,
+  pages = {2020.06.09.142919},
+  publisher = {{Cold Spring Harbor Laboratory}},
+  doi = {10.1101/2020.06.09.142919},
+  abstract = {{$<$}h3{$>$}Abstract{$<$}/h3{$>$} {$<$}p{$>$}High-throughput sequencing technologies are used increasingly, not only in viral genomics research but also in clinical surveillance and diagnostics. These technologies facilitate the assessment of the genetic diversity in intra-host virus populations, which affects transmission, virulence, and pathogenesis of viral infections. However, there are two major challenges in analysing viral diversity. First, amplification and sequencing errors confound the identification of true biological variants, and second, the large data volumes represent computational limitations. To support viral high-throughput sequencing studies, we developed V-pipe, a bioinformatics pipeline combining various state-of-the-art statistical models and computational tools for automated end-to-end analyses of raw sequencing reads. V-pipe supports quality control, read mapping and alignment, low-frequency mutation calling, and inference of viral haplotypes. For generating high-quality read alignments, we developed a novel method, called \emph{ngshmmalign}, based on profile hidden Markov models and tailored to small and highly diverse viral genomes. V-pipe also includes benchmarking functionality providing a standardized environment for comparative evaluations of different pipeline configurations. We demonstrate this capability by assessing the impact of three different read aligners (Bowtie 2, BWA MEM, ngshmmalign) and two different variant callers (LoFreq, ShoRAH) on the performance of calling single-nucleotide variants in intra-host virus populations. V-pipe supports various pipeline configurations and is implemented in a modular fashion to facilitate adaptations to the continuously changing technology landscape. V-pipe is freely available at https://github.com/cbg-ethz/V-pipe.{$<$}/p{$>$}},
+  chapter = {New Results},
+  copyright = {\textcopyright{} 2020, Posted by Cold Spring Harbor Laboratory. This pre-print is available under a Creative Commons License (Attribution-NonCommercial-NoDerivs 4.0 International), CC BY-NC-ND 4.0, as described at http://creativecommons.org/licenses/by-nc-nd/4.0/},
+  file = {/home/devan/Zotero/storage/HHSBKGZR/Posada-Céspedes et al. - 2020 - V-pipe a computational pipeline for assessing vir.pdf;/home/devan/Zotero/storage/JC2XVTAI/2020.06.09.142919v1.html},
+  journal = {bioRxiv},
+  language = {en}
+}
+
 @article{pybusEvolutionaryAnalysisDynamics2009,
   title = {Evolutionary Analysis of the Dynamics of Viral Infectious Disease},
   author = {Pybus, Oliver G. and Rambaut, Andrew},
@@ -1634,6 +1854,7 @@
   copyright = {2009 Nature Publishing Group},
   file = {/home/devan/Zotero/storage/4NL2CYC4/Pybus and Rambaut - 2009 - Evolutionary analysis of the dynamics of viral inf.pdf},
   journal = {Nature Reviews Genetics},
+  keywords = {important,review paper,revisit},
   language = {en},
   number = {8}
 }
@@ -1652,7 +1873,6 @@
   chapter = {Biological Sciences},
   file = {/home/devan/Zotero/storage/S2H6WIMY/Pybus et al. - 2012 - Unifying the spatial epidemiology and molecular ev.pdf;/home/devan/Zotero/storage/S2FSQWME/15066.html},
   journal = {Proceedings of the National Academy of Sciences},
-  keywords = {phylogeny,phylogeography,transmission},
   language = {en},
   number = {37},
   pmid = {22927414}
@@ -1702,6 +1922,24 @@
   journal = {Nature Microbiology},
   keywords = {clustering,covid,data/code available,important,manualGeo,pangolin},
   language = {en}
+}
+
+@article{rambautDynamicNomenclatureProposal2020a,
+  title = {A Dynamic Nomenclature Proposal for {{SARS}}-{{CoV}}-2 Lineages to Assist Genomic Epidemiology},
+  author = {Rambaut, Andrew and Holmes, Edward C. and O'Toole, {\'A}ine and Hill, Verity and McCrone, John T. and Ruis, Christopher and {du Plessis}, Louis and Pybus, Oliver G.},
+  year = {2020},
+  month = nov,
+  volume = {5},
+  pages = {1403--1407},
+  publisher = {{Nature Publishing Group}},
+  issn = {2058-5276},
+  doi = {10.1038/s41564-020-0770-5},
+  abstract = {The ongoing pandemic spread of a new human coronavirus, SARS-CoV-2, which is associated with severe pneumonia/disease (COVID-19), has resulted in the generation of tens of thousands of virus genome sequences. The rate of genome generation is unprecedented, yet there is currently no coherent nor accepted scheme for naming the expanding phylogenetic diversity of SARS-CoV-2. Here, we present a rational and dynamic virus nomenclature that uses a phylogenetic framework to identify those lineages that contribute most to active spread. Our system is made tractable by constraining the number and depth of hierarchical lineage labels and by flagging and delabelling virus lineages that become unobserved and hence are probably inactive. By focusing on active virus lineages and those spreading to new locations, this nomenclature will assist in tracking and understanding the patterns and determinants of the global spread of SARS-CoV-2.},
+  copyright = {2020 The Author(s), under exclusive licence to Springer Nature Limited},
+  file = {/home/devan/Zotero/storage/3GA3ZNBV/Rambaut et al. - 2020 - A dynamic nomenclature proposal for SARS-CoV-2 lin.pdf},
+  journal = {Nature Microbiology},
+  language = {en},
+  number = {11}
 }
 
 @article{raoEnhancingEpidemiologicalAnalysis2014,
@@ -1876,6 +2114,24 @@
   howpublished = {https://www.scopus.com/home.uri}
 }
 
+@article{siposPhyloSimMonteCarlo2011,
+  title = {{{PhyloSim}} - {{Monte Carlo}} Simulation of Sequence Evolution in the {{R}} Statistical Computing Environment},
+  author = {Sipos, Botond and Massingham, Tim and Jordan, Gregory E. and Goldman, Nick},
+  year = {2011},
+  month = dec,
+  volume = {12},
+  pages = {1--6},
+  publisher = {{BioMed Central}},
+  issn = {1471-2105},
+  doi = {10.1186/1471-2105-12-104},
+  abstract = {The Monte Carlo simulation of sequence evolution is routinely used to assess the performance of phylogenetic inference methods and sequence alignment algorithms. Progress in the field of molecular evolution fuels the need for more realistic and hence more complex simulations, adapted to particular situations, yet current software makes unreasonable assumptions such as homogeneous substitution dynamics or a uniform distribution of indels across the simulated sequences. This calls for an extensible simulation framework written in a high-level functional language, offering new functionality and making it easy to incorporate further complexity. PhyloSim is an extensible framework for the Monte Carlo simulation of sequence evolution, written in R, using the Gillespie algorithm to integrate the actions of many concurrent processes such as substitutions, insertions and deletions. Uniquely among sequence simulation tools, PhyloSim can simulate arbitrarily complex patterns of rate variation and multiple indel processes, and allows for the incorporation of selective constraints on indel events. User-defined complex patterns of mutation and selection can be easily integrated into simulations, allowing PhyloSim to be adapted to specific needs. Close integration with R and the wide range of features implemented offer unmatched flexibility, making it possible to simulate sequence evolution under a wide range of realistic settings. We believe that PhyloSim will be useful to future studies involving simulated alignments.},
+  copyright = {2011 Sipos et al; licensee BioMed Central Ltd.},
+  file = {/home/devan/Zotero/storage/GUUQEGLW/Sipos et al_2011_PhyloSim - Monte Carlo simulation of sequence evolution in the R statistical.pdf;/home/devan/Zotero/storage/E9CX7QZP/1471-2105-12-104.html},
+  journal = {BMC Bioinformatics},
+  language = {en},
+  number = {1}
+}
+
 @article{skotteAssociationTestingNextGeneration2012,
   title = {Association {{Testing}} for {{Next}}-{{Generation Sequencing Data Using Score Statistics}}},
   author = {Skotte, Line and Korneliussen, Thorfinn Sand and Albrechtsen, Anders},
@@ -1907,6 +2163,42 @@
   file = {/home/devan/Zotero/storage/VBDDBKH5/Skotte et al. - 2013 - Estimating Individual Admixture Proportions from N.pdf},
   journal = {Genetics},
   language = {en},
+  number = {3}
+}
+
+@article{smithInformationTheoreticGeneralized2020,
+  title = {Information Theoretic Generalized {{Robinson}}\textendash{{Foulds}} Metrics for Comparing Phylogenetic Trees},
+  author = {Smith, Martin R},
+  editor = {Schwartz, Russell},
+  year = {2020},
+  month = dec,
+  volume = {36},
+  pages = {5007--5013},
+  issn = {1367-4803, 1460-2059},
+  doi = {10.1093/bioinformatics/btaa614},
+  abstract = {Motivation: The Robinson\textendash Foulds (RF) metric is widely used by biologists, linguists and chemists to quantify similarity between pairs of phylogenetic trees. The measure tallies the number of bipartition splits that occur in both trees\textemdash but this conservative approach ignores potential similarities between almost-identical splits, with undesirable consequences. `Generalized' RF metrics address this shortcoming by pairing splits in one tree with similar splits in the other. Each pair is assigned a similarity score, the sum of which enumerates the similarity between two trees. The challenge lies in quantifying split similarity: existing definitions lack a principled statistical underpinning, resulting in misleading tree distances that are difficult to interpret. Here, I propose probabilistic measures of split similarity, which allow tree similarity to be measured in natural units (bits).},
+  file = {/home/devan/Zotero/storage/H3A8BB2W/Smith - 2020 - Information theoretic generalized Robinson–Foulds .pdf},
+  journal = {Bioinformatics},
+  language = {en},
+  number = {20}
+}
+
+@article{songSpatiotemporallyVaryingCoefficients2020,
+  title = {Spatiotemporally {{Varying Coefficients}} ({{STVC}}) Model: A {{Bayesian}} Local Regression to Detect Spatial and Temporal Nonstationarity in Variables Relationships},
+  shorttitle = {Spatiotemporally {{Varying Coefficients}} ({{STVC}}) Model},
+  author = {Song, Chao and Shi, Xun and Wang, Jinfeng},
+  year = {2020},
+  month = jul,
+  volume = {26},
+  pages = {277--291},
+  publisher = {{Taylor \& Francis}},
+  issn = {1947-5683},
+  doi = {10.1080/19475683.2020.1782469},
+  abstract = {Local regression has an advantage over global regression by allowing coefficients that qualify variables relationships being heterogeneous, where such varying regression relationships are nonstationarity. Spatiotemporally Varying Coefficients (STVC) model is the first Bayesian-based local spatiotemporal regression approach, intending to simultaneously detect spatial and temporal nonstationarity for heterogeneous response-covariate variables relationships, through separately estimating posterior local-scale coefficients over different space areas and time frames. In this paper, we first presented a general Bayesian STVC modelling paradigm as a specification guide to show its commonality in broader geospatial research. Then, we employed it to solve a real-world issue concerning spatiotemporal healthcare-socioeconomic relations, for which we derived data of county-level hospital beds number per capita, as well as data of related socioeconomic factors in northeast China during 2002\textendash 2011. Results showed that the STVC model surpassed all the other comparative regressions, in terms of both Bayesian model fitness and predictive ability. Globally, resident savings, financial institutions loans, GDP, and primary industry were identified as key socioeconomic conditions affecting healthcare resources in Northeast China. Temporally, with Time-Coefficients (TC) plots, we found that after 2011, GDP and primary industry would further help improve the overall healthcare level of northeast China. Spatially, with Space-Coefficients (SC) maps, we could directly identify the relative contribution of four socioeconomic covariates' impacts on healthcare within each administrative county. Bayesian STVC model is an essential development and extension of the local regression family for exploring the spatiotemporal heterogeneous variables relationships, especially under Bayesian statistics, as well as GIScience and spatial statistics.},
+  annotation = {\_eprint: https://doi.org/10.1080/19475683.2020.1782469},
+  file = {/home/devan/Zotero/storage/ZCIUHU8Q/Song et al. - 2020 - Spatiotemporally Varying Coefficients (STVC) model.pdf;/home/devan/Zotero/storage/FNRCY2L8/19475683.2020.html},
+  journal = {Annals of GIS},
+  keywords = {Bayesian STVC,China’s healthcare and socioeconomic,heterogeneous variables relationships,local spatiotemporal regression,spatiotemporal nonstationarity},
   number = {3}
 }
 
@@ -2228,6 +2520,24 @@
   journal = {Nature Communications},
   language = {en},
   number = {1}
+}
+
+@article{wilsonGoodEnoughPractices2017,
+  title = {Good Enough Practices in Scientific Computing},
+  author = {Wilson, Greg and Bryan, Jennifer and Cranston, Karen and Kitzes, Justin and Nederbragt, Lex and Teal, Tracy K.},
+  year = {2017},
+  month = jun,
+  volume = {13},
+  pages = {e1005510},
+  publisher = {{Public Library of Science}},
+  issn = {1553-7358},
+  doi = {10.1371/journal.pcbi.1005510},
+  abstract = {Author summary Computers are now essential in all branches of science, but most researchers are never taught the equivalent of basic lab skills for research computing. As a result, data can get lost, analyses can take much longer than necessary, and researchers are limited in how effectively they can work with software and data. Computing workflows need to follow the same practices as lab projects and notebooks, with organized data, documented steps, and the project structured for reproducibility, but researchers new to computing often don't know where to start. This paper presents a set of good computing practices that every researcher can adopt, regardless of their current level of computational skill. These practices, which encompass data management, programming, collaborating with colleagues, organizing projects, tracking work, and writing manuscripts, are drawn from a wide variety of published sources from our daily lives and from our work with volunteer organizations that have delivered workshops to over 11,000 people since 2010.},
+  file = {/home/devan/Zotero/storage/EPQYQDDR/Wilson et al. - 2017 - Good enough practices in scientific computing.pdf;/home/devan/Zotero/storage/GN9QYPVC/article.html},
+  journal = {PLOS Computational Biology},
+  keywords = {Computer software,Control systems,Data management,Metadata,Programming languages,Reproducibility,Software tools,Source code},
+  language = {en},
+  number = {6}
 }
 
 @book{workshopontheuseofspeciesdistributionmodelinginthedeepseaUseSpeciesDistribution2019,

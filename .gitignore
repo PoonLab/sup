@@ -4,6 +4,8 @@ data/ord_covid
 data/unc_covid/*.RDS
 *.sam
 data/sampled_covid
+data/pangolineages
+data/pangordlineages
 data/unc_covid/metadata.tsv
 *log.txt
 
@@ -101,3 +103,4 @@ drafts/Skeleton_files/figure-latex/tree_distances-1.pdf
 drafts/Skeleton.pdf
 
 data/zanini/prob_seq_zanini.RData
+drafts/Skeleton_cache/

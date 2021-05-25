@@ -2,12 +2,18 @@
 ###  DEFINE THE DISTANCE FUNCTIONS
 ###
 
+# Weighted Robinson Foulds from:
+# https://www.rdocumentation.org/packages/phangorn/versions/2.5.5/topics/treedist
+# 
+
 suppressPackageStartupMessages({
     library(dplyr);
     library(ggplot2);
     library(ape);
     library(phytools);
-    library(phylobase)})
+    library(phylobase);
+    library(phangorn)
+})
 source('treekernel.R')
 
 # ---- Tree distances ----
@@ -32,6 +38,14 @@ dist.RF <- function(tree1, tree2, normalize=TRUE) {
 
     return(res)
 }
+
+#' Weighted Robinson-Foulds distance
+#' @param tree1 `ape::phylo` object. First tree.
+#' @param tree2 `ape::phylo` object. Second tree.
+dist.wRF <- function(tree1, tree2, normalize = TRUE) {
+    phangorn::wRF.dist(tree1, tree2, normalize)
+}
+
 
 #' Kuhner-Felsenstein distance.
 #' @param tree1 `ape::phylo` object. First tree.
@@ -135,11 +149,15 @@ dist.kernel <- function(tree1, tree2,
                    prmset))
     }
     tmp <- list()
-    for(i in 1:n){  # i=2
-        mc <- .extract_mc(fastafiles[i])
-        tmp[[i]] <- read.csv(fastafiles[i])
-        tmp[[i]]$mc <- mc
-        tmp[[i]]$prmset <- prmset
+    for(j in 1:n){  # i=2
+        # Error checking: some output files had 0 rows.
+        this_csv <- read.csv(fastafiles[j])
+        if (nrow(this_csv)) {
+                mc <- .extract_mc(fastafiles[j])
+                tmp[[j]] <- this_csv
+                tmp[[j]]$mc <- mc
+                tmp[[j]]$prmset <- prmset
+            }
     }
     df <- do.call('rbind', tmp)
     return(df)

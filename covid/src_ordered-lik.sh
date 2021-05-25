@@ -33,9 +33,9 @@ fi
 
 
 
-source ~/anaconda3/etc/profile.d/conda.sh
+source ~/miniconda3/etc/profile.d/conda.sh
 conda init
-conda activate pangolin 
+conda activate pangolin
 
 
 accs=(data/ord_covid/*.fasta)

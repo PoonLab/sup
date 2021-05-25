@@ -1,5 +1,7 @@
 #! bin/sh
 
+source ~/.bashrc
+
 # Suggested usage:
 # bash covid/src_sample-pangolin-vis.sh -d -N 1000
 
@@ -59,7 +61,7 @@ fi
 
 
 # Initialize Conda
-source ~/anaconda3/etc/profile.d/conda.sh
+source ~/miniconda3/etc/profile.d/conda.sh
 conda init
 conda activate pangolin 
 

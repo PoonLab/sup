@@ -1,6 +1,6 @@
 # Check for installed packages, install when necessary
 suppressPackageStartupMessages({
-    if(!require("sung", quietly = TRUE)) system("sh ../../sung/Rpkg/install-sung.sh")
+    #if(!require("sung", quietly = TRUE)) system("sh ../../sung/Rpkg/install-sung.sh")
     if(!require("snow", quietly = TRUE)) install.packages("snow")
     if(!require("snowfall", quietly = TRUE)) install.packages("snowfall")
     if(!require("gridExtra", quietly = TRUE)) install.packages("gridExtra")

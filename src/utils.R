@@ -255,3 +255,36 @@ plot_prmset_distrib <- function(fname) { #fname='prm-btshp.csv'
         xlab('Base call probability') + ylab('density')
     plot(g)
 }
+
+#' General function for padding with 0s for aligned text
+#' @param x Numeric. Number to be padded
+#' @param pad Integer. If positive, adds zeroes until the number has `pad` digits before the decimal point, if negative it ensure there are `pad` digits after the decimal.
+pad <- function(x, pad = -3){
+    x <- as.character(x)
+    if (length(gregexpr("\\.", x)[[1]]) > 1) {
+        stop("Invalid number.")
+    }
+    if (pad < 0) {
+        if (grepl("\\.", x)) {
+            # nchar of everything after the decimal
+            n <- nchar(strsplit(x, "\\.")[[1]][2])
+            if (n < abs(pad)) {
+                x <- paste0(x, 
+                    paste0(rep(0, abs(pad) - n),
+                        collapse = ""),
+                    collapse = "")
+            }
+        } else {
+            x <- paste0(x, ".")
+            x <- paste0(x,
+                paste0(rep(0, abs(pad)), collapse = ""),
+                collapse = "")
+        }
+    } else { # pad > 0
+    # nchar of everything before the decimal
+        n <- nchar(strsplit(x, "\\.")[[1]][1])
+        x <- paste0(rep(0, max(0, pad - n)), x)
+    }
+    x
+}
+
