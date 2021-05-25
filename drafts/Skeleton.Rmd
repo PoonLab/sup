@@ -65,6 +65,7 @@ ords <- lapply(
 ```
 
 
+<!--
 TODO (with input from David/Art)
 
 - Ensure I'm using pangolin/pangoLEARN in proper contexts
@@ -81,6 +82,7 @@ TODO (with input from David/Art)
     - I use subscript $j$ for arbitrary locations on the genome - double check that this is consistent throughout.
 - Style: 
     - I'm really bad at tense.
+-->
 
 
 # Introduction
@@ -178,7 +180,7 @@ Sequence chromatograms are affected by the same loss of information.
 A significant problem of storing probabilities at the level of individual nucleotides is that generating a sequence from this matrix requires drawing $\ell$ independent outcomes.
 For example, the reference SARS-CoV-2 genome is 29,903 nucleotides, and a substantial number of naturally-occurring sequence insertions have been described.
 Thus, we expect that $\ell$ exceeds 30,000.
-The majority of these possible sequences are not biologically plausible.
+The majority of these possible $5^\ell$ sequences are not biologically plausible.
 Therefore, we formulate an ordered subset $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of the first $m$ most likely sequences, which are ranked in descending order by the joint probability of nucleotide composition.
 Note that the $\sps_i$ do not have necessarily the same length. 
 The observed genetic sequence, $s$, is a sample from a specified discrete probability distribution $a$:
@@ -241,13 +243,13 @@ Below is an example for a \slps $\sps$ for $m=5$:
 \end{table}
 
 For example, sampling from $\sps$ we expect to observe \sq{ACATCA} $12\%$ of the time.
-Large genomes, such as SARS-CoV-2, will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
+Large genomes or sequencing targets will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
 
 
 ### Deletions and Insertions
 
 By construction, the \nlps must be defined with its longest possible length.
-Deletions are naturally modelled with our representation but insertions have to be modelled using deletion probability. 
+Deletions are naturally modelled with our representation but insertions have to be modelled using deletion probabilities. 
 Consider, for instance, the following \nlps:
 \begin{equation}
 \label{eq:indel}
@@ -313,9 +315,12 @@ Each row represents a short read, including the optimal placement of the read wi
 
 
 We suggest the following algorithm to construct the nucleotide-level probabilistic sequence from the contents of a SAM alignment file.
-First, we initialize an empty $5\times\ell$ matrix $\nps'$.
-Iterating through each row of the SAM file, the position and CIGAR string determine the location of each base in the alignment.
-We map each base to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
+Each row contains the relative position ($r$) of a read aligned to the reference and the CIGAR string.
+We initialize aligned sequence and quality strings with '&ndash;' and '!' ($Q=0$) repeated $r$ times, respectively.
+Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
+Deleted bases are arbitrarily assigned a quality score of zero.
+After all reads are processed, we initialize an empty $5\times\ell$ matrix $\nps'$, where $\ell$ is initialized to the length of the longest aligned sequence.
+We map each base in the aligned sequences to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
 By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$.
 For our proposed propagation methods, it is convenient to work with $\nps'$ until probabilities are necessary.
 
