@@ -65,6 +65,7 @@ ords <- lapply(
 ```
 
 
+
 # Introduction
 
 Generating a genetic sequence from a biological sample is a complex process that involves many steps.
@@ -161,7 +162,7 @@ Sequence chromatograms are affected by the same loss of information.
 A significant problem of storing probabilities at the level of individual nucleotides is that generating a sequence from this matrix requires drawing $\ell$ independent outcomes.
 For example, the reference SARS-CoV-2 genome is 29,903 nucleotides, and a substantial number of naturally-occurring sequence insertions have been described.
 Thus, we expect that $\ell$ exceeds 30,000.
-The majority of these possible sequences are not biologically plausible.
+The majority of these possible $5^\ell$ sequences are not biologically plausible.
 Therefore, we formulate an ordered subset $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of the first $m$ most likely sequences, which are ranked in descending order by the joint probability of nucleotide composition.
 Note that the $\sps_i$ do not have necessarily the same length.
 The observed genetic sequence, $s$, is a sample from a specified discrete probability distribution $a$:
@@ -226,14 +227,13 @@ Below is an example for a \slps $\sps$ for $m=5$:
 \end{table}
 
 For example, sampling from $\sps$ we expect to observe \sq{ACATCA} $12\%$ of the time.
-Large genomes, such as SARS-CoV-2, will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
+Large genomes or sequencing targets will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
 
 
 ### Deletions and Insertions
 
 By construction, the \nlps must be defined with its longest possible length.
-Deletions are naturally modelled with our representation but insertions have to be modelled using deletion probability.
-Consider, for instance, the following \nlps:
+Deletions are naturally modelled with our representation but insertions have to be modelled using deletion probabilities. 
 \begin{equation}
 \label{eq:indel}
 \nps = 
@@ -273,7 +273,10 @@ The representation of deletions and insertions with a \slps (not nucleotide-leve
 
 ## Constructing The Uncertainty Matrix
 
+<!--
 ### Sequence chromatograms
+For sequences derived from conventional capillary-based methods, the uncertainty of base calls can be quantified from the sequence chromatogram.
+-->
 
 
 ### SAM files
@@ -296,12 +299,13 @@ Each row represents a short read, including the optimal placement of the read wi
 
 
 We suggest the following algorithm to construct the nucleotide-level probabilistic sequence from the contents of a SAM alignment file.
-First, we initialize an empty $5\times\ell$ matrix $\nps'$.
-Iterating through each row of the SAM file, the position and CIGAR string determine the location of each base in the alignment.
-We map each base to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
-By this construction, the sum of each column represents the coverage at that location.
-Dividing each entry of $\nps'$ by the sum of that column results in $\nps$.
-For our proposed propagation methods, it is convenient to work with $\nps'$ until probabilities are necessary.
+Each row contains the relative position ($r$) of a read aligned to the reference and the CIGAR string.
+We initialize aligned sequence and quality strings with '&ndash;' and '!' ($Q=0$) repeated $r$ times, respectively.
+Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
+Deleted bases are arbitrarily assigned a quality score of zero.
+After all reads are processed, we initialize an empty $5\times\ell$ matrix $\nps'$, where $\ell$ is initialized to the length of the longest aligned sequence.
+We map each base in the aligned sequences to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
+By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$.
 
 
 Some NGS platforms use paired-end reads where the same nucleic acid template is read in both directions.
@@ -382,15 +386,12 @@ However, the sensitivity of an analysis can be evaluated by choosing different v
 ## Propagation of uncertainty via resampling
 
 The most general way to propagate uncertainty is through resampling.
-Given $\nps$ and assuming that locations are independent (or pre-defining biologically-reasonable sequences and calculating their probabilities), uncertainty can be propagated by re-sampling the sequences according to their probability and re-running the analysis on each set of sampled sequences (I don't have a citation for this, but I believe Peter Piper sampled a set of sampled sequences).
+Given $\nps$ and assuming that individual nucleotides are independent outcomes &mdash; or precomputing a reduced set of $m$ sequences and calculating the distribution $a$ of their joint probabilities &mdash; we can propagate uncertainy by running downstream analyses on each set of sampled sequences.
 
-Re-sampling can either be done simply based on the nucleotide-level uncertainty as a multinomial distribution.
+At a nucleotide level, we are sampling from a multinomial distribution.
 If the $j$th column of $\nps$ is (0.5, 0.2,0.2,0.09.0.01), then we could sample $\sq{A}$ with 50\% probability, $\sq{C}$ with 20\%, etc.
 However, this disregards the coverage at each location, thereby disregarding the variance of the error probabilities.
-
-To incorporate the variance of the errors, a Dirichlet-Multinomial sampling scheme can be derived by assuming that the error probabilities follow a Dirichlet prior and the bases follow a multinomial likelihood.
-For each base at each location, the entry for $\nps'$ is defined as the sum of the probabilities (one minus the error probabilities).
-Thes values can be used as the parameters in the Dirichlet prior, from which base probabilities can be sampled.
+To incorporate the variance of the errors, a Dirichlet-Multinomial sampling scheme can be derived by assuming that the error probabilities follow a Dirichlet prior and the bases follow a multinomial likelihood. For each base at each location, the entry for $\nps'$ is defined as the sum of the probabilities (one minus the error probabilities). Thes values can be used as the parameters in the Dirichlet prior, from which base probabilities can be sampled. 
 
 For example, if the $j$th column of $\nps'$ is (1200.45, 200.09, 100.74, 121.11, 0), then possible base probabilities could be (0.743, 0.126, 0.062, 0.070, 0), (0.739, 0.121, 0.066, 0.074, 0), or (0.744, 0.128, 0.056, 0.071, 0).
 In contrast, if the $j$th column of $\nps'$ were (12.4, 1.2, 0.4, 1.7, 0), then some samples from the Dirichlet distribution might be (0.759, 0.059, 0.029, 0.153, 0), (0.916, 0.065, 0.009, 0.009, 0), or (0.779, 0.117, 0, 0.104, 0).
