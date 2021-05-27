@@ -9,6 +9,7 @@ data/pangordlineages
 data/unc_covid/metadata.tsv
 *log.txt
 src/df_tn93.RDS
+data/output/sung_results_workspace.RData
 
 .DS_Store
 
