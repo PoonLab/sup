@@ -5,6 +5,7 @@ library(gridExtra)
 library(here)
 library(ggridges)
 
+setwd(here("src")) # TODO: Fix absolute paths
 source("dist-fcts.R")
 source("utils.R")
 
@@ -85,44 +86,44 @@ digest_distances <- function(df) {
 between  <- digest_distances(between_df)
 certain <- digest_distances(certain_df)
 
-saveRDS(between,
-    file = here("data", "output", "between-inferred-distances.RDS"))
-saveRDS(certain,
-    file = here("data", "output", "inferred-to-certain-distances.RDS"))
+
+save(between_df, certain_df, between, certain, 
+    file = here("data", "output", "sung_results_workspace.RData"))
+
 
 
 if(do_tn93){
-	# The raw TN93 distances:
-	df_tn93 <- dist.tn93()
+    # The raw TN93 distances:
+    df_tn93 <- dist.tn93()
 
-	saveRDS(df_tn93, file = "df_tn93.RDS")
+    saveRDS(df_tn93, file = "df_tn93.RDS")
 
-	# Number of clusters based on TN93 distance:
-	df_tn93_sub <- df_tn93 %>%
-		group_by(prmset) %>% 
-		slice(x = sample(1:n(), size = n()/8, replace = TRUE)) %>%
-		ungroup()
+    # Number of clusters based on TN93 distance:
+    df_tn93_sub <- df_tn93 %>%
+        group_by(prmset) %>% 
+        slice(x = sample(1:n(), size = n()/8, replace = TRUE)) %>%
+        ungroup()
 
-	# Find the correct order(s) of magnitude
-	df_tmp <- list()
-	clust_tmp <- list()
-	for (i in 1:5) {
-		threshi <- 10^-i
-		cat("Testing threshold ", threshi, "\n")
-		df_tmp[[i]] <- df_tn93_sub %>%
-		    clstr_num(dist.thresh.mean = threshi)
-		clust_tmp[[i]] <- max(df_tmp[[i]]$n.clusters)
-		cat("Max cluster number: ", clust_tmp[[i]], "\n")
-	}
+    # Find the correct order(s) of magnitude
+    df_tmp <- list()
+    clust_tmp <- list()
+    for (i in 1:5) {
+        threshi <- 10^-i
+        cat("Testing threshold ", threshi, "\n")
+        df_tmp[[i]] <- df_tn93_sub %>%
+            clstr_num(dist.thresh.mean = threshi)
+        clust_tmp[[i]] <- max(df_tmp[[i]]$n.clusters)
+        cat("Max cluster number: ", clust_tmp[[i]], "\n")
+    }
 
-	print(unlist(clust_tmp))
+    print(unlist(clust_tmp))
 
-	thresh <- c(0.02, 0.30)
+    thresh <- c(0.02, 0.30)
 
-	df_tn93_clustr_1 <- df_tn93 %>%
-		    clstr_num(dist.thresh.mean = thresh[1])
+    df_tn93_clustr_1 <- df_tn93 %>%
+            clstr_num(dist.thresh.mean = thresh[1])
 
-	df_tn93_clustr_2 <- df_tn93 %>%
-	    clstr_num(dist.thresh.mean = thresh[2])
+    df_tn93_clustr_2 <- df_tn93 %>%
+        clstr_num(dist.thresh.mean = thresh[2])
 
 }

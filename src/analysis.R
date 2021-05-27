@@ -5,6 +5,8 @@ library(gridExtra)
 library(here)
 library(ggridges)
 
+
+setwd(here("src")) # TODO: fix absolute paths
 source("dist-fcts.R")
 source("utils.R")
 
@@ -12,10 +14,9 @@ message("Analysis.R: Starting analysis...")
 
 system("figgy=`whereis figlet`; figgylen=${#figgy}; if [ $figgylen > 10 ]; then figlet Analysis.R; fi")
 
-between <- readRDS(file = here("data", "output", 
-    "between-inferred-distances.RDS"))
-certain <- readRDS(file = here("data", "output", 
-    "inferred-to-certain-distances.RDS"))
+loaded_files <- load(file = here("data", "output", 
+    "sung_results_workspace.RData"))
+print(loaded_files)
 
 # Pre-plot wrangling
 options(scipen = 10)
@@ -59,13 +60,14 @@ certain_long <- pivot_longer(certain_df, -prmset,
         distance.type == "d.kf" ~ "Kuhner-Felsenstein",
         distance.type == "d.rf" ~ "Robinson-Foulds",
         distance.type == "d.sh" ~ "Shared Ancestry",
+        distance.type == "d.wrf" ~ "Robinson-Foulds - Weighted",
         TRUE ~ as.character(distance.type)
     ))
 rm(meanset)
 
 ggplot(certain_long) +
     aes(x = value, y = meansd, fill = meansd) +
-    geom_density_ridges(bandwidth = 0.03) +
+    geom_density_ridges(bandwidth = 0.03, rel_min_height=0.01) +
     facet_wrap(~ distance, scales = "free_x") +
     labs(y = "Mean and SD of Beta Dist",
         x = 'Distance from "certain" tree',
