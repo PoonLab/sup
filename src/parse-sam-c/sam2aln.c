@@ -38,14 +38,11 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
     int num_valid = 0;
     
     /************************** Tokenize CIGAR ************************/
-    // printf("Tokenize CIGAR\n");
-
     if (strcmp(cigar, "*") == 0) return NULL;
 
     tokens *first = NULL;
     tokens *prev_tok = first;
 
-    // printf("Start Token\n");
     regex_t pexp;
     regmatch_t whole_match;
 
@@ -107,6 +104,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
     int seql = 1;
     int left = 1;
     int flag = 1;
+
     // POS is  1-indexed, so shift to the left
     int curr_pos = atoi(pos) - 1;
 
@@ -159,6 +157,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
                 current_edit->qualPart = NULL;
             }
 
+            // Appends sequence together
             if (current_edit->operand == 'M' || current_edit->operand == 'I') {
                 if (current_edit->seqPart != NULL) {
                     char *sequence = malloc(current_edit->len + 1);
@@ -193,6 +192,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
 
             // Update lenSeq
             if (current_edit->operand == 'I') {
+                // Store the position where the insertion starts
                 current_edit->lenSeq = curr_pos;
                 curr_pos+=current_edit->len;
             }
@@ -292,17 +292,6 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
         prev_seq = curr_sequence;
     }
 
-    // newSeq *tempNewseq = sequences_list;
-    // if (tempNewseq->insertions != NULL) {
-    //     printf("Sequence: %s\n", tempNewseq->seq);
-    //     printf("Cigar: %s\n", cigar);
-    //     insertions *tempIns = tempNewseq->insertions;
-    //     while (tempIns != NULL) {
-    //         printf("%d\t%s\t%s\n", tempIns->lenSeq, tempIns->seq, tempIns->qual);
-    //         tempIns = tempIns->next;
-    //     }
-    // }
-
 
     /****************************** Free lists ******************************/
 
@@ -333,7 +322,6 @@ void *processLines(void *args)
     GHashTable *hash = arg->hash;
     int start = arg->start_line;
     int end = arg->end_line;
-    // double **m = arg->m;
     int numLines = 0;
     FILE *fp = fopen(filename, "r");
     if (fp == NULL)
@@ -352,7 +340,6 @@ void *processLines(void *args)
     {
         numLines++;
         if (numLines > start && numLines <= end) {
-            // printf("Iter #: %d\n", iter++);
             if (line[0] == '@') continue;
             
             char *qname, *pos, *cigar, *seq, *qual;
@@ -416,7 +403,6 @@ void *processLines(void *args)
                     strcpy(insert->seq, mseq_insertions->seq);
                     strcpy(insert->qual, mseq_insertions->qual);
                     insert->next = NULL;
-                    // printf("%d\t%s\t%s\n", mseq_insertions->lenSeq, mseq_insertions->seq, mseq_insertions->qual);
                     mseq_insertions = mseq_insertions->next;
 
                     if (insertions_list != NULL) prev_insertion->next = insert;
@@ -424,9 +410,6 @@ void *processLines(void *args)
 
                     prev_insertion = insert;
                 }
-                
-
-                // printf("%d\n", numLines);
                 pthread_mutex_unlock(&lock);
             }
 
@@ -495,10 +478,7 @@ void *processLines(void *args)
                 }   
             }     
 
-            // int posRange = posRanges[0];
-            // int range = posRanges[1];
             pthread_mutex_lock(&lock);
-
             if (maxLength < range) {
                 m = realloc(m, (sizeof(double *) * range));
                 for (int t = maxLength; t < range; t++) {
@@ -536,9 +516,6 @@ void *processLines(void *args)
             }
 
             for (int f = 0; f < 4; f++) {
-                // for (int k = 0; k < 4; k++) {
-                //     free(posVals[f][k]);
-                // }
                 free(posVals[f]);
             }
             free(posVals);
@@ -574,8 +551,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // bool paired = true;
-
     clock_t t;
     t = clock();
 
@@ -596,17 +571,10 @@ int main(int argc, char **argv)
         }
     }
 
-    // Initialize Insertions list
-    // insertions_list = NULL;
-    // prev_insertion = insertions_list;
-
-    char *line = NULL;
+    char *tok, *line = NULL;
     size_t line_buf_size = 0;
     ssize_t line_size;
-
-    char *tok;
     const char delim[2] = "\t";
-
     int numLines = 0;
 
     // Hash table to keep track of repeated qname
@@ -644,9 +612,6 @@ int main(int argc, char **argv)
                 g_hash_table_insert(hash, qname, GINT_TO_POINTER(1));
             
         }
-
-        // Moves file pointer to the beginning
-        // fseek(fp, 0, SEEK_SET);
     }
     else {
         numLines = get_number_rows(argv[1]);
@@ -679,24 +644,13 @@ int main(int argc, char **argv)
         start_line += num_read_lines;
         end_line += num_read_lines;
     }
-
   
     for (int k = 0; k < num_threads; k++) {
         pthread_join(tid[k], NULL);
     }
 
-
     g_hash_table_destroy(hash);
     pthread_mutex_destroy(&lock);
-
-
-    // insertion_info *tempList = insertions_list;
-    // printf("INSERTION LIST\n");
-    // while(tempList != NULL) {
-    //     printf("%d %s %d %s %s\n", tempList->lineNum, tempList->cigar, tempList->seqPosition, tempList->seq, tempList->qual);
-    //     tempList = tempList->next;
-    // }
-
 
     printf("Writing Matrix to CSV\n");
     write_matrix(m, maxLength, argv[1]);
@@ -704,7 +658,6 @@ int main(int argc, char **argv)
     if (insertions_list!=NULL) {
         printf("Writing Insertions to CSV\n");
         write_insertions(insertions_list, argv[1]);
-        // Write Insertions
     }
 
     for (int i = 0; i < maxLength; i++) {
