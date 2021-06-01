@@ -138,8 +138,8 @@ void write_insertions(insertion_info *insertions, char *filename) {
                     break;
             }
     
-            fprintf(fp, "%d, %s, %c, %d, %c, %f, %s\n", insertions->lineNum, insertions->cigar, qc[i] == ',' ? ' ' : qc[i], insertions->seqPosition + i, bases[i], p, insertions->isRepeated ? "TRUE" : "FALSE");
-            // fprintf(fp, "%d, %d, %c, %f, %s\n", insertions->lineNum, insertions->seqPosition + i, bases[i], p, insertions->isRepeated ? "TRUE" : "FALSE");
+            fprintf(fp, "%d, %s, %c, %d, %c, %f, %s\n", insertions->lineNum, insertions->cigar, qc[i] == ',' ? ' ' : qc[i], insertions->seqPosition + i, bases[i], insertions->isRepeated ? p/2 : p, insertions->isRepeated ? "TRUE" : "FALSE");
+            // fprintf(fp, "%d, %d, %c, %f, %s\n", insertions->lineNum, insertions->seqPosition + i, bases[i], insertions->isRepeated ? p/2 : p, insertions->isRepeated ? "TRUE" : "FALSE");
         }
         insertions = insertions->next;
     }
