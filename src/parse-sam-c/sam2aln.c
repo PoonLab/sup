@@ -284,12 +284,25 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
 
         curr_sequence->insertions = head_insertions;
 
+
         if (start_edits != NULL) currSeql = start_edits->seql;
         if (sequences_list != NULL) prev_seq->next = curr_sequence;
         else sequences_list = curr_sequence;
 
         prev_seq = curr_sequence;
     }
+
+    // newSeq *tempNewseq = sequences_list;
+    // if (tempNewseq->insertions != NULL) {
+    //     printf("Sequence: %s\n", tempNewseq->seq);
+    //     printf("Cigar: %s\n", cigar);
+    //     insertions *tempIns = tempNewseq->insertions;
+    //     while (tempIns != NULL) {
+    //         printf("%d\t%s\t%s\n", tempIns->lenSeq, tempIns->seq, tempIns->qual);
+    //         tempIns = tempIns->next;
+    //     }
+    // }
+
 
     /****************************** Free lists ******************************/
 
@@ -403,6 +416,7 @@ void *processLines(void *args)
                     strcpy(insert->seq, mseq_insertions->seq);
                     strcpy(insert->qual, mseq_insertions->qual);
                     insert->next = NULL;
+                    // printf("%d\t%s\t%s\n", mseq_insertions->lenSeq, mseq_insertions->seq, mseq_insertions->qual);
                     mseq_insertions = mseq_insertions->next;
 
                     if (insertions_list != NULL) prev_insertion->next = insert;
@@ -410,6 +424,9 @@ void *processLines(void *args)
 
                     prev_insertion = insert;
                 }
+                
+
+                // printf("%d\n", numLines);
                 pthread_mutex_unlock(&lock);
             }
 
@@ -579,6 +596,10 @@ int main(int argc, char **argv)
         }
     }
 
+    // Initialize Insertions list
+    // insertions_list = NULL;
+    // prev_insertion = insertions_list;
+
     char *line = NULL;
     size_t line_buf_size = 0;
     ssize_t line_size;
@@ -669,12 +690,21 @@ int main(int argc, char **argv)
     pthread_mutex_destroy(&lock);
 
 
+    // insertion_info *tempList = insertions_list;
+    // printf("INSERTION LIST\n");
+    // while(tempList != NULL) {
+    //     printf("%d %s %d %s %s\n", tempList->lineNum, tempList->cigar, tempList->seqPosition, tempList->seq, tempList->qual);
+    //     tempList = tempList->next;
+    // }
+
+
     printf("Writing Matrix to CSV\n");
     write_matrix(m, maxLength, argv[1]);
 
     if (insertions_list!=NULL) {
         printf("Writing Insertions to CSV\n");
         write_insertions(insertions_list, argv[1]);
+        // Write Insertions
     }
 
     for (int i = 0; i < maxLength; i++) {
