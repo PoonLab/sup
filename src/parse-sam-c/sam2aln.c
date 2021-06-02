@@ -1,14 +1,14 @@
 #include "io.h"
 #include <time.h>
 #include <regex.h>
-#include <stdbool.h>
-#include <math.h>
 #include <pthread.h>
 
 static const bool paired = true;
 int maxLength;
 pthread_mutex_t lock;
 double **m;
+insertion_info *insertions_list;
+insertion_info *prev_insertion;
 
 int len_terminal_gap(char *seq) {
     bool prefix = true;
@@ -38,14 +38,11 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
     int num_valid = 0;
     
     /************************** Tokenize CIGAR ************************/
-    // printf("Tokenize CIGAR\n");
-
     if (strcmp(cigar, "*") == 0) return NULL;
 
     tokens *first = NULL;
     tokens *prev_tok = first;
 
-    // printf("Start Token\n");
     regex_t pexp;
     regmatch_t whole_match;
 
@@ -107,7 +104,9 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
     int seql = 1;
     int left = 1;
     int flag = 1;
-    int curr_pos = atoi(pos);
+
+    // POS is  1-indexed, so shift to the left
+    int curr_pos = atoi(pos) - 1;
 
     tokens *temp_tok = first;
     while(temp_tok!=NULL) {
@@ -146,7 +145,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
             }
             else if (current_edit->operand == 'D') {
                 current_edit->seqPart = malloc(current_edit->len + 1);
-                memset(current_edit->seqPart, '-', current_edit->len);
+                memset(current_edit->seqPart, 'x', current_edit->len);
                 (current_edit->seqPart)[current_edit->len] = '\0';
 
                 current_edit->qualPart = malloc(current_edit->len + 1);
@@ -158,6 +157,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
                 current_edit->qualPart = NULL;
             }
 
+            // Appends sequence together
             if (current_edit->operand == 'M' || current_edit->operand == 'I') {
                 if (current_edit->seqPart != NULL) {
                     char *sequence = malloc(current_edit->len + 1);
@@ -191,8 +191,16 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
             }
 
             // Update lenSeq
-            curr_pos+=current_edit->len;
-            current_edit->lenSeq = curr_pos;
+            if (current_edit->operand == 'I') {
+                // Store the position where the insertion starts
+                current_edit->lenSeq = curr_pos;
+                curr_pos+=current_edit->len;
+            }
+            else {
+                curr_pos+=current_edit->len;
+                current_edit->lenSeq = curr_pos;
+            }
+
             current_edit->next = NULL;
 
             // Update left
@@ -222,6 +230,9 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
         curr_sequence->qualseq = NULL;
         curr_sequence->next=NULL;
 
+        insertions *head_insertions = NULL;
+        insertions *prev_insert = head_insertions;
+
         while (start_edits != NULL && start_edits->seql == currSeql) {
             if (start_edits->operand != 'I' && start_edits->seqPart != NULL) {
                 if (curr_sequence->seq == NULL){
@@ -250,8 +261,29 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
                 }
             }
 
+            if (start_edits->operand == 'I') {
+                insertions *curr_insert = malloc(sizeof(insertions));
+                curr_insert->lenSeq = start_edits->lenSeq + 1;
+                curr_insert->seq = malloc(strlen(start_edits->seqPart) + 1);
+                curr_insert->qual = malloc(strlen(start_edits->qualPart) + 1);
+                curr_insert->next = NULL;
+
+                strncpy(curr_insert->seq, start_edits->seqPart, strlen(start_edits->seqPart));
+                (curr_insert->seq)[strlen(start_edits->seqPart)] = '\0';
+                
+                strncpy(curr_insert->qual, start_edits->qualPart, strlen(start_edits->qualPart));
+                (curr_insert->qual)[strlen(start_edits->qualPart)] = '\0';
+
+                if (head_insertions != NULL) prev_insert->next = curr_insert;
+                else head_insertions = curr_insert;
+                prev_insert = curr_insert;
+            }
+
             start_edits = start_edits->next;
         }
+
+        curr_sequence->insertions = head_insertions;
+
 
         if (start_edits != NULL) currSeql = start_edits->seql;
         if (sequences_list != NULL) prev_seq->next = curr_sequence;
@@ -259,6 +291,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
 
         prev_seq = curr_sequence;
     }
+
 
     /****************************** Free lists ******************************/
 
@@ -289,7 +322,6 @@ void *processLines(void *args)
     GHashTable *hash = arg->hash;
     int start = arg->start_line;
     int end = arg->end_line;
-    // double **m = arg->m;
     int numLines = 0;
     FILE *fp = fopen(filename, "r");
     if (fp == NULL)
@@ -308,7 +340,6 @@ void *processLines(void *args)
     {
         numLines++;
         if (numLines > start && numLines <= end) {
-            // printf("Iter #: %d\n", iter++);
             if (line[0] == '@') continue;
             
             char *qname, *pos, *cigar, *seq, *qual;
@@ -356,6 +387,32 @@ void *processLines(void *args)
 
             if (mseqs == NULL) continue;
 
+            if (mseqs->insertions != NULL) {
+                // Add insertions to list
+                pthread_mutex_lock(&lock);
+                insertions *mseq_insertions = mseqs->insertions;
+                while (mseq_insertions != NULL) {
+                    insertion_info *insert = malloc(sizeof(insertion_info));
+                    insert->lineNum = numLines;
+                    insert->cigar = malloc(strlen(cigar) + 1);
+                    strcpy(insert->cigar, cigar);
+                    insert->seqPosition = mseq_insertions->lenSeq;
+                    insert->isRepeated = isRepeated;
+                    insert->seq = malloc(strlen(mseq_insertions->seq) + 1);
+                    insert->qual = malloc(strlen(mseq_insertions->qual) + 1);
+                    strcpy(insert->seq, mseq_insertions->seq);
+                    strcpy(insert->qual, mseq_insertions->qual);
+                    insert->next = NULL;
+                    mseq_insertions = mseq_insertions->next;
+
+                    if (insertions_list != NULL) prev_insertion->next = insert;
+                    else insertions_list = insert;
+
+                    prev_insertion = insert;
+                }
+                pthread_mutex_unlock(&lock);
+            }
+
             int posRanges[2];
             posRanges[0] = len_terminal_gap(mseqs->seq);
             posRanges[1] = strlen(mseqs->seq);
@@ -378,6 +435,11 @@ void *processLines(void *args)
                 if (nt == '-') {
                     for (int j = 0; j < 4; j++) {
                         posVals[j][k - posRange] = 0;
+                    }
+                }
+                else if (nt == 'x') {
+                    for (int j = 0; j < 4; j++) {
+                        posVals[j][k - posRange] = 1;
                     }
                 }
                 else if (nt == 'N') {
@@ -416,10 +478,7 @@ void *processLines(void *args)
                 }   
             }     
 
-            // int posRange = posRanges[0];
-            // int range = posRanges[1];
             pthread_mutex_lock(&lock);
-
             if (maxLength < range) {
                 m = realloc(m, (sizeof(double *) * range));
                 for (int t = maxLength; t < range; t++) {
@@ -444,14 +503,19 @@ void *processLines(void *args)
                 temp_newSeq = mseqs;
                 free(temp_newSeq->seq);
                 free(temp_newSeq->qualseq);
+                insertions *temp_insert;
+                while (temp_newSeq->insertions != NULL) {
+                    temp_insert = temp_newSeq->insertions;
+                    free(temp_insert->seq);
+                    free(temp_insert->qual);
+                    temp_newSeq->insertions = temp_newSeq->insertions->next;
+                    free(temp_insert);
+                }
                 mseqs = mseqs->next;
                 free(temp_newSeq);
             }
 
             for (int f = 0; f < 4; f++) {
-                // for (int k = 0; k < 4; k++) {
-                //     free(posVals[f][k]);
-                // }
                 free(posVals[f]);
             }
             free(posVals);
@@ -487,8 +551,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // bool paired = true;
-
     clock_t t;
     t = clock();
 
@@ -509,13 +571,10 @@ int main(int argc, char **argv)
         }
     }
 
-    char *line = NULL;
+    char *tok, *line = NULL;
     size_t line_buf_size = 0;
     ssize_t line_size;
-
-    char *tok;
     const char delim[2] = "\t";
-
     int numLines = 0;
 
     // Hash table to keep track of repeated qname
@@ -553,9 +612,6 @@ int main(int argc, char **argv)
                 g_hash_table_insert(hash, qname, GINT_TO_POINTER(1));
             
         }
-
-        // Moves file pointer to the beginning
-        // fseek(fp, 0, SEEK_SET);
     }
     else {
         numLines = get_number_rows(argv[1]);
@@ -588,24 +644,37 @@ int main(int argc, char **argv)
         start_line += num_read_lines;
         end_line += num_read_lines;
     }
-
   
     for (int k = 0; k < num_threads; k++) {
         pthread_join(tid[k], NULL);
     }
 
-
     g_hash_table_destroy(hash);
     pthread_mutex_destroy(&lock);
 
-
     printf("Writing Matrix to CSV\n");
     write_matrix(m, maxLength, argv[1]);
+
+    if (insertions_list!=NULL) {
+        printf("Writing Insertions to CSV\n");
+        write_insertions(insertions_list, argv[1]);
+    }
 
     for (int i = 0; i < maxLength; i++) {
         free(m[i]);
     }
     free(m);
+
+    // Free List of insertions
+    insertion_info *tempInsertions;
+    while (insertions_list!=NULL) {
+        free(insertions_list->cigar);
+        free(insertions_list->seq);
+        free(insertions_list->qual);
+        tempInsertions = insertions_list;
+        insertions_list = insertions_list->next;
+        free(tempInsertions);
+    }
 
     t = clock() - t; 
     double time_taken = ((double)t)/CLOCKS_PER_SEC;

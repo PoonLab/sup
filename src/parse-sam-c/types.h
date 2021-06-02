@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 #include <glib.h>
-
+#include <stdbool.h>
 
 typedef struct in_file
 {
@@ -33,10 +33,27 @@ typedef struct edits {
     struct edits *next;
 } edits;
 
+typedef struct insertions {
+    int lenSeq; // Position of insertion
+    char *seq; // Base
+    char *qual;
+    struct insertions *next;
+} insertions;
+
+typedef struct insertion_info {
+    int lineNum;
+    char *cigar;
+    int seqPosition; // Position of insertion
+    char *seq; // Base
+    char *qual;
+    bool isRepeated;
+    struct insertion_info *next;
+} insertion_info;
+
 typedef struct newSeq {
     char *seq;
     char *qualseq;
-    // struct insertions *insertions;
+    struct insertions *insertions;
     struct newSeq *next;
 } newSeq;
 

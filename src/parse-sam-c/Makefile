@@ -1,7 +1,7 @@
 CC = gcc
 H = types.h io.h
-C = sam2ain.c io.c
-EXEC = sam2main
+C = sam2aln.c io.c
+EXEC = sam2aln
 CFLAGS = -Wall -Werror -g -std=c99
 
 build: ${C} ${H}
