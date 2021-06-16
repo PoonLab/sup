@@ -298,16 +298,17 @@ Therefore, we must assume that these probabilities are uniformly distributed.
 Raw short read data are typically recorded in a FASTQ format that stores both the sequences (base calls) and base-specific quality scores.
 Since the reads often correspond to different locations of the target nucleic acid, \eg randomly sheared genomic DNA, it is necessary to align the reads to identify base calls on different reads that represent the same genome position.
 This alignment step can be accomplished by mapping reads to a reference genome, by the *de novo* assembly of reads, or a hybrid approach that incorporates both methods.
-The aligned outputs are frequently recorded in the SAM format, which is a tabular data format with application-specific data types.
-Each row represents a short read, including the optimal placement of the read with respect to the reference sequence (as an integer offset), and an application-specific serialization of the edit operations required to align the read to the reference, called the compact idiosyncratic gapped alignment report (CIGAR, @li2009sequence).
+The aligned outputs are frequently recorded in the tabular Sequence Alignment/Map (SAM) format (@li2009sequence).
+Each row represents a short read, including the raw nucleotide sequence and quality strings; the optimal placement of the read with respect to the reference sequence (as an integer offset); and the compact idiosyncratic gapped alignment report (CIGAR), an application-specific serialization of the edit operations required to align the read to the reference.
 
 
-We suggest the following algorithm to construct the nucleotide-level probabilistic sequence from the contents of a SAM alignment file.
-Each row contains the relative position ($r$) of a read aligned to the reference and the CIGAR string.
-We initialize aligned sequence and quality strings with '&ndash;' and '!' ($Q=0$) repeated $r$ times, respectively.
+We employed the following procedure to construct the nucleotide-level probabilistic sequence from the contents of a SAM file.
+We initialize aligned sequence and quality strings with '&ndash;' and '!' ($Q=0$) repeated $r-1$ times, respectively, where $r$ is the (one-index) position of the leftmost nucleotide in the reference genome.
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
-Deleted bases are arbitrarily assigned a quality score of zero.
-After all reads are processed, we initialize an empty $5\times\ell$ matrix $\nps'$, where $\ell$ is initialized to the length of the longest aligned sequence.
+Deleted bases (`D` operations) are arbitrarily assigned a quality score of zero.
+Insertions (`I` operations) are temporarily excluded from the aligned sequence.
+Instead, each insertion is cached in a separate data structure ($\mathcal{I}$) that records the inserted sequence, quality string, and position.
+After all reads are processed, we initialize an empty $5\times\ell$ matrix $\nps'$, where $\ell$ is initialized to the length of the longest aligned sequence excluding insertions.
 We map each base in the aligned sequences to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
 By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$.
 
