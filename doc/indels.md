@@ -45,13 +45,21 @@ This table is used to construct the uncertainty matrix, which currently ignores 
 
 To incorporate insertions of varying lengths, we first sample the number of insertions, then sample which nucleotides to insert based on insertion-specific uncertainty matrices. 
 
+**Step 0:** Choose the denominator.
+
+We want the denominator in the following steps to be indicative of the coverage at the insertion sites. However, we have no easy way of knowing how many reads would have had insertions at that position. Instead, it is estimated based on the coverage at the position before the insertions. 
+
+We choose the position before somewhat arbitrarily. The example above shows reads that have coverage at position 4 but not in the pads, coverage at the pads but not position 4, and coverage at position 5 but not the pads. 
+
+For the example above, the coverage at position 4 can be found as the sum of the phred scores, which is 4.2 (recalling that paired reads count as a full observation together; i.e., a half an observation apart). 
+
 **Step 1:** Sample the number of insertions. 
 
 The probability of inserting a single nucleotide can be be estimated as the number of single insertion events divided by the coverage at the position before the insertion. 
 
-For the example above, the coverage at position 4 is 4.2 (recalling that paired reads count as a full observation together, half an observation apart). There are 4 single nucleotide insertions and the sum of their phred scores is 2.8, so the (un-normalized) rate of single insertions is 2.8/3.2 = 7/8. 
+There are 4 single nucleotide insertions and the sum of their phred scores is 2.8, so the (un-normalized) rate of single insertions is 2.8/3.2 = 7/8. 
 
-For two insertions, the coverage at position 4 remains 4.2. We cannot simply add the phred scores, so instead we first multiply them. For the first row of read 4 our example, this becomes 0.5 times 0.5, then multiplied by 0.5 again since this a paired read. The second read has the same phred scores, so the numerator here is 0.5^3 + 0.5^3 = 0.25.
+For two insertions, we cannot simply add the phred scores, so instead we first multiply them. For the first row of read 4 our example, this becomes 0.5 times 0.5, then multiplied by 0.5 again since this a paired read. The second read has the same phred scores, so the numerator here is 0.5^3 + 0.5^3 = 0.25.
 
 For 0 insertions, there is a single read. However, there are no phred scores associated with this. To be consistent with our treatment of deletions, we assume that the error probabilities are 0 (which is also consistent with ignoring the deletions for the single nucleotide case). This leaves us with a numerator of 1.
 
@@ -92,7 +100,9 @@ This method is a reasonable approach given the data we have access to. We incorp
 The concessions we must make to account for the alignment to the reference - rather than to other short reads - highlights the importance of choosing a good reference sequence. If only there were a good clustering method that incorporated spatial information so that researchers could choose a reference sequence from the most likely cluster...
 
 
+# Alternatives
 
+- The numerators are based on phred scores, but could also be based on raw counts. This would lead to many improper fractions, but we have no requirement that the results add to 1 since they become parameters in the Dirichlet distribution.
 
 
 
