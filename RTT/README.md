@@ -20,17 +20,40 @@ Research steps:
 
 ## Data
 
-On June 22, 2021, we downloaded all data from:
+On June 23, 2021, we downloaded *all* data from:
 
-https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=Severe%20acute%20respiratory%20syndrome%20coronavirus%202,%20taxid:2697049
+https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=Severe%20acute%20respiratory%20syndrome%20coronavirus%202,%20taxid:2697049&HostLineage_ss=Homo%20(humans),%20taxid:9605&HostLineage_ss=Homo%20sapiens%20(human),%20taxid:9606&Completeness_s=complete
 
 This data had the following information in the FASTA definition line:
 
-    Accession | SRA Accession | Collection Date | Geo Location | Pangolin | Host | Isolation Source 
+    Accession | SRA Accession | Collection Date | Geo Location | Pangolin | Host | Isolation Source | Length | Assembly
 
 The data will be subsampled so that the phylogenetic tree can be constructed in a reasonable amount of time (there are somewhere between 5 to 20 parameter sets and N replications for each parameter set).
 
-Subsampling will be done according to an accept-reject algorithm based on the number of cases in the world.
+For my future reference, the description file was created with the following shell commands:
+
+```bash
+# Get the fasta description line (with line numbers)
+grep -n ">" sequences.fasta > sequences_descr.csv
+
+# Because of Grep, lines look like:
+# 1527:>MN938388.1 ||2020-01|China: Shenzhen|A.1|Homo sapiens|blood, other
+# Steps:
+    # Convert , to something else 
+    # Convert | to comma separators
+    # Convert the initial :> to a comma separator
+sed -i "s/,/;/g" sequences_descr.csv
+sed -i "s/|/,/g" sequences_descr.csv
+sed -i "s/:>/,/g" sequences_descr.csv
+
+# Add header based on my NCBI download specification
+# Start with new file
+echo "RowNum , Accession , SRAAccession , CollectionDate , GeoLocation , Pangolin , Host , IsolationSource , Length , Assembly" > sequences_descr2.csv
+# Add rows
+cat sequences_descr.csv >> sequences_descr2.csv
+# Replace old file with new
+mv sequences_descr2.csv sequences_descr.csv
+```
 
 ## Accept-Reject Algorithm
 
