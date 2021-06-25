@@ -32,40 +32,6 @@ The data will be subsampled so that the phylogenetic tree can be constructed in 
 
 For my future reference, the description file was created with the following shell commands:
 
-```bash
-# Get the fasta description line (with line numbers)
-grep -n ">" sequences.fasta > sequences_descr.csv
-
-# Because of Grep, lines look like:
-# 1527:>MN938388.1 ||2020-01|China: Shenzhen|A.1|Homo sapiens|blood, other
-# Steps:
-    # Convert , to something else 
-    # Convert | to comma separators
-    # Convert the initial :> to a comma separator
-sed -i "s/,/;/g" sequences_descr.csv
-sed -i "s/|/,/g" sequences_descr.csv
-sed -i "s/:>/,/g" sequences_descr.csv
-
-# Add header based on my NCBI download specification
-# Start with new file
-echo "RowNum , Accession , SRAAccession , CollectionDate , GeoLocation , Pangolin , Host , IsolationSource , Length , Assembly" > sequences_descr2.csv
-# Add rows
-cat sequences_descr.csv >> sequences_descr2.csv
-# Replace old file with new
-mv sequences_descr2.csv sequences_descr.csv
-```
-
-## Accept-Reject Algorithm
-
-For simplicity, group cases by calendar week, label the number of cases in week $i$ as $C_i$ for $i = 1 .. I$, where $I$ is the total number of weeks. Let $M = max(C_i)$.
-
-- Sample $j ~ Unif(1, I)$.
-- Accept this week with probability $C_j/M$.
-    - If accepted, sample uniformly from the cases in week $j$.
-    - Perform error checking on the sampled virus (e.g. correct length, not too many missing values)
-
-Repeat until $N$ samples are found.
-
 
 ## Adding Artificial Uncertainty
 

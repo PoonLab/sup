@@ -1,22 +1,48 @@
+figlet "grep>"
+# Get the fasta description line (with line numbers)
+grep -n ">" sequences.fasta > sequences_descr_raw.txt
+
+
+
+figlet "make_descr"
 # Add worldwide covid case counts as columns
-# Creates sequences_descr_wk.csv
-Rscript make_descr_wk.R
+	# Creates sequences_descr_wk.csv
+Rscript make_descr_mt.R
 
-# Sample uniformly from weeks
-Rscript sample-seqs_unif.R -N 10
 
-# Multiple sequence alignment (afa = Aligned FAsta)
-# http://www.drive5.com/muscle/downloads.htm
-# alias muscle=/usr/bin/muscle3.8.31_i86linux64
-nohup muscle -in sampled_sequences.fasta -out sampled_sequences.afa > muscle.out &
 
-# Construct Phylogeny
-# FastTree 2.1.11
-# http://www.microbesonline.org/fasttree/
-./FastTree sampled_sequences.afa > raw_seq.nwk
+figlet "sample-seqs"
+# Sample uniformly from months
+	# Creates sampled_seqs.txt and sampled_SRA.txt
+Rscript sample-seqs_unif.R -N 1
 
-# Sample uncertainty
-# To save time, sample new sequences from ALIGNED sequences
 
+
+figlet "seqtk subseq"
+# Gather sampled sequences
+seqtk subseq sequences.fasta sampled_seqs.txt > sampled_seqs.fasta
+
+
+
+figlet "minimap2.py"
+# Align sequences
+#minimap2 -a NC_045512.fa sampled_seqs.fasta > sampled_seqs_aligned.sam
+sed -i "s/\ //g" sampled_seqs.fasta
+python minimap2.py sampled_seqs.fasta -o sampled_seqs_aligned.fasta -a --ref NC_045512.fa
+#samtools fasta sampled_seqs_aligned.sam > sampled_seqs_aligned.fa
+
+
+
+# Clean up
+#rm sampled_seqs_aligned.sam sampled_seqs.fasta sequences_descr_mt.csv
+sed -i "s/,/_/g" sampled_seqs_aligned.fasta
+sed -i "s/:/_/g" sampled_seqs_aligned.fasta
+grep ">" sampled_seqs_aligned.fasta > sampled_seqs_aligned_descr.txt
+Rscript clean_names.R
+
+figlet "treetime"
+# Use tree in treetime
+# https://treetime.readthedocs.io/en/latest/
+treetime --dates sampled_metadata.csv --aln sampled_seqs_aligned.fasta --covariation
 
 
