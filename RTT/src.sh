@@ -40,9 +40,13 @@ sed -i "s/:/_/g" sampled_seqs_aligned.fasta
 grep ">" sampled_seqs_aligned.fasta > sampled_seqs_aligned_descr.txt
 Rscript clean_names.R
 
+
+
 figlet "treetime"
 # Use tree in treetime
 # https://treetime.readthedocs.io/en/latest/
-treetime --dates sampled_metadata.csv --aln sampled_seqs_aligned.fasta --covariation
+treetime --dates sampled_metadata.csv --aln sampled_seqs_aligned.fasta --outdir raw_tree --covariation
+
+
 
 
