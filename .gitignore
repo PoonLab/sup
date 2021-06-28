@@ -106,3 +106,9 @@ drafts/Skeleton.pdf
 
 data/zanini/prob_seq_zanini.RData
 drafts/Skeleton_cache/
+
+# Root-To-Tip work
+RTT/*.fasta
+RTT/*.afa
+RTT/*.fa
+RTT/*.sam

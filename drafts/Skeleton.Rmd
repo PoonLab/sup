@@ -93,8 +93,9 @@ Other than filtering data, the uncertainty present in the sequences are seldom p
 For example, methods for sequence alignment and homology searches generally employ heuristic algorithms that utilize similarity scores that do not explicitly incorporate the probabilities of sequencing errors.
 Moreover, methods to reconstruct the evolutionary relationships among sequences as a phylogenetic tree tend to interpret ambiguous base calls as completely missing data, although some exceptions are found in the literature, \eg @depristoFrameworkVariationDiscovery2011.
 This problem is exacerbated when each sequence represents the consensus of diverse copies of a genome, such as rapidly evolving virus populations where genuine polymorphisms are confounded with sequencing error.
-One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagating sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies.
 
+One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
+Another exception can be found in @kuhnerCorrectingSequencingError2014, who incorporate the quality scores into the calculation of a phylogenetic tree, and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
 
 Here we present a simple general-purpose framework that can be incorporated into any analysis of genetic sequence data.
 This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis.
@@ -155,6 +156,9 @@ For example, a matrix populated from short read data from a diverse population w
 We also lose information about autocorrelation in sequencing error, such as clusters of miscalled bases associated with later cycles of sequencing-by-synthesis platforms.
 Sequence chromatograms are affected by the same loss of information.
 
+We note that this representation is similar to the "CATG" file type as described in @kozlovModelsOptimizationsTools2018, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
+This file type is able to be used by RAxML-NG in 
+Our description differs in that it 
 
 
 ### Sequence-level uncertainty
@@ -331,7 +335,7 @@ Calculation of the consensus quality score will thereby exclude the $Q=15$ value
 
 
 This omission makes it challenging for us to generate an $\nps$ matrix from a consensus FASTQ file.
-Given the consensus base and its associated quality score at position $j$, we must assume that the other bases are all equally likely with probability $\epsilon_j/3$.
+Given the consensus base and its associated quality score at position $j$, we must assume that the other bases are all equally likely with probability $\epsilon_j/3$ (similar to @kuoEAGLEExplicitAlternative2018 and Chapter 5 of @kozlovModelsOptimizationsTools2018).
 For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$.
 The probabilistic sequence is:
 \begin{equation}
@@ -390,19 +394,23 @@ The most general way to propagate uncertainty is through resampling.
 Given $\nps$ and assuming that individual nucleotides are independent outcomes &mdash; or precomputing a reduced set of $m$ sequences and calculating the distribution $a$ of their joint probabilities &mdash; we can propagate uncertainy by running downstream analyses on each set of sampled sequences.
 
 At a nucleotide level, we are sampling from a multinomial distribution.
-If the $j$th column of $\nps$ is (0.5, 0.2,0.2,0.09.0.01), then we could sample $\sq{A}$ with 50\% probability, $\sq{C}$ with 20\%, etc.
+If the $j$th column of $\nps$ is (0.5, 0.2, 0.2, 0.09, 0.01), then we could sample $\sq{A}$ with 50\% probability, $\sq{C}$ with 20\%, etc.
 However, this disregards the coverage at each location, thereby disregarding the variance of the error probabilities.
-To incorporate the variance of the errors, a Dirichlet-Multinomial sampling scheme can be derived by assuming that the error probabilities follow a Dirichlet prior and the bases follow a multinomial likelihood. For each base at each location, the entry for $\nps'$ is defined as the sum of the probabilities (one minus the error probabilities). Thes values can be used as the parameters in the Dirichlet prior, from which base probabilities can be sampled. 
+To incorporate the variance of the errors, a Dirichlet-Multinomial sampling scheme can be derived by assuming that the error probabilities follow a Dirichlet prior and the bases follow a multinomial likelihood. 
+For each base at each location, the entry for $\nps'$ is defined as the sum of the probabilities (one minus the error probabilities). 
+These values can be used as the parameters in the Dirichlet prior, from which base probabilities can be sampled. 
 
 For example, if the $j$th column of $\nps'$ is (1200.45, 200.09, 100.74, 121.11, 0), then possible base probabilities could be (0.743, 0.126, 0.062, 0.070, 0), (0.739, 0.121, 0.066, 0.074, 0), or (0.744, 0.128, 0.056, 0.071, 0).
 In contrast, if the $j$th column of $\nps'$ were (12.4, 1.2, 0.4, 1.7, 0), then some samples from the Dirichlet distribution might be (0.759, 0.059, 0.029, 0.153, 0), (0.916, 0.065, 0.009, 0.009, 0), or (0.779, 0.117, 0, 0.104, 0).
 The lower coverage is incorporated into the analysis by the increase in the variance of the Dirichlet distribution.
 
-In a maximum likelihood framework, this is similar to bootstrapping.
-In fact, the ultimate effect of this would be to decrease the bootstrap confidence to a level that is more in line with the actual uncertainty in the data.
+In a maximum likelihood framework, this procdedure is similar to bootstrapping.
+In fact, the ultimate effect of this is to decrease the bootstrap confidence to a level that is more in line with the actual uncertainty in the data.
 
-In a Bayesian framework, this could be incorporated as prior distribution on each nucleotide.
-For large collections of large sequences, this increases the dimensionality dramatically.
+In a Bayesian framework, the Dirichlet-multinomial sampling could be incorporated as prior distribution on each nucleotide.
+For large collections of large sequences in an Markov Chain Monte Carlo algorithm, this increases the dimensionality dramatically.
+
+
 In the next section, we provide a proposal for reducing the number of sequences that must be sampled.
 
 
@@ -454,6 +462,7 @@ With this algorithm, the computational burden is separated into calculating the 
 
 For analyses that require a set of sequences, the likelihoods for the set of sequences can be calculated as the product of the likelihoods (or, for computational stability, the sum of the log-likelihoods) of the individual sequences.
 The algorithm above can be adjusted accordingly.
+
 
 
 # Applications
