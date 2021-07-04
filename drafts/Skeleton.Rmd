@@ -773,6 +773,20 @@ ggplot(ords) +
     theme(legend.position = "none")
 ```
 
+
+## Clock rate estimation for SARS-CoV-2
+
+The clock rate for SARS-CoV-2 is estimated to be [fixed|uncorrelated] (citation needed).
+Using similar resampling methods as above (although without indels), we estimate the clock rate for each of X resamples, as well as the reported conseqs.
+To obtain the data, we sampled 3 genomes uniformly from each month of recorded data in GenBank, assuming that the genomes were complete and the genome had an associated Short Run Accession file (\ie they had an available SAM file).
+The resultant samples were mostly from the United Kingdom since sequences from this country represent a majority of available sequences.
+The full list of accession numbers sampled this way are given in the appendix. 
+
+The clock rate was estimated using TreeTime (reference). 
+We recorded the standard error from the time tree constructed using the consensus sequences, then compared this to the standard deviations of the estimated clock rates in the resampled sequences.
+The results speak for themselves (hopefully - I haven't seen them yet).
+
+
 # Conclusions
 
 The short run files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses.
