@@ -7,7 +7,7 @@ grep -n ">" sequences.fasta > sequences_descr_raw.txt
 
 figlet "make_descr"
 # Add worldwide covid case counts as columns
-	# Creates sequences_descr_wk.csv
+	# Creates sequences_descr_mt.csv
 Rscript make_descr_mt.R
 
 
@@ -21,9 +21,21 @@ Rscript sample-seqs_unif.R -N 1
 
 
 
+
+figlet "download SRA"
+# Checks if file has been downloaded, then proceeds if not
+# Adds hours to the runtime if there are 
+# a bunch of new things to download
+# apt install sra-toolkit
+Rscript SRA_downloader.R
+Rscript make_sequences_descr_downloaded.R
+
+
+
+
 figlet "seqtk subseq"
 # Gather sampled sequences
-seqtk subseq sequences.fasta sampled_seqs.txt > sampled_seqs.fasta
+seqtk subseq sequences.fasta sampled_seq_dl.txt > sampled_seqs.fasta
 
 
 
@@ -51,18 +63,8 @@ Rscript clean_names.R sampled_seqs_aligned_descr.txt sampled_metadata.csv
 figlet "treetime"
 # Use tree in treetime
 # https://treetime.readthedocs.io/en/latest/
-# pip install treetime
+# pip install phylo-treetime
 treetime --dates sampled_metadata.csv --aln sampled_seqs_aligned.fasta --outdir raw_tree --covariation
-
-
-
-
-figlet "download SRA"
-# Checks if file has been downloaded, then proceeds if not
-# Adds hours to the runtime if there are 
-# a bunch of new things to download
-# apt install sra-toolkit
-Rscript SRA_downloader.R
 
 
 
