@@ -43,7 +43,7 @@ python minimap2.py sampled_seqs.fasta -o sampled_seqs_aligned.fasta -a --ref NC_
 sed -i "s/,/_/g" sampled_seqs_aligned.fasta
 sed -i "s/:/_/g" sampled_seqs_aligned.fasta
 grep ">" sampled_seqs_aligned.fasta > sampled_seqs_aligned_descr.txt
-Rscript clean_names.R
+Rscript clean_names.R sampled_seqs_aligned_descr.txt sampled_metadata.csv
 
 
 
@@ -68,7 +68,24 @@ Rscript SRA_downloader.R
 
 
 figlet "resample nucleotides"
-# Creates a "resampled" folder with subfolders
+# Creates a "sampled_trees" folder with subfolders
 # Each subfolder has a fasta resulting from sampl
+Rscript sample-S-collections.R -N 50
+grep -F ">" sampled_trees/sampled_tree_1.fasta > sampled_trees/sample_descr.txt
+Rscript clean_names.R sampled_trees/sample_descr.txt sampled_trees/sampled_metadata.csv
+
+
+
+
+figlet "Trees4samples"
+# For simplicity of bash script, filenames are *.fastaligned
+cd sampled_trees
+samples=`ls *fasta`
+for sample in $samples; do
+	python ../minimap2.py $sample -o "${sample}ligned" -a --ref ../NC_045512.fa
+	treetime --dates sampled_metadata.csv --aln "${sample}ligned" --covariation
+done
+cd ..
+
 
 
