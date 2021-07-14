@@ -263,7 +263,7 @@ newSeq * apply_cigar(char *cigar, char *pos, char *seq, char *qual) {
 
             if (start_edits->operand == 'I') {
                 insertions *curr_insert = malloc(sizeof(insertions));
-                curr_insert->lenSeq = start_edits->lenSeq + 1;
+                curr_insert->lenSeq = start_edits->lenSeq + 1 - (atoi(pos) - 1);
                 curr_insert->seq = malloc(strlen(start_edits->seqPart) + 1);
                 curr_insert->qual = malloc(strlen(start_edits->qualPart) + 1);
                 curr_insert->next = NULL;
