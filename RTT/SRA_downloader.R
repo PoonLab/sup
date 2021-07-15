@@ -1,23 +1,28 @@
 # Download Files
 
-dls <- read.csv("SRA_downloads.csv")
+dls <- read.csv("SRA_downloads.csv", 
+    stringsAsFactors = FALSE)
 
 for (i in seq_len(nrow(dls))) { 
     cat("\n")
     t0 <- Sys.time()
     print(t0)
 
-    if (dls$status[i] != "Not Run") {
+    thisnom <- dls$sra[i]
+    thisfil <- paste0(thisnom, ".sam")
+    thisfas <- paste0(thisnom, ".fasta")
+
+    if (!dls$status[i] %in% c("Not Run")) {
         print(paste0("Row ", i, " was already marked ", dls$status[i], 
             ", moving on to next row."))
+
+        if (file.exists(thisfil)) {
+            file.remove(thisfil)
+        }
         next
     }
 
 
-    thisnom <- dls$sra[i]
-    # Folders are named paired and unpaired
-    thisfil <- paste0(thisnom, ".sam")
-    thisfas <- paste0(thisnom, ".fasta")
     
     # Avoid downloading again
     if(!file.exists(thisfil)){
@@ -30,29 +35,43 @@ for (i in seq_len(nrow(dls))) {
     } 
 
 
-
     if (!file.exists(thisfil)) {
         print("Download Failed")
+
+        dls <- read.csv("SRA_downloads.csv", 
+            stringsAsFactors = FALSE)
         dls$status[i] <- "Download Failed"
-        write.csv(dls, file = "SraRunInfo_updated.csv")
+        write.csv(dls, file = "SRA_downloads.csv", row.names = FALSE)
         next
     }
     
     # Test the first 1000 lines, rather than reading in the whole file
     firstfew <- readLines(thisfil, 1000)
     if (!(length(firstfew) == 1000)) {
-        dls$status[i] <- "Incomplete File"
         print("Incomplete File")
-        write.csv(dls, file = "SraRunInfo_updated.csv")
+
+        dls <- read.csv("SRA_downloads.csv", 
+            stringsAsFactors = FALSE)
+        dls$status[i] <- "Incomplete File"
+        write.csv(dls, file = "SRA_downloads.csv", row.names = FALSE)
+        if (file.exists(thisfil)) {
+            file.remove(thisfil)
+        }
         next
     }
     
     # Check if the thousandth line is NA
     testline <- firstfew[1000]
     if(is.na(testline)){
-        dls$status[i] <- "NA Line"
         print("NA Line")
-        write.csv(dls, file = "SraRunInfo_updated.csv")
+
+        dls <- read.csv("SRA_downloads.csv", 
+            stringsAsFactors = FALSE)
+        dls$status[i] <- "NA Line"
+        write.csv(dls, file = "SRA_downloads.csv", row.names = FALSE)
+        if (file.exists(thisfil)) {
+            file.remove(thisfil)
+        }
         next
     }
     # If it's a valid file, check the next lines
@@ -63,22 +82,42 @@ for (i in seq_len(nrow(dls))) {
     
     testcigar <- strsplit(testline, split = "\t")[[1]][6]
     if(length(testcigar) < 1 | is.na(testcigar)) {
-        dls$status[i] <- "No Cigar"
         print("No Cigar")
-        write.csv(dls, file = "SraRunInfo_updated.csv")
+
+        dls <- read.csv("SRA_downloads.csv", 
+            stringsAsFactors = FALSE)
+        dls$status[i] <- "No Cigar"
+        write.csv(dls, file = "SRA_downloads.csv", row.names = FALSE)
+        if (file.exists(thisfil)) {
+            file.remove(thisfil)
+        }
         next
     }
     if (nchar(testcigar) < 3) {
-        dls$status[i] <- "No Cigar"
         print(testcigar)
         print("No Cigar")
-        write.csv(dls, file = "SraRunInfo_updated.csv")
+
+        dls <- read.csv("SRA_downloads.csv", 
+            stringsAsFactors = FALSE)
+        dls$status[i] <- "No Cigar"
+        write.csv(dls, file = "SRA_downloads.csv", row.names = FALSE)
+        if (file.exists(thisfil)) {
+            file.remove(thisfil)
+        }
         next
     }
     
     # If all the error checks have passed, update csv
+    dls <- read.csv("SRA_downloads.csv", 
+        stringsAsFactors = FALSE)
     dls$status[i] <- "Complete"
-    write.csv(dls, file = "SRA_downloads.csv")
+    write.csv(dls, file = "SRA_downloads.csv", row.names = FALSE)
+
+    command <- paste0("../../run_sam/parse-sam-c/sam2aln ", thisfil, " 3")
+    print(command)
+    system(command)
+    file.remove(thisfil)
+    print("File was complete; uncertainty matrix generated; file deleted.")
 }
 
 

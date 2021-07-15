@@ -15,7 +15,7 @@ if("-N" %in% args){
 
 
 # Load and Filter Data --------------------------
-desc <- read.csv("sequences_descr_mt.csv")
+desc <- read.csv("sequences_descr_mt.csv", stringsAsFactors = FALSE)
 # Calculate number of lines per genome (each row is 60 nucleotides)
 desc <- desc %>%
 	arrange(RowNum) %>%
@@ -74,13 +74,14 @@ sra <- seq_per_week$SRAAccession
 writeLines(sra, con = "sampled_SRA.txt")
 
 
-
+sra <- unlist(sapply(sra, function(x) strsplit(x, split = ",")))
+names(sra) <- NULL
 
 # Keep track of sampled SRA files ---------------
 # Assume that none have been downloaded yet
 new_sra <- data.frame(sra = sra, status = "Not Run")
 if (!"SRA_downloads.csv" %in% list.files()) {
-	write.csv(new_sra, file = "SRA_downloads.csv")
+	write.csv(new_sra, file = "SRA_downloads.csv", row.names = FALSE)
 } else {
 	# If it alread exists, append new accessions
 	# If it's already in the csv, don't add it.
@@ -88,7 +89,7 @@ if (!"SRA_downloads.csv" %in% list.files()) {
 	old_sra <- read.csv("SRA_downloads.csv")
 	new_sra <- new_sra[!new_sra$sra %in% old_sra$sra, ]
 	old_sra <- bind_rows(old_sra, new_sra)
-	write.csv(old_sra, "SRA_downloads.csv")
+	write.csv(old_sra, "SRA_downloads.csv", row.names = FALSE)
 }
 
 

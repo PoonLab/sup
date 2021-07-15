@@ -1,10 +1,4 @@
 # open S matrix and sample from it
-# TODO:
-#   Need to access the actual sequence
-#       Search for sam->fasta conversion
-#   Switch to sampling from beta posterior
-#       Assumes Dirichlet prior for base probability
-#       Should sometimes include Ns (current method does not)
 library(ape)
 library(gtools) # rdirichlet
 library(here)
@@ -59,7 +53,7 @@ for (i in 1:nloops) {
     S <- S_list[[i]]
     S <- fix_unc(S) # aux_funk.R
     if ("character" %in% class(S)) {
-        print(paste(S, asc_names[i], sep = " - "))
+        print(paste("S", asc_names[i], sep = " - "))
         next
     }
 
@@ -90,17 +84,25 @@ for (i in 1:nloops) {
         }
     })
 
+    if (FALSE) { # Prototype code
+        # Instead of apply(paste), I'll need a for loop for insertions
+        # Maybe even nested for loops
+        rds_inserts <- readRDS(here("data/unc_covid_inserts", insert_names[i]))
+        lines_with_inserts <- unique(rds_insert$Line.Number)
+
+    }
+
     # Convert sample letters to single string
     if (!append) {
         conseq <- paste(conseq, collapse = "", sep = "")
-        sampleseq <- c(conseq, apply(sampleseq_mat, 1, paste, collapse = ""))
+        sampleseq <- apply(sampleseq_mat, 1, paste, collapse = "")
+        sampleseq <- c(conseq, sampleseq)
 
         # Create well-formatted fasta file
-        name <- paste0("> ", asc_names[i], ".", 0:length(sampleseq))
+        name <- paste0("> ", asc_names[i], ".", 0:(length(sampleseq) - 1))
         fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
 
     } else {
-
         # When appending, conseq is not needed.
         sampleseq <- apply(sampleseq_mat, 1, paste, collapse = "")
         name <- paste0("> ", asc_names[i], ".", 1:length(sampleseq))
