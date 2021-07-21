@@ -95,7 +95,7 @@ Moreover, methods to reconstruct the evolutionary relationships among sequences 
 This problem is exacerbated when each sequence represents the consensus of diverse copies of a genome, such as rapidly evolving virus populations where genuine polymorphisms are confounded with sequencing error.
 
 One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
-Another exception can be found in @kuhnerCorrectingSequencingError2014, who incorporate the quality scores into the calculation of a phylogenetic tree, and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
+Another exception can be found in @kuhnerCorrectingSequencingError2014 (TODO: Fix reference), who incorporate the quality scores into the calculation of a phylogenetic tree, and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
 
 Here we present a simple general-purpose framework that can be incorporated into any analysis of genetic sequence data.
 This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis.
@@ -416,6 +416,8 @@ In the next section, we provide a proposal for reducing the number of sequences 
 
 ## Reducing computational burden with sequence-level uncertainty
 
+TODO: Re-read and edit heavily, possibly re-write or remove
+
 Suppose we wish to use a single sequence to estimate some parameter $\theta$ (for instance, the p-value for whether a sequence is a particular variant or the lineage assignment for grafting to a pre-computed tree) and we are interested in the effect that uncertainty has on this estimate.
 Computational burden can be partially alleviated by incorporating sequence-level uncertainty.
 
@@ -448,7 +450,7 @@ The analysis can be performed using the most likely sequence, resulting in an es
 The analysis can be re-run with the second-most likely sequence, $\theta_{(1)}$.
 Given just these two estimates, a weighted estimate of $\theta$ given the 2 most likely sequences could be found as:
 
-DEVAN! BAD! $a_{(0)}$ has already been used! Maybe use primes?
+TODO: $a_{(0)}$ has already been used! Maybe use primes?
 
 $$
 \hat\theta_{(1)} \approx \theta_{(0)} \tilde a_{(0)} + \theta_{(1)}\tilde a_{(1)}\text{, where }\tilde a_{(j)}=a_{(j)}/\sum_{i=1}^2a_{(i)}
@@ -469,10 +471,12 @@ The algorithm above can be adjusted accordingly.
 
 ## Generated Uncertainty as Evaluation
 
+TODO: Better conclusions for this section. 
+
 If only FASTA files are available, then it's unclear how much variation there is.
 FASTQ files have a measure of uncertainty at each position, but this does not tell us whether the added uncertainty has a large or a small effect on the results.
 In this analysis, we generate a phylogeny so we know exactly what the truth is.
-From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @Zanini.
+From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @Zanini. TODO: Fix Zanini reference
 These parameter combinations represent increasing levels of entropy.
 With this uncertainty, we re-sample our sequences and attempt to reconstruct the phylogeny.
 From these re-sampled phylogenies, we calculate the distance between each new tree and the original perfectly known tree.
@@ -483,11 +487,11 @@ The variation in tree distance for that level of entropy can be seen as a measur
 Our simulation was set up as follows.
 The 300 nucleotide long base sequence and its evolutionary tree with 20 terminal nodes were simulated using the functions in the PhyloSim R package.
 Error probabilities were introduced based on random draws from a beta distribution.
-The mean values of this beta distribution were chosen to represent reasonable amounts of error, then the standard deviations were chosen based on the order of magnitude of the mean, then the corresponding shape parameters were found (see Figure \ref{fig:btshp}).
-New sequences were simulated from this uncertainty based on sampling from the uncertainty matrix defined by these error probabilities, with the remaining probability distributed uniformly across the other bases (see Section \ref{fdskfdsf}).
+The mean values of this beta distribution were chosen to represent reasonable amounts of error, then the standard deviations were chosen based on the order of magnitude of the mean, then the corresponding shape parameters were found (see Figure \ref{fig:btshp}). TODO: Fix figure reference.
+New sequences were simulated from this uncertainty based on sampling from the uncertainty matrix defined by these error probabilities, with the remaining probability distributed uniformly across the other bases (see Section \ref{fdskfdsf}). TODO: Fix section reference.
 We also set the probability of deletion based on a beta distribution with shape parameters 1 and 6, but only for nucleotide positions 5 to 15 and 200 to 250.
 The sequence uncertainty generation process was repeated 1,000 times for each parameter set (the original sequence and evolutionary tree were the same for all simulations).
-The resultant set of sequences is used to estimate a tree using RAxML \citep{stamatakisRAxMLVersionTool2014}.
+The resultant set of sequences is used to estimate a tree using RAxML \citep{stamatakisRAxMLVersionTool2014}. TODO: Fix RAxML reference (probably re-export the bibtex file).
 
 To summarise the results of this simulation, we looked at the pairwise distance between the trees as well as the distance between nodes within each tree.
 We looked at the Robinson-Foulds distance, where the distance is the number of splits that exist in one tree but not the other  \citep{robinsonComparisonPhylogeneticTrees1981}, weighted Robinson-Foulds distance, which adds the branch lengths of the splits rather than counting each split as one unit, and the Kuhner-Felsenstein distance \citep{SimulationComparisonPhylogeny1994}, which measures the sum of the squared differences in branch lengths between trees.
@@ -497,7 +501,7 @@ The distance within a tree is calculated as the mean of the TN93 distance betwee
 -->
 
 
-```{r prmset, warning=FALSE}
+```{r prmset, warning=FALSE, message="hide"}
 prmset <- read.csv(here("src", "entropy-prmset.out"), header = F)
 colnames(prmset) <- c("prmset", "s1", "s2", "entropy")
 
@@ -640,12 +644,12 @@ For this analysis we use the most basic resampling strategy.
 We simply draw probabilities from the Dirichlet distribution with parameters defined by $\nps'$, sample base calls from the multinomial distribution, then use pangoLEARN to determine the lineage assignment.
 
 
-In \ref{fig:covidcalls}, each row represents resamples from one SAM file.
+In \ref{fig:covidcalls}, each row represents resamples from one SAM file. TODO: Fix figure references.
 Each bar represents one lineage assignment from pangolin.
 The width of the bars represents the sum of the weights (genome likelihoods) of sampled sequences.
 Bars are subdivided to visualize these weights.
 There were 95 sequences total, but we only plotted ones where the second most common lineage designation had more than 250 observations.
-Results for all lineages can be found in Table \ref{tab:pango} in the Appendix.
+Results for all lineages can be found in Table \ref{tab:pango} in the Appendix. TODO: Why are the figure references bad?
 
 
 ```{r sampled_bars, fig.height=11, fig.width=13, caption='\\label{fig:covidcalls}Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with %fewer than 100 observations was grouped into the "Other" category.'}
@@ -757,9 +761,9 @@ Wishlist:
 
 ### Sequential re-analysis with genome likelihoods
 
-TODO (Analysis has been run on a single accession number; not sure how this will compare to resampling in all accessions.)
+TODO: Analysis has been run on a single accession number; not sure how this will compare to resampling in all accessions.
 
-Wishlist
+TODO: Wishlist
 
 - Scatterplot: \#/N on the y axis, total weight from the sequences agreeing with the conseq divided by total weights of all sequences on the x axis.
 - Average number of substitutions (or average likelihood difference) before the called lineage changes
@@ -776,15 +780,17 @@ ggplot(ords) +
 
 ## Clock rate estimation for SARS-CoV-2
 
-The clock rate for SARS-CoV-2 is estimated to be [fixed|uncorrelated] (citation needed).
-Using similar resampling methods as above (although without indels), we estimate the clock rate for each of X resamples, as well as the reported conseqs.
+TODO: Better descriptions (more precise, more complete). 
+
+The clock rate for SARS-CoV-2 is estimated to be [fixed|uncorrelated] (citation needed). TODO: Find citations for SARS-CoV-2 clock rate estimates. 
+Using similar resampling methods as above (although without indels), we estimate the clock rate for each of X resamples, as well as the reported conseqs. TODO: How many resamples
 To obtain the data, we sampled 3 genomes uniformly from each month of recorded data in GenBank, assuming that the genomes were complete and the genome had an associated Short Run Accession file (\ie they had an available SAM file).
 The resultant samples were mostly from the United Kingdom since sequences from this country represent a majority of available sequences.
-The full list of accession numbers sampled this way are given in the appendix. 
+The full list of accession numbers sampled this way are given in the appendix. TODO: add samples to appendix
 
-The clock rate was estimated using TreeTime (reference). 
+The clock rate was estimated using TreeTime (reference). TODO: find TreeTime reference.
 We recorded the standard error from the time tree constructed using the consensus sequences, then compared this to the standard deviations of the estimated clock rates in the resampled sequences.
-The results speak for themselves (hopefully - I haven't seen them yet).
+The results speak for themselves (hopefully - I haven't seen them yet). TODO: do the results speak for themselves?
 
 
 # Conclusions
@@ -811,10 +817,11 @@ Rather, pangolin was chosen as it is a state-of-the art tool based on the best a
 The phylogeny created by this team has been a vital resource for researchers and for public health professionals.
 In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
 
-- Other things that could be added here:
-    - Resample to get variance around representative sequence for a given lineage (\eg HIV)
-        - Can be done with just FASTQ files (less accurate)
-    - Given a canonical reference seqeunce for a lineage, find level of entropy that makes it a different sequence
+TODO: Add more conclusions:
+- Resample to get variance around representative sequence for a given lineage (\eg HIV).
+    - Can be done with just FASTQ files (less accurate).
+- Given a canonical reference seqeunce for a lineage, find level of entropy that makes it a different sequence.
+- Conclusions from clock rate estimation.
 
 # Appendix: Results for all lineages
 
