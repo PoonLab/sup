@@ -50,6 +50,7 @@ nloops <- length(S_list)
 collapsed <- estlapseds <- double(nloops)
 for (i in 1:nloops) {
     t1 <- Sys.time() # Inner timer
+    print(asc_names[i])
 
     # Normalize matrix
     S <- S_list[[i]]
@@ -167,6 +168,11 @@ for (i in 1:nloops) {
                     next
                 } else {
                     mini_s <- out_list[[iii]]$S_list[[insertion_size]]
+		    if (length(as.numeric(mini_s) == 0)) { next }
+                    if (length(is.na(mini_s)) == 0) { next }
+                    if (is.na(mini_s)) { next }
+	            if (is.na(nrow(mini_s))) { next } 
+                    if (nrow(mini_s) == 0) { next }
                     sampled_bases <- double(nrow(mini_s))
                     for (iiii in seq_len(nrow(mini_s))) {
                         sampled_bases[iiii] <- sample(colnames(mini_s), size = 1, prob = mini_s[iiii,]) 
