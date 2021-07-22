@@ -97,6 +97,11 @@ This problem is exacerbated when each sequence represents the consensus of diver
 One notable exception is @oraweAccountingUncertaintyDNA2015, who suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
 Another exception can be found in @kuhnerCorrectingSequencingError2014 (TODO: Fix reference), who incorporate the quality scores into the calculation of a phylogenetic tree, and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
 
+@clementGNUMAPAlgorithmUnbiased2010 present an alignment algorithm (called GNUMAP) that takes nucleotide-level uncertainty into account. 
+Their method incorporates Position Weight Matrices (PWM), which are obtained from text file outputs of Solexa/Illumina sequencing platforms, into a method of scoring matches against a reference genome. 
+Unlike systems where multiple matches are either discarded, condensed to a single match (first match or at random), or aligned to all matches, their algorithm assigns a matching score to each match based on the probability scores which reduces the bias in the positional alignment. 
+
+
 Here we present a simple general-purpose framework that can be incorporated into any analysis of genetic sequence data.
 This framework involves converting the uncertainty scores into a matrix of probabilities, and repeatedly sampling from this matrix and using the resultant samples in downstream analysis.
 Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns in the data.
@@ -157,9 +162,12 @@ We also lose information about autocorrelation in sequencing error, such as clus
 Sequence chromatograms are affected by the same loss of information.
 
 We note that this representation is similar to the "CATG" file type as described in @kozlovModelsOptimizationsTools2018, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
-This file type is able to be used by RAxML-NG in 
-Our description differs in that it 
+This file type is able to be used by RAxML-NG in TODO: Finish this sentence.
+Our description differs in that it TODO: Re-read reference, finish this sentence.
 
+TODO: This next section seems like too much of a tutorial.
+- The examples could be shortened greatly.
+- The notation is not used anywhere else.
 
 ### Sequence-level uncertainty
 
@@ -822,11 +830,13 @@ TODO: Add more conclusions:
     - Can be done with just FASTQ files (less accurate).
 - Given a canonical reference seqeunce for a lineage, find level of entropy that makes it a different sequence.
 - Conclusions from clock rate estimation.
+- Phylogenies have been estimated based on uncertain sequence information in @rossOncoNEMInferringTumor2016, @jahnTreeInferenceSinglecell2016, and @zafarSiFitInferringTumor2017 but the uncertainty is not derived from base quality scores. An extension of these methods to incorporate the base quality scores may be a fruitful research direction.
 
 # Appendix: Results for all lineages
 
 \LTcapwidth=\textwidth
 
+TODO: Move this to a separate file
 
 \scriptsize
 
