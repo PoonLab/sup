@@ -315,11 +315,21 @@ We initialize aligned sequence and quality strings with '&ndash;' and '!' ($Q=0$
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
 Deleted bases (`D` operations) are arbitrarily assigned a quality score of zero.
 Insertions (`I` operations) are temporarily excluded from the aligned sequence.
-Instead, each insertion is cached in a separate data structure ($\mathcal{I}$) that records the inserted sequence, quality string, and position.
+
+Insertions are cached in a separate data structure ($\mathcal{I}$) that records the inserted sequence, quality string, and position.
+At each insertion site the number of insertions and the length of each insertion at that site are recorded. 
+For each site $j$ and each insertion length ($\ell_{i,j}$), a version of the uncertainty matrix is constructed, $\nps'_{ij}$, which contains the sums of $\epsilon$ for each insertion. 
+Since we can't know how many bases might have been read at the position of insertions (since we can't know how many short reads would have started or ended at or before the insertion sies), the coverage at the position prior to the insertion is used in place of the coverage at the insertion site.
+When using this data structure for re-sampling the sequence, the number of insertions is sampled according to the coverage at the previous submission and the number of insertions of each length (\eg if there were 10 insertions of length one and the coverage was 40, an insertion would be sampled 25\% of the time).
+Conditional on the number of insertions, the inserted bases are sampled according to the same sampling procedure used for $\nps'$. 
+
+
+
+<!---
 After all reads are processed, we initialize an empty $5\times\ell$ matrix $\nps'$, where $\ell$ is initialized to the length of the longest aligned sequence excluding insertions.
 We map each base in the aligned sequences to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
 By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$.
-
+--->
 
 Some NGS platforms use paired-end reads where the same nucleic acid template is read in both directions.
 In these situations, we simply adjust all values by a factor of two.
