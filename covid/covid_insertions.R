@@ -127,7 +127,7 @@ for (i in seq_len(length(sampleseq))) { # One seq at a time
     for (ii in seq_along(out_list)) {
         ins_sampler <- out_list[[ii]]$ins_sampler
         if (any(ins_sampler < 0)) {
-
+            ins_sampler[ins_sampler < 0] <- 0
         }
         insertion_size <- sample(names(ins_sampler),
             size = 1, prob = ins_sampler)
