@@ -65,9 +65,9 @@ certain_long <- pivot_longer(certain_df, -prmset,
     ))
 rm(meanset)
 
-ggplot(certain_long) +
+ggplot(filter(certain_long, distance != "Shared Ancestry")) +
     aes(x = value, y = meansd, fill = meansd) +
-    geom_density_ridges(bandwidth = 0.03, rel_min_height=0.01) +
+    geom_density_ridges(rel_min_height=0.01) +
     facet_wrap(~ distance, scales = "free_x") +
     labs(y = "Mean and SD of Beta Dist",
         x = 'Distance from "certain" tree',
