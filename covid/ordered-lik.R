@@ -61,6 +61,7 @@ if ("--overwrite" %in% args) {
 in_path <- "data/unc_covid/"
 out_path <- "data/ord_covid/"
 in_files <- list.files(here(in_path), pattern = "RDS")
+in_files <- in_files[!grepl("_insertion", in_files)]
 
 
 # Loop though files
