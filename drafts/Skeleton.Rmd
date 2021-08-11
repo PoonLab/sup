@@ -496,152 +496,7 @@ The algorithm above can be adjusted accordingly.
 
 
 
-# Applications
-
-## Generated Uncertainty as Evaluation
-
-TODO: Better conclusions for this section. 
-
-If only FASTA files are available, then it's unclear how much variation there is.
-FASTQ files have a measure of uncertainty at each position, but this does not tell us whether the added uncertainty has a large or a small effect on the results.
-In this analysis, we generate a phylogeny so we know exactly what the truth is.
-From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @zaniniPopulationGenomicsIntrapatient2015. 
-These parameter combinations represent increasing levels of entropy.
-With this uncertainty, we re-sample our sequences and attempt to reconstruct the phylogeny.
-From these re-sampled phylogenies, we calculate the distance between each new tree and the original perfectly known tree.
-The results demonstrate the additional variance that can be added to a tree on top of the variance that other analysis will consider.
-In a study of real sequences, the entropy can be calculated from the FASTQ file then compared to a similar entropy level for simulated data.
-The variation in tree distance for that level of entropy can be seen as a measure of the un-accounted-for variance in the results.
-
-Our simulation was set up as follows.
-The 300 nucleotide long base sequence and its evolutionary tree with 20 terminal nodes were simulated using the functions in the PhyloSim R package.
-Error probabilities were introduced based on random draws from a beta distribution.
-The mean values of this beta distribution were chosen to represent reasonable amounts of error, then the standard deviations were chosen based on the order of magnitude of the mean, then the corresponding shape parameters were found (see Figure \ref{fig:btshp}). 
-New sequences were simulated from this uncertainty based on sampling from the uncertainty matrix defined by these error probabilities, with the remaining probability distributed uniformly across the other bases (see Section \ref{fastq_construction}).
-We also set the probability of deletion based on a beta distribution with shape parameters 1 and 6, but only for nucleotide positions 5 to 15 and 200 to 250.
-The sequence uncertainty generation process was repeated 1,000 times for each parameter set (the original sequence and evolutionary tree were the same for all simulations).
-The resultant set of sequences is used to estimate a tree using RAxML @stamatakisRAxMLVersionTool2014. 
-
-To summarise the results of this simulation, we looked at the pairwise distance between the trees as well as the distance between nodes within each tree.
-We looked at the Robinson-Foulds distance, where the distance is the number of splits that exist in one tree but not the other  @robinsonComparisonPhylogeneticTrees1981, weighted Robinson-Foulds distance, which adds the branch lengths of the splits rather than counting each split as one unit, and the Kuhner-Felsenstein distance @SimulationComparisonPhylogeny1994, which measures the sum of the squared differences in branch lengths between trees.
-
-<!-- The TN93 distance analysis isn't in working order right now.
-The distance within a tree is calculated as the mean of the TN93 distance between nodes.
--->
-
-
-```{r prmset, warning=FALSE, message="hide"}
-prmset <- read.csv(here("src", "entropy-prmset.out"), header = F)
-colnames(prmset) <- c("prmset", "s1", "s2", "entropy")
-
-prmset$mean <- prmset$s1/(prmset$s1 + prmset$s2)
-beta_var <- function(a, b) (a * b) / ((a + b)^2*(a + b + 1))
-prmset$var <- beta_var(prmset$s1, prmset$s2)
-prmset <- prmset[!is.na(prmset[, 1]), ]
-knitr::kable(arrange(prmset, prmset))
-```
-
-```{r prm.btshp, fig.cap="\\label{fig:btshp}The parameters used to add uncertainty to the known sequences. The mean and sd of the beta distribution were chosen, then the corresponding shape parameters were determined."}
-options(scipen=60)
-
-# Method of Moments for Beta distribution
-mom <- function(xbar, s){
-    tmp <- xbar * (1 - xbar) / s - 1
-    alpha <- xbar * tmp
-    beta <- (1 - xbar) * tmp
-    return(c(xbar = xbar, s = s, alpha = alpha, beta = beta))
-}
-
-pad <- function(x, pad = -3){
-    x <- as.character(x)
-    if (length(gregexpr("\\.", x)[[1]]) > 1) {
-        stop("Invalid number.")
-    }
-    if (pad < 0) {
-        if (grepl("\\.", x)) {
-            # nchar of everything after the decimal
-            n <- nchar(strsplit(x, "\\.")[[1]][2])
-            if (n < abs(pad)) {
-                x <- paste0(x, 
-                    paste0(rep(0, abs(pad) - n),
-                        collapse = ""),
-                    collapse = "")
-            }
-        } else {
-            x <- paste0(x, ".")
-            x <- paste0(x,
-                paste0(rep(0, abs(pad)), collapse = ""),
-                collapse = "")
-        }
-    } else { # pad > 0
-    # nchar of everything before the decimal
-        n <- nchar(strsplit(x, "\\.")[[1]][1])
-        x <- paste0(rep(0, max(0, pad - n)), x)
-    }
-    x
-}
-
-
-xseq <- seq(0, 0.075, 0.0001)
-
-bts <- lapply(seq_len(nrow(prmset)), function(x) {
-    thislabel <- paste0(
-        "xbar=", pad(prmset[x, 5], -4),
-        ", s=", pad(prmset[x, 6], -5),
-        " | alpha=", pad(round(prmset[x, 2], 3), -3),
-        ", beta=", pad(round(prmset[x, 3], 3), -3),
-        collapse = ""
-    )
-    data.frame(x = xseq,
-        y = dbeta(xseq,
-            shape1 = prmset[x, 2],
-            shape2 = prmset[x, 3]),
-        prm = thislabel)
-}) %>% bind_rows()
-
-ggplot(bts) +
-    aes(x = x, y = y, colour = prm) +
-    geom_line(size = 1) +
-    scale_colour_viridis_d(option = 1) +
-    coord_cartesian(ylim = c(0, 40)) +
-    theme_dark() +
-    theme(legend.position = c(0.7, 0.65)) +
-    labs(x = "x", y = "Probability Density",
-        colour = "Parameters")
-```
-
-
-
-
-```{r tree_distances, fig.cap="\\label{tree_distances}Distances between inferred trees."}
-between <- readRDS(here("data", "output",
-    "between-inferred-distances.RDS"))
-certain <- readRDS(here("data", "output",
-    "inferred-to-certain-distances.RDS"))
-
-gg_btwn <- ggplot(between) +
-    aes(x = entropy, y = m, ymin = q.lo, ymax = q.hi) +
-    geom_ribbon(alpha = 0.2) +
-    facet_wrap(~ distance.type, nrow = 1) +
-    geom_line() +
-    labs(x = "Entropy", y = "Average Distance", 
-        title = "Average distance between inferred trees")
-
-
-gg_crtn <- ggplot(certain) +
-    aes(x = entropy, y = m, ymin = q.lo, ymax = q.hi) +
-    geom_ribbon(alpha = 0.2) +
-    facet_wrap(~ distance.type, nrow = 1) +
-    geom_line() +
-    labs(x = "Entropy", y = "Average Distance", 
-        title = "Average distance from inferred trees to certain tree")
-
-gg_btwn / gg_crtn
-```
-
-
-
-## SARS-CoV-2
+# Application: SARS-CoV-2 lineage assignemnt
 
 In this section, we demonstrate the re-sampling method on lineage assignment of SARS-CoV-2.
 Sequences are sampled from $\nps'$ and then assigned a lineage based on the current state-of-the-art in phylogenetic analyis.
@@ -651,7 +506,7 @@ This tool uses a decision tree model to determine which lineage a given sequence
 The tool also reports a bootstrap support probability as a measurement of the tool's confidence in its assignment.
 We demonstrate that even the best available tools are underestimating the variance and therefore producing overconfident conclusions.
 
-### Data
+## Data
 
 TODO: Ensure these are correct
 
@@ -666,7 +521,7 @@ There was no particular reason for choosing any given file, but the resulting da
 Each result page likely includes several runs from the same study, and runs were chosen arbitrarily within each result page.
 We were not attempting a completely random sampling strategy, we simply wanted a collection of runs on which to demonstrate our methods.
 
-### Re-sampling the call probability matrix
+## Re-sampling the call probability matrix
 
 Since pangoLEARN is a pre-trained model, the analysis is not computationally burdensome.
 Sampling 10,000 different sequences from a call probability matrix is reasonable, even on a mid-range consumer laptop.
@@ -790,7 +645,7 @@ Wishlist:
 
 ```
 
-### Sequential re-analysis with genome likelihoods
+## Sequential re-analysis with genome likelihoods
 
 TODO: Analysis has been run on a single accession number; not sure how this will compare to resampling in all accessions.
 
@@ -806,20 +661,6 @@ ggplot(ords) +
     theme(legend.position = "none")
 ```
 
-
-## Clock rate estimation for SARS-CoV-2
-
-TODO: Better descriptions (more precise, more complete). 
-
-The clock rate for SARS-CoV-2 is estimated to be [fixed|uncorrelated] (citation needed). TODO: Find citations for SARS-CoV-2 clock rate estimates. 
-Using similar resampling methods as above (although without indels), we estimate the clock rate for each of X resamples, as well as the reported conseqs. TODO: How many resamples
-To obtain the data, we sampled 3 genomes uniformly from each month of recorded data in GenBank, assuming that the genomes were complete and the genome had an associated Short Run Accession file (\ie they had an available SAM file).
-The resultant samples were mostly from the United Kingdom since sequences from this country represent a majority of available sequences.
-The full list of accession numbers sampled this way are given in the appendix. TODO: add samples to appendix
-
-The clock rate was estimated using TreeTime (@sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018). 
-We recorded the standard error from the time tree constructed using the consensus sequences, then compared this to the standard deviations of the estimated clock rates in the resampled sequences.
-The results speak for themselves (hopefully - I haven't seen them yet). TODO: do the results speak for themselves?
 
 
 # Conclusions
