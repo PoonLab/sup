@@ -1,16 +1,19 @@
 # csv and files (there are a lot of them and they're ~28Mb each)
 data/ord_covid
 *.fasta
+*.RData
+*.RDS
+*.rds
 data/unc_covid/*.RDS
 *.sam
 data/sampled_covid
 data/pangolineages
 data/pangordlineages
 data/unc_covid/metadata.tsv
+data/zanini/*
 *log.txt
 src/df_tn93.RDS
 data/output/sung_results_workspace.RData
-
 .DS_Store
 
 # History files
@@ -88,7 +91,7 @@ data/zanini/plot*.pdf
 src/trees/*.nwk
 
 
-
+# Drafts aux files
 drafts/Skeleton.aux
 drafts/Skeleton.blg
 drafts/Skeleton.aux
@@ -104,11 +107,17 @@ drafts/Skeleton_files/figure-latex/prm.btshp-1.pdf
 drafts/Skeleton_files/figure-latex/tree_distances-1.pdf
 drafts/Skeleton.pdf
 
-data/zanini/prob_seq_zanini.RData
-drafts/Skeleton_cache/
+drafts/Skeleton_cache/*
 
 # Root-To-Tip work
 RTT/*.fasta
 RTT/*.afa
 RTT/*.fa
 RTT/*.sam
+RTT/*.fas*
+# Sampled sequence intermediate results
+RTT/*txt
+!RTT/sampled_seqs.txt
+RTT/*csv
+!RTT/SRA_downloads.csv
+!RTT/sampled_metadata.csv
