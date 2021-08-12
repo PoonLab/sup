@@ -635,15 +635,7 @@ Initial analyses used pangolin version 2.0.8, which used multinomial logistic re
 This procedure resulted in bootstrap support values that varied from 0.6 to 1.
 After upgrading to pangolin version 2.3.2, which uses a decision tree model, all bootstrap probabilities are reported as 1.
 
-Wishlist:
 
-- Average Mode/\#
-    - Histogram to show distribution? Maybe with a transparent Runner-Up distribution?
-    
-```{r get_info}
-
-
-```
 
 ## Sequential re-analysis with genome likelihoods
 
@@ -673,7 +665,6 @@ Even the method base on ordering the sequences by likelihood can result in re-ru
 However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results.
 The so-called "consensus sequence" is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity.
 
-
 Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model.
 The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
 For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
@@ -692,7 +683,8 @@ TODO: Add more conclusions:
     - Can be done with just FASTQ files (less accurate).
 - Given a canonical reference seqeunce for a lineage, find level of entropy that makes it a different sequence.
 - Conclusions from clock rate estimation.
-- Phylogenies have been estimated based on uncertain sequence information in @rossOncoNEMInferringTumor2016, @jahnTreeInferenceSinglecell2016, and @zafarSiFitInferringTumor2017 but the uncertainty is not derived from base quality scores. An extension of these methods to incorporate the base quality scores may be a fruitful research direction.
+- Phylogenies have been estimated based on uncertain sequence information in @rossOncoNEMInferringTumor2016, @jahnTreeInferenceSinglecell2016, and @zafarSiFitInferringTumor2017 but the uncertainty is not derived from base quality scores. An extension of these methods to incorporate the base quality scores may be a worthwhile research direction.
+- Document problems with root-to-tip regression.
 
 # Appendix: Results for all lineages
 
