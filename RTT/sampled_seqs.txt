@@ -1,0 +1,53 @@
+MW795927.1 |SRR14033393|2020-01-19|USA|B.1.565|Homo sapiens||29904|
+MT233526.1 |SRR11409417,SRR11393704|2020-01-19|USA: WA|A|Homo sapiens|oronasopharynx|29847|set:MT233526
+MT745748.1 |SRR12162233|2020-01-30|Australia: South Australia|B.1|Homo sapiens||29841|
+FR996781.1 |ERR4463297|2020-02-26|United Kingdom:England|B|Homo sapiens||29782|
+MT582499.1 |SRR11593365,SRR11593419|2020-02-28|Germany: Heinsberg|B.3|Homo sapiens||29768|set:MT582499
+LR878361.1 |ERR4164771|2020-02-29|Netherlands:Loon|B.11|Homo sapiens||29780|
+MW190962.1 |SRR13235637|2020-03-13|USA: GA|A|Homo sapiens||29782|
+FR996520.1 |ERR4458543|2020-03-20|United Kingdom:England|B.29|Homo sapiens||29782|
+OA965207.1 |ERR4423281|2020-03-21|United Kingdom:England|B.1.1.419|Homo sapiens||29782|
+FR997231.1 |ERR4462673|2020-04-14|United Kingdom:England|B.1.1|Homo sapiens||29782|
+OA967273.1 |ERR4422637|2020-04-17|United Kingdom:England|B.1.1|Homo sapiens||29903|
+OA966569.1 |ERR4425328|2020-04-22|United Kingdom:Scotland|B|Homo sapiens||29903|
+FR998780.1 |ERR4421705|2020-05-14|United Kingdom:England|B.1.1.369|Homo sapiens||29782|
+LR883881.1 |ERR4353413|2020-05-14|Netherlands:not collected|B.1.220|Homo sapiens||29781|
+LR883145.1 |ERR4353711|2020-05-22|Netherlands:not collected|B.1.22|Homo sapiens||29783|
+OA976651.1 |ERR4640624|2020-06-07|United Kingdom:England|B.1.1.37|Homo sapiens||29903|
+OA981357.1 |ERR4632172|2020-06-08|United Kingdom:England|B.1.1|Homo sapiens||29903|
+MT969399.1 |SRR12528118|2020-06-24|Australia: Victoria|D.2|Homo sapiens||29810|
+OA979970.1 |ERR4637171|2020-07-04|United Kingdom:England|B.1.282|Homo sapiens||29903|
+MT972997.1 |SRR12530506|2020-07-17|Australia: Victoria|D.2|Homo sapiens||29812|
+OA971317.1 |ERR4599872|2020-07-30|United Kingdom:England|B.1.1.1|Homo sapiens||29903|
+OA974561.1 |ERR4644318|2020-08-10|United Kingdom:England|B.1.1.67|Homo sapiens||29903|
+OA974575.1 |ERR4644073|2020-08-21|United Kingdom:England|B.1.160.30|Homo sapiens||29903|
+OA972886.1 |ERR4646785|2020-08-29|United Kingdom:England|B.1.367|Homo sapiens||29903|
+OA982085.1 |ERR4652128|2020-09-10|United Kingdom:England|B.1.177|Homo sapiens||29903|
+OA984909.1 |ERR4669445|2020-09-24|United Kingdom:England|B.1.177|Homo sapiens||29903|
+OA998956.1 |ERR4706795|2020-09-27|United Kingdom:Wales|B.1.177.11|Homo sapiens||29903|
+OA991902.1 |ERR4689246|2020-10-01|United Kingdom:England|B.1.221|Homo sapiens||29903|
+OA992361.1 |ERR4689391|2020-10-01|United Kingdom:England|B.1.177.9|Homo sapiens||29903|
+OB986976.1 |ERR4826964|2020-10-21|United Kingdom:England|B.1.160|Homo sapiens||29903|
+OB993773.1 |ERR4861515|2020-11-01|United Kingdom:England|B.1.177.4|Homo sapiens||29903|
+OD900504.1 |ERR4906885|2020-11-13|United Kingdom:England|B.1.177.57|Homo sapiens||29903|
+OD902334.1 |ERR4990206|2020-11-20|United Kingdom:England|B.1.177|Homo sapiens||29903|
+OD916628.1 |ERR5053300|2020-12-13|United Kingdom:England|B.1.258|Homo sapiens||29897|
+OD925100.1 |ERR5066804|2020-12-26|United Kingdom:England|B.1.1.7|Homo sapiens||29857|
+MW629406.1 |SRR13703826|2020-12-28|USA|B.1.2|Homo sapiens||29810|
+OD939538.1 |ERR5189236|2021-01-12|United Kingdom:England|B.1.177|Homo sapiens||29903|
+OD947518.1 |ERR5215306|2021-01-19|United Kingdom:England|B.1.1.7|Homo sapiens||29884|
+OD967361.1 |ERR5281134|2021-01-27|United Kingdom:England|B.1.1.7|Homo sapiens||29884|
+OD969594.1 |ERR5293196|2021-02-03|United Kingdom:England|B.1.1.7|Homo sapiens||29884|
+OD970803.1 |ERR5315004|2021-02-04|United Kingdom:England|B.1.1.7|Homo sapiens||29884|
+OU013871.1 |ERR5389357|2021-02-17|United Kingdom:England|B.1.177|Homo sapiens||29903|
+MZ206953.1 |SRR14446778|2021-03-04|USA: CA|B.1.1.7|Homo sapiens||29824|
+MW892124.1 |SRR14192155|2021-03-20|USA: Massachusetts|B.1.2|Homo sapiens||29782|
+OU030752.1 |ERR5668793|2021-03-28|United Kingdom:England|B.1.1.7|Homo sapiens||29884|
+MZ206650.1 |SRR14447538|2021-04-09|USA: CA, San Luis Obispo County|P.1|Homo sapiens||29808|
+MZ068733.1 |SRR14378927|2021-04-23|USA: Massachusetts|B.1.1.7|Homo sapiens||29855|
+MZ145773.1 |SRR14464401|2021-04-27|USA: Massachusetts|B.1.1.7|Homo sapiens||29856|
+MZ363054.1 |SRR14767411|2021-05-07|USA|B.1.1.7|Homo sapiens||29783|
+MZ311195.1 |SRR14671817|2021-05-15|USA: Massachusetts|B.1.1.7|Homo sapiens||29855|
+MZ310988.1 |SRR14671348|2021-05-17|USA: Massachusetts|B.1.1.7|Homo sapiens||29855|
+MZ416231.1 |SRR14867668|2021-06-01|USA: Rhode Island|B.1.526|Homo sapiens||29719|
+MZ405680.1 |SRR14836158|2021-06-01|USA: Texas|B.1.1.7|Homo sapiens|oronasopharynx|29719|
