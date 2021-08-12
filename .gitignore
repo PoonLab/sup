@@ -16,6 +16,7 @@ src/df_tn93.RDS
 data/output/sung_results_workspace.RData
 .DS_Store
 RTT/sequences.zip
+*.zip
 
 # Binaries and side-effects
 RTT/FastTree
@@ -94,6 +95,7 @@ data/zanini/plot*.pdf
 # Trees generated:
 src/trees/*.nwk
 RTT/sampled_trees/
+RTT/raw_tree/
 
 # Drafts aux files
 drafts/Skeleton.aux
