@@ -1,4 +1,5 @@
 files <- list.files(pattern = '(ERR|SRR)')
+files <- files[grepl(files, pattern = "csv")]
 
 for(f in files) {
 	print(f)

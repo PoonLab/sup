@@ -65,7 +65,7 @@ figlet "treetime"
 # https://treetime.readthedocs.io/en/latest/
 # pip install phylo-treetime
 treetime --dates sampled_metadata.csv --aln sampled_seqs_aligned.fasta --outdir raw_tree --covariation
-
+mv raw_tree sampled_trees
 
 
 
