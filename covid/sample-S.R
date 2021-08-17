@@ -97,7 +97,8 @@ for (i in 1:nloops) {
             group_by(Line.Number, group) %>%
             mutate(Position2 = rep(min(Position), n()), size = n(), ins_id = 1:n()) %>%
             ungroup() %>%
-            filter(!is.na(Line.Number), !is.na(Position2))
+            filter(!is.na(Line.Number), !is.na(Position2)) %>%
+            mutate(Cigar = trimws(Cigar), Base = trimws(Base), Paired = trimws(Paired))
 
         posies <- unique(insertions$Position2)
 
