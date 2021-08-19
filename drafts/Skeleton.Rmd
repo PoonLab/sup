@@ -1,5 +1,5 @@
 ---
-title: "Variance in Variants: Propagating Genome Sequence Uncertainty into Downstream Analyses"
+title: "Variance in Variants: Propagating Genome Sequence Uncertainty into Phylogenetic Lineage Assignment"
 author: "David Champredon&ast;, Devan Becker&ast;, Connor Chato, Gopi Gugan, Art Poon"
 date: "&ast;contributed equally"
 output:
@@ -87,7 +87,7 @@ It is also common practice to remove the sequence from further analysis if the t
 Some authors/tools, such as @lippiPotentialPreanalyticalAnalytical2020, use a more sophisticated form of quality control, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
 @clementGNUMAPAlgorithmUnbiased2010 present an alignment algorithm (GNUMAP) that takes nucleotide-level uncertainty into account by assigning a matching score to each match based on the probability scores from the output of Solexa and Illumina platforms (which are generally not publically available). 
 Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihood of partial or full sequences.
-For example, @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011a incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity (@fumagalliQuantifyingPopulationGenetic2013a).
+For example, @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011 incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity (@fumagalliQuantifyingPopulationGenetic2013a).
 @kuoEAGLEExplicitAlternative2018 recently used a similar approach to develop a statistical test of test whether a given genome sequence is consistent with an alternative sequence.
 In general, the reported error probabilities from NGS technologies are primarily used for filtering low quality sequences and improving alignment algorithms (which both result in a consensus sequence that is treated as error-free) or for hypothesis tests concerning small collections (usually pairs) of sequences.
 
