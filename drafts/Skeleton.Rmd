@@ -538,7 +538,7 @@ There were 95 sequences total, but we only plotted ones where the second most co
 Results for all lineages can be found in Table \ref{tab:pango} in the Appendix. 
 
 
-```{r sampled_bars, fig.height=11, fig.width=13, fig.cap='\\label{fig:covidcalls}Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with %fewer than 100 observations was grouped into the "Other" category.'}
+```{r sampled_bars, fig.height=11, fig.width=13, fig.cap='\\label{fig:covidcalls}Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with fewer than 100 observations was grouped into the "Other" category.'}
 max_label <- 250
 other_label <- 100
 
@@ -635,28 +635,13 @@ After upgrading to pangolin version 2.3.2, which uses a decision tree model, all
 
 
 
-## Sequential re-analysis with genome likelihoods
-
-TODO: Analysis has been run on a single accession number; not sure how this will compare to resampling in all accessions.
-
-TODO: Wishlist
-
-- Average number of substitutions (or average likelihood difference) before the called lineage changes
-- Overarching conclusion
-
-```{r ordered_lik, fig.cap="\\label{fig:ord}The decrease in the likelihood as more/different alternative base calls are made. It is important to note that these are not substitutions relative to a main sequence, but rather possible alternatives based on the error probabilities inherent in the sequencing process."}
-ggplot(ords) +
-    aes(x = order, y = lik, group = factor(acc)) +
-    geom_line(alpha = 0.2) +
-    theme(legend.position = "none")
-```
-
 
 
 # Conclusions
 
 The short run files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses.
-Re-sampling allows a more honest appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
+The primary contribution of this research is the construction of the probability sequence, which allows for a wide variety of future research directions.
+One such direction is re-sampling, which allows a more honest appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
 
 Our proposed methods can result in a drastic increase in compuatational expense.
 Even the method base on ordering the sequences by likelihood can result in re-running the analysis numerous times.
