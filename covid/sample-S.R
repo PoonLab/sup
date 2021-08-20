@@ -69,7 +69,7 @@ for (i in 1:nloops) {
         } else {
             if (dirich) {
                 newx <- rdirichlet(1,
-                    as.numeric(x)
+                    as.numeric(x))
                 return(sample(alph, size = N, prob = newx, replace = TRUE))
             } else {
                 return(sample(alph, size = N, prob = x, replace = TRUE))
