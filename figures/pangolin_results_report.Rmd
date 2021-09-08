@@ -56,7 +56,7 @@ length(taxons)
 
 # Abstract Info
 
-```{r abstract}
+```{r abstract, eval=FALSE}
 summs <- lins %>%
     group_by(taxon) %>%
     summarise(
