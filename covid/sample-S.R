@@ -56,7 +56,7 @@ for (i in 1:nloops) {
     S <- S_list[[i]]
     S <- fix_unc(S) # aux_funk.R
     if ("character" %in% class(S)) {
-        print(paste("S", asc_names[i], sep = " - "))
+        print(paste("S-", asc_names[i], " had characters in the matrix", sep = ""))
         next
     }
 
@@ -202,6 +202,9 @@ for (i in 1:nloops) {
         }
     })
 
+    filename <- paste0("data/sampled_covid/", asc_names[i],
+            "_sampled", ifelse(dirich, "_d", ""), ".fasta")
+
     # Convert sample letters to single string
     if (!append) {
         conseq <- paste(conseq, collapse = "", sep = "")
@@ -214,13 +217,14 @@ for (i in 1:nloops) {
 
     } else {
         # When appending, conseq is not needed.
+        file_line_count <- system(paste0("wc -l ", filename), intern = TRUE)
+        file_line_count <- as.numeric(strsplit(file_line_count, " ")[[1]][1])
         sampleseq <- sapply(sampleseq, paste, collapse = "")
-        name <- paste0("> ", asc_names[i], ".", 1:length(sampleseq))
+        name <- paste0("> ", asc_names[i], ".", 1:length(sampleseq) + file_line_count)
         fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
     }
     cat(fasta, append = append,
-        file = paste0("data/sampled_covid/", asc_names[i],
-            "_sampled", ifelse(dirich, "_d", ""), ".fasta"))
+        file = filename)
 
     # Loop Timing
     elapsed <- difftime(Sys.time(), t1, units = "mins")
