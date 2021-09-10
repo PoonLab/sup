@@ -1,5 +1,7 @@
 # sup - Sequencing Uncertainty Propagation
 
+This branch represents the unfinished work regarding insertions. See covid/covid-insertions_swan-song.md for more information.
+
 ## Objectives
 
 Propagate sequencing uncertainty in phylogenetic analysis.
