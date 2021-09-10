@@ -127,3 +127,5 @@ RTT/*txt
 RTT/*csv
 !RTT/SRA_downloads.csv
 !RTT/sampled_metadata.csv
+RTT/samDONE/*
+RTT/samBAD/*
