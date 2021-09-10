@@ -28,6 +28,7 @@ figlet "download SRA"
 # a bunch of new things to download
 # apt install sra-toolkit
 Rscript SRA_downloader.R
+Rscript quality-by-date.R
 Rscript make_sequences_descr_downloaded.R
 
 
