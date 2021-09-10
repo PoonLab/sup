@@ -64,6 +64,8 @@ ords <- lapply(
 
 ```
 
+TODO: Switch to LaTeX (finally time to start worrying about formatting).
+TODO: call probability matrix, uncertainty matrix, or (nucleotide-level) probability sequence - choose one and stick to it.
 
 
 # Introduction
@@ -521,13 +523,11 @@ We were not attempting a completely random sampling strategy, we simply wanted a
 
 ## Re-sampling the call probability matrix 
 
-TODO: call probability matrix, uncertainty matrix, or (nucleotide-level) probability sequence - choose one and stick to it.
-TODO: Better descriptions and better flow.
 
-Since pangoLEARN is a pre-trained model, the analysis is not computationally burdensome.
+Since pangoLEARN is a pre-trained model, assigning lineage designations to a large number of resampled genome sequences is not computationally burdensome.
 Sampling 5,000 different sequences from a call probability matrix is reasonable, even on a mid-range consumer laptop.
 
-For this analysis we use the most basic resampling strategy.
+For this analysis we use the most basic resampling strategy described above.
 We simply draw probabilities from the Dirichlet distribution with parameters defined by $\nps'$, sample base calls from the multinomial distribution, then use pangoLEARN to determine the lineage assignment.
 
 
@@ -621,12 +621,8 @@ for (i in seq_along(taxons)) {
 }
 ```
 
-Figure \ref{fig:covidcalls} shows that the consensus sequence almost always is assigned the same lineage as the majority of the resamples.
-However, the resamples never agree 100\%, and the proportion of resamples that agree with the conseq can be as low as 59%.
-This is in contrast to the 100\% bootstrap support that pangolin applied to all sequences analysed (or 0\% for the ones labelled "None" in Table \ref{tab:pango}).
-
-The full results are in Table \ref{tab:pango}.
-There are no cases where the consensus sequence is different from the majority of resamples, but the proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 22.09\%.
+Figure \ref{fig:covidcalls} shows that the consensus sequence almost always is assigned the same lineage as the majority of the resamples; the full results are in Table \ref{tab:pango}.
+The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 22.09\%.
 It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was "None" or for the lineage labelled B.1.1.7, which is a significantly more infectious lineage and is of special concern to health authorities.
 
 Initial analyses used pangolin version 2.0.8, which used multinomial logistic regression, rather than decision trees, to assign lineages.
@@ -654,7 +650,7 @@ For example, the estimated frequency of alleles in the population could be used 
 
 Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
 We cannot account for systematic errors, such as those present due to human errors (\eg mis-calibrated machines or that one lab in @blank that kept giving the same mutations). TODO: Ask art about the bad sequences from the bad lab
-Our method allows for adjustments of the base call quality score, such as in @brockmanQualityScoresSNP2008, as well as more sophisticated definitions genome likelihoods. TODO: some references here.
+Our method allows for adjustments of the base call quality score, such as in @brockmanQualityScoresSNP2008, as well as more sophisticated definitions of genome likelihoods. TODO: some references here.
 
 This study should not be taken in any way as a criticism of the pangolin lineage assignment procedure.
 Rather, pangolin was chosen as it is a state-of-the art tool based on the best available algorithms for phylogeny reconstruction.

@@ -113,7 +113,7 @@
 
 \title{Results of PangoVis}
 \author{Devan Becker}
-\date{2021-04-15}
+\date{2021-08-25}
 
 \begin{document}
 \maketitle
@@ -125,11 +125,41 @@
 \begin{Highlighting}[]
 \CommentTok{\# Packages that Art hates}
 \KeywordTok{library}\NormalTok{(dplyr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'dplyr'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(tidyr)}
 \KeywordTok{library}\NormalTok{(ggplot2)}
 \KeywordTok{library}\NormalTok{(stringr)}
 \KeywordTok{library}\NormalTok{(here)}
+\end{Highlighting}
+\end{Shaded}
 
+\begin{verbatim}
+## here() starts at /mnt/BCC20BCCC20B8A3A/sup
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{dirich \textless{}{-}}\StringTok{ }\NormalTok{params}\OperatorTok{$}\NormalTok{dirich}
 
 \CommentTok{\# Read in CSV files}
@@ -156,12 +186,15 @@
 \end{Shaded}
 
 \begin{verbatim}
-## 10  runs were removed for having too few samples.
+## 0  runs were removed for having too few samples.
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{lins \textless{}{-}}\StringTok{ }\KeywordTok{filter}\NormalTok{(lins, }\OperatorTok{!}\NormalTok{taxon }\OperatorTok{\%in\%}\StringTok{ }\NormalTok{badlins)}
+
+\KeywordTok{write.csv}\NormalTok{(lins, }\KeywordTok{here}\NormalTok{(}\StringTok{"data"}\NormalTok{, }\StringTok{"output"}\NormalTok{, }\StringTok{"lins.csv"}\NormalTok{),}
+    \DataTypeTok{row.names =} \OtherTok{FALSE}\NormalTok{)}
 
 \CommentTok{\#\#\#\# Visualize the uncertainty in the base calls {-}{-}{-}{-}}
 \NormalTok{taxons \textless{}{-}}\StringTok{ }\KeywordTok{sort}\NormalTok{(}\KeywordTok{unique}\NormalTok{(lins}\OperatorTok{$}\NormalTok{taxon))}
@@ -170,7 +203,7 @@
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 138
+## [1] 118
 \end{verbatim}
 
 \hypertarget{abstract-info}{%
@@ -188,59 +221,12 @@
         \DataTypeTok{maxpango =} \KeywordTok{max}\NormalTok{(probability),}
         \DataTypeTok{menpango =} \KeywordTok{mean}\NormalTok{(probability),}
         \DataTypeTok{max =} \KeywordTok{names}\NormalTok{(}\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(lineage), }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{))[}\DecValTok{1}\NormalTok{])}
-\end{Highlighting}
-\end{Shaded}
 
-\begin{verbatim}
-## `summarise()` ungrouping output (override with `.groups` argument)
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{print}\NormalTok{(}\StringTok{"summary info"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## [1] "summary info"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{print}\NormalTok{(summs)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## # A tibble: 138 x 7
-##    taxon      maxperc uniques minpango maxpango menpango max      
-##    <chr>        <dbl>   <int>    <dbl>    <dbl>    <dbl> <chr>    
-##  1 ERR4305816   0.958      15        1        1        1 B.3.1    
-##  2 ERR4307842   0.950      29        1        1        1 B.1.1.289
-##  3 ERR4363387   0.953      27        1        1        1 B.1.222  
-##  4 ERR4364007   0.855      89        1        1        1 B.1.1.29 
-##  5 ERR4440194   0.515      18        1        1        1 B.1      
-##  6 ERR4440219   0.937      70        1        1        1 B.1.1.164
-##  7 ERR4440247   0.631     227        1        1        1 B.1.1.29 
-##  8 ERR4440332   0.984       8        1        1        1 B.40     
-##  9 ERR4440354   0.665     211        1        1        1 B.1.1.29 
-## 10 ERR4440373   0.995       9        1        1        1 B.40     
-## # ... with 128 more rows
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{maxperc); }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(summs}\OperatorTok{$}\NormalTok{menpango)}
 \end{Highlighting}
 \end{Shaded}
-
-\begin{verbatim}
-## [1] 0.1098993
-\end{verbatim}
-
-\begin{verbatim}
-## [1] 0.03622898
-\end{verbatim}
 
 \hypertarget{stacked-bar-plots}{%
 \section{Stacked Bar Plots}\label{stacked-bar-plots}}
@@ -329,13 +315,7 @@
 \StringTok{        )"}
 \NormalTok{    \}}
 \NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
 
-\includegraphics{pangolin_results_report_files/figure-latex/pareto-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \NormalTok{seq\_info}\OperatorTok{$}\NormalTok{taxon \textless{}{-}}\StringTok{ }\NormalTok{taxons}
 \NormalTok{seq\_info \textless{}{-}}\StringTok{ }\KeywordTok{arrange}\NormalTok{(seq\_info, mode, mode\_n) }\OperatorTok{\%\textgreater{}\%}
 \StringTok{    }\KeywordTok{select}\NormalTok{(taxon, }\KeywordTok{everything}\NormalTok{())}
@@ -349,279 +329,219 @@ taxon & called & mode & mode\_n & perc & runner\_up & ru\_n & unique &
 atoms\tabularnewline
 \midrule
 \endhead
-SRR12762573 & A & A & 3532 & 70.68 & B & 1028 & 17 & 4\tabularnewline
-SRR13092002 & A.1 & A.1 & 4922 & 98.50 & B.40 & 37 & 17 &
-7\tabularnewline
-SRR13020990 & A.2.2 & A.2.2 & 2892 & 57.87 & A.2 & 737 & 107 &
-48\tabularnewline
-ERR4891988 & B & B & 3914 & 78.33 & B.23 & 296 & 55 & 24\tabularnewline
-ERR4999282 & B & B & 4041 & 80.87 & B.54 & 246 & 53 & 11\tabularnewline
-ERR4891715 & B & B & 4521 & 90.47 & B.23 & 123 & 28 & 6\tabularnewline
-SRR13020989 & B.1.1.273 & B.1 & 1338 & 26.87 & B & 302 & 425 &
-132\tabularnewline
-ERR4440194 & B.1 & B.1 & 2575 & 51.53 & B.1.98 & 2254 & 18 &
+SRR12749715 & A & A & 4656 & 93.19 & B.1 & 61 & 40 & 11\tabularnewline
+SRR12749716 & A & A & 4692 & 93.92 & B.1 & 48 & 34 & 11\tabularnewline
+ERR5082598 & AA.3 & AA.3 & 4611 & 92.29 & B.1.177.15 & 195 & 23 &
+5\tabularnewline
+ERR5077713 & AD.2 & AD.2 & 4921 & 98.50 & B.1 & 23 & 12 &
 4\tabularnewline
-ERR4891841 & B.1 & B.1 & 3785 & 75.75 & B.1.243 & 38 & 219 &
-52\tabularnewline
-ERR4890354 & B.1 & B.1 & 4326 & 86.57 & B.1.243 & 25 & 179 &
-48\tabularnewline
-ERR4893013 & B.1 & B.1 & 4444 & 88.93 & B.1.88 & 124 & 49 &
-17\tabularnewline
-ERR4692364 & B.1 & B.1 & 4524 & 90.53 & B.1.400 & 170 & 58 &
-25\tabularnewline
-ERR4440731 & B.1 & B.1 & 4666 & 93.38 & B.1.391 & 50 & 54 &
-19\tabularnewline
-ERR5069624 & B.1 & B.1 & 4821 & 96.48 & B.1.247 & 83 & 42 &
+ERR4890693 & AM.3 & AM.3 & 4594 & 91.95 & B.1.1 & 249 & 46 &
 18\tabularnewline
-ERR4694556 & B.1.1.15 & B.1.1.15 & 4772 & 95.50 & B.1.1.107 & 19 & 57 &
-17\tabularnewline
-ERR4892293 & B.1.1.162 & B.1.1.162 & 3145 & 62.94 & B.1.1.197 & 93 & 190
-& 48\tabularnewline
-ERR4440219 & B.1.1.164 & B.1.1.164 & 4682 & 93.70 & B.1.1 & 32 & 70 &
-23\tabularnewline
-ERR4891863 & B.1.1.216 & B.1.1.216 & 4201 & 84.07 & B.1 & 119 & 127 &
-48\tabularnewline
-ERR4893186 & B.1.1.216 & B.1.1.216 & 4432 & 88.69 & B.1 & 44 & 86 &
-24\tabularnewline
-ERR4892203 & B.1.1.216 & B.1.1.216 & 4495 & 89.95 & B.1.1.208 & 64 & 90
-& 24\tabularnewline
-ERR5080893 & B.1.1.251 & B.1.1.251 & 2943 & 58.90 & B.1 & 185 & 149 &
-27\tabularnewline
-ERR4664555 & B.1.1.253 & B.1.1.253 & 4813 & 96.32 & B.1 & 49 & 23 &
-4\tabularnewline
-ERR4307842 & B.1.1.289 & B.1.1.289 & 4745 & 94.96 & B.1 & 56 & 29 &
+ERR4890771 & AM.3 & AM.3 & 4746 & 95.00 & B.1.1 & 122 & 41 &
+16\tabularnewline
+ERR5079699 & AM.3 & AM.3 & 4843 & 96.94 & B.1.1 & 62 & 27 &
 11\tabularnewline
-ERR4759453 & B.1.1.29 & B.1.1.29 & 977 & 19.55 & B.1.1.208 & 244 & 207 &
-47\tabularnewline
-ERR4440425 & B.1.1.29 & B.1.1.29 & 1076 & 21.53 & B.1 & 129 & 260 &
-24\tabularnewline
-ERR4892066 & B.1.1.29 & B.1.1.29 & 1297 & 25.96 & B.1.1.59 & 343 & 231 &
-56\tabularnewline
-ERR4890228 & B.1.1.29 & B.1.1.29 & 1982 & 39.66 & B.1.1.273 & 133 & 232
-& 58\tabularnewline
-ERR4893037 & B.1.1.29 & B.1.1.29 & 2495 & 49.93 & B.1 & 90 & 223 &
-28\tabularnewline
-ERR4890294 & B.1.1.29 & B.1.1.29 & 2710 & 54.23 & B.1.1.37 & 521 & 189 &
+ERR4891444 & B.1.1 & B.1 & 1680 & 33.63 & B.1.1 & 764 & 270 &
+63\tabularnewline
+ERR4693865 & B.1 & B.1 & 2418 & 48.40 & B.1.2 & 115 & 262 &
+58\tabularnewline
+ERR4890531 & B.1 & B.1 & 2752 & 55.08 & B.1.1 & 89 & 255 &
+62\tabularnewline
+ERR4891415 & B.1 & B.1 & 2879 & 57.63 & B.1.595 & 111 & 259 &
+65\tabularnewline
+ERR5082578 & B.1 & B.1 & 3705 & 74.16 & B.1.280 & 154 & 153 &
 41\tabularnewline
-ERR4440247 & B.1.1.29 & B.1.1.29 & 3155 & 63.14 & B.1 & 229 & 227 &
-38\tabularnewline
-ERR4694571 & B.1.1.29 & B.1.1.29 & 3176 & 63.56 & B.1.1.44 & 131 & 213 &
-42\tabularnewline
-ERR4440354 & B.1.1.29 & B.1.1.29 & 3323 & 66.50 & B.1.1.132 & 65 & 211 &
-33\tabularnewline
-ERR4440402 & B.1.1.29 & B.1.1.29 & 3490 & 69.84 & B.1 & 168 & 215 &
-45\tabularnewline
-ERR4364007 & B.1.1.29 & B.1.1.29 & 4271 & 85.47 & B.1.1 & 56 & 89 &
-29\tabularnewline
-ERR4694617 & B.1.1.304 & B.1.1.304 & 4711 & 94.28 & B.1.1.10 & 66 & 28 &
-3\tabularnewline
-ERR4891898 & B.1.1.304 & B.1.1.304 & 4831 & 96.68 & B.1.1.4 & 18 & 29 &
-7\tabularnewline
-ERR4893033 & B.1.1.307 & B.1.1.307 & 4870 & 97.46 & B.1 & 63 & 34 &
-22\tabularnewline
-ERR5062514 & B.1.1.307 & B.1.1.307 & 4943 & 98.92 & B.1.1.311 & 18 & 17
-& 10\tabularnewline
-ERR4892048 & B.1.1.307 & B.1.1.307 & 4966 & 99.38 & B.1.1.311 & 16 & 8 &
-5\tabularnewline
-ERR4893353 & B.1.1.307 & B.1.1.307 & 4973 & 99.52 & B.1 & 13 & 7 &
-3\tabularnewline
-ERR4890271 & B.1.1.307 & B.1.1.307 & 4978 & 99.62 & B.1 & 7 & 8 &
-3\tabularnewline
-ERR4693079 & B.1.1.310 & B.1.1.310 & 4376 & 87.57 & B.1.1.29 & 231 & 107
-& 50\tabularnewline
-ERR4693034 & B.1.1.310 & B.1.1.310 & 4399 & 88.03 & B.1.1.59 & 57 & 89 &
-44\tabularnewline
-ERR5080913 & B.1.1.311 & B.1.1.311 & 4861 & 97.28 & B.1.1.281 & 47 & 16
-& 8\tabularnewline
-ERR5082696 & B.1.1.315 & B.1.1.315 & 4575 & 91.55 & B.1 & 147 & 43 &
+ERR4693801 & B.1.1 & B.1.1 & 2578 & 51.60 & B.1 & 173 & 247 &
+64\tabularnewline
+ERR4891178 & B.1.1 & B.1.1 & 2790 & 55.84 & B.1.1.307 & 184 & 251 &
+50\tabularnewline
+ERR4891497 & B.1.1 & B.1.1 & 2801 & 56.06 & B.1.1.374 & 102 & 241 &
+54\tabularnewline
+ERR4890881 & B.1.1 & B.1.1 & 3276 & 65.57 & B.1.1.217 & 151 & 228 &
+58\tabularnewline
+ERR4890572 & B.1.1 & B.1.1 & 3577 & 71.60 & B.1.1.121 & 171 & 168 &
+46\tabularnewline
+ERR4890926 & B.1.1 & B.1.1 & 3994 & 79.94 & B.1.1.217 & 50 & 189 &
+55\tabularnewline
+ERR4891572 & B.1.1.10 & B.1.1.10 & 4759 & 95.26 & B.1.1 & 85 & 34 &
+15\tabularnewline
+ERR5078897 & B.1.1.240 & B.1.1.240 & 4011 & 80.28 & B.1.1 & 443 & 123 &
+53\tabularnewline
+ERR4694498 & B.1.1.310 & B.1.1.310 & 4027 & 80.60 & B.1.1 & 218 & 133 &
+40\tabularnewline
+ERR4694380 & B.1.1.37 & B.1.1.37 & 4924 & 98.56 & B.1.1.294 & 32 & 12 &
+6\tabularnewline
+ERR5081836 & B.1.1.434 & B.1.1.434 & 4785 & 95.78 & B.1.1 & 68 & 32 &
+21\tabularnewline
+ERR4891493 & B.1.1.51 & B.1.1.51 & 4725 & 94.58 & B.1.1 & 190 & 52 &
+35\tabularnewline
+ERR4694330 & B.1.1.58 & B.1.1.58 & 3838 & 76.82 & B.1.1.217 & 367 & 59 &
 20\tabularnewline
-ERR5082664 & B.1.1.315 & B.1.1.315 & 4866 & 97.38 & B.1 & 60 & 13 &
-4\tabularnewline
-ERR4667618 & B.1.1.315 & B.1.1.315 & 4933 & 98.72 & B.1 & 30 & 11 &
-3\tabularnewline
-ERR4869497 & B.1.1.315 & B.1.1.315 & 4944 & 98.94 & B.1 & 15 & 11 &
-4\tabularnewline
-ERR5062388 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR5077924 & B.1.1.7 & B.1.1.7 & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR5062935 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR5078863 & B.1.1.7 & B.1.1.7 & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR5063143 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR5079000 & B.1.1.7 & B.1.1.7 & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR5063807 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR5080131 & B.1.1.7 & B.1.1.7 & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR5064346 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR5080504 & B.1.1.7 & B.1.1.7 & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR5064811 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR5082214 & B.1.1.7 & B.1.1.7 & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR5069584 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR5082673 & B.1.1.7 & B.1.1.7 & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR5069616 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
+ERR4694010 & B.1.13 & B.1.13 & 4043 & 80.92 & B.1 & 520 & 54 &
+25\tabularnewline
+ERR5082710 & B.1.160 & B.1.160 & 3871 & 77.48 & B.1.160.15 & 191 & 49 &
+12\tabularnewline
+ERR5082346 & B.1.160 & B.1.160 & 4431 & 88.69 & B.1.160.11 & 118 & 36 &
 0\tabularnewline
-ERR5069871 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
-0\tabularnewline
-ERR5070294 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
-0\tabularnewline
-ERR5077411 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
-0\tabularnewline
-ERR5077618 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
-0\tabularnewline
-ERR5082610 & B.1.1.7 & B.1.1.7 & 4997 & 100.00 & NA & NA & 1 &
-0\tabularnewline
-ERR5074314 & B.1.160 & B.1.160 & 4833 & 96.72 & B.1.160.8 & 95 & 18 &
-10\tabularnewline
-ERR5082569 & B.1.160 & B.1.160 & 4845 & 96.96 & B.1.160.5 & 68 & 23 &
-10\tabularnewline
-ERR4869446 & B.1.160.7 & B.1.160.7 & 4947 & 99.00 & B.1.160 & 42 & 5 &
-0\tabularnewline
-ERR5082711 & B.1.177 & B.1.177 & 3683 & 73.70 & B.1.177.22 & 749 & 29 &
+ERR4890974 & B.1.160 & B.1.160 & 4787 & 95.82 & B.1 & 26 & 32 &
+7\tabularnewline
+ERR5081077 & B.1.177 & B.1.177 & 3267 & 65.39 & B.1.177.73 & 1104 & 70 &
 11\tabularnewline
-ERR5082645 & B.1.177 & B.1.177 & 3805 & 76.15 & B.1.177.22 & 517 & 22 &
+ERR5082706 & B.1.177 & B.1.177 & 4046 & 80.98 & B.1.177.44 & 75 & 66 &
+9\tabularnewline
+ERR5078210 & B.1.177 & B.1.177 & 4391 & 87.89 & B.1.177.21 & 37 & 65 &
 7\tabularnewline
-ERR4893031 & B.1.177 & B.1.177 & 3812 & 76.29 & B.1.177.7 & 1003 & 19 &
-7\tabularnewline
-ERR4892152 & B.1.177 & B.1.177 & 4260 & 85.25 & B.1.177.7 & 498 & 14 &
-3\tabularnewline
-ERR5082561 & B.1.177 & B.1.177 & 4313 & 86.31 & B.1.177.22 & 447 & 22 &
-5\tabularnewline
-ERR5062062 & B.1.177 & B.1.177 & 4326 & 86.57 & B.1.177.8 & 381 & 16 &
-2\tabularnewline
-ERR5082695 & B.1.177 & B.1.177 & 4483 & 89.71 & B.1.177.22 & 297 & 19 &
-4\tabularnewline
-ERR4869480 & B.1.177 & B.1.177 & 4511 & 90.27 & B.1.177.22 & 252 & 22 &
-5\tabularnewline
-ERR4893242 & B.1.177 & B.1.177 & 4561 & 91.27 & B.1.177.6 & 164 & 15 &
-3\tabularnewline
-ERR4892339 & B.1.177 & B.1.177 & 4566 & 91.37 & B.1.177.23 & 131 & 19 &
-1\tabularnewline
-ERR5082576 & B.1.177 & B.1.177 & 4567 & 91.39 & B.1.177.22 & 237 & 20 &
-1\tabularnewline
-ERR5064294 & B.1.177 & B.1.177 & 4576 & 91.57 & B.1.177.27 & 272 & 14 &
-2\tabularnewline
-ERR5082580 & B.1.177 & B.1.177 & 4601 & 92.08 & B.1.177.22 & 242 & 20 &
-1\tabularnewline
-ERR5081301 & B.1.177 & B.1.177 & 4638 & 92.82 & B.1.177.22 & 195 & 21 &
-4\tabularnewline
-ERR4869458 & B.1.177 & B.1.177 & 4648 & 93.02 & B.1.177.22 & 198 & 19 &
-3\tabularnewline
-ERR4869487 & B.1.177 & B.1.177 & 4702 & 94.10 & B.1.177.22 & 147 & 17 &
-1\tabularnewline
-ERR5080918 & B.1.177 & B.1.177 & 4723 & 94.52 & B.1.177.22 & 150 & 19 &
-4\tabularnewline
-ERR5064166 & B.1.177 & B.1.177 & 4731 & 94.68 & B.1.177.22 & 149 & 16 &
-1\tabularnewline
-ERR5062729 & B.1.177 & B.1.177 & 4760 & 95.26 & B.1.177.22 & 116 & 14 &
-1\tabularnewline
-ERR4893080 & B.1.177 & B.1.177 & 4767 & 95.40 & B.1.177.22 & 118 & 14 &
-5\tabularnewline
-ERR5063922 & B.1.177 & B.1.177 & 4769 & 95.44 & B.1.177.22 & 148 & 16 &
-1\tabularnewline
-ERR4892392 & B.1.177 & B.1.177 & 4770 & 95.46 & B.1.177.22 & 95 & 18 &
-5\tabularnewline
-ERR5063539 & B.1.177 & B.1.177 & 4774 & 95.54 & B.1.177.22 & 121 & 20 &
-4\tabularnewline
-ERR4893197 & B.1.177 & B.1.177 & 4779 & 95.64 & B.1.177.23 & 105 & 18 &
-5\tabularnewline
-ERR5077151 & B.1.177 & B.1.177 & 4785 & 95.76 & B.1.177.22 & 114 & 20 &
-2\tabularnewline
-ERR5062571 & B.1.177 & B.1.177 & 4800 & 96.06 & B.1.177.22 & 98 & 21 &
-3\tabularnewline
-ERR5060778 & B.1.177 & B.1.177 & 4827 & 96.60 & B.1.177.22 & 115 & 15 &
-5\tabularnewline
-ERR4890403 & B.1.177 & B.1.177 & 4831 & 96.68 & B.1.177.22 & 82 & 18 &
-5\tabularnewline
-ERR5070060 & B.1.177 & B.1.177 & 4854 & 97.14 & B.1.177.22 & 69 & 14 &
-2\tabularnewline
-ERR5081316 & B.1.177.15 & B.1.177.15 & 4799 & 96.04 & B.1.177 & 131 & 16
-& 6\tabularnewline
-ERR4893138 & B.1.177.16 & B.1.177.16 & 4954 & 99.14 & B.1.177 & 30 & 7 &
-3\tabularnewline
-ERR4892200 & B.1.177.17 & B.1.177.17 & 4956 & 99.18 & B.1.177 & 39 & 4 &
-2\tabularnewline
-ERR5064787 & B.1.177.17 & B.1.177.17 & 4958 & 99.22 & B.1.177 & 23 & 5 &
-2\tabularnewline
-ERR4890386 & B.1.177.18 & B.1.177.18 & 4969 & 99.44 & B.1.177.13 & 15 &
-6 & 2\tabularnewline
-ERR5076163 & B.1.177.19 & B.1.177.19 & 4856 & 97.18 & B.1.177 & 99 & 11
-& 1\tabularnewline
-ERR5076748 & B.1.177.19 & B.1.177.19 & 4892 & 97.90 & B.1.177 & 67 & 12
-& 5\tabularnewline
-ERR5063165 & B.1.177.19 & B.1.177.19 & 4905 & 98.16 & B.1.177 & 67 & 8 &
-2\tabularnewline
-ERR5063813 & B.1.177.19 & B.1.177.19 & 4932 & 98.70 & B.1.177 & 47 & 9 &
-3\tabularnewline
-ERR4693605 & B.1.177.3 & B.1.177.3 & 4825 & 96.56 & B.1.177 & 68 & 17 &
-2\tabularnewline
-ERR5081304 & B.1.177.4 & B.1.177.4 & 4954 & 99.14 & B.1.177.2 & 21 & 17
-& 10\tabularnewline
-ERR5082590 & B.1.177.4 & B.1.177.4 & 4971 & 99.48 & B.1.177.2 & 13 & 11
-& 7\tabularnewline
-ERR5062648 & B.1.177.4 & B.1.177.4 & 4988 & 99.82 & B.1.177 & 4 & 6 &
-3\tabularnewline
-ERR5082674 & B.1.177.6 & B.1.177.6 & 4858 & 97.22 & B.1.177 & 79 & 13 &
-4\tabularnewline
-ERR4891805 & B.1.177.6 & B.1.177.6 & 4939 & 98.84 & B.1.177 & 24 & 8 &
-0\tabularnewline
-ERR5082712 & B.1.177.7 & B.1.177.7 & 3334 & 66.72 & B.1.177 & 1612 & 15
-& 5\tabularnewline
-ERR5082556 & B.1.177.7 & B.1.177.7 & 3766 & 75.37 & B.1.177 & 1195 & 11
-& 2\tabularnewline
-ERR5082630 & B.1.177.7 & B.1.177.7 & 4833 & 96.72 & B.1.177 & 128 & 13 &
-6\tabularnewline
-ERR4693537 & B.1.177.7 & B.1.177.7 & 4849 & 97.04 & B.1.177 & 126 & 13 &
-6\tabularnewline
-ERR4363387 & B.1.222 & B.1.222 & 4761 & 95.28 & B.1 & 96 & 27 &
-14\tabularnewline
-ERR5081322 & B.1.235 & B.1.235 & 4743 & 94.92 & B.1 & 128 & 21 &
+ERR4891001 & B.1.177 & B.1.177 & 4429 & 88.65 & B.1.177.25 & 34 & 59 &
 8\tabularnewline
-ERR4893184 & B.1.258 & B.1.258 & 4099 & 82.03 & B.1.258.17 & 435 & 35 &
-15\tabularnewline
-ERR5062004 & B.1.258 & B.1.258 & 4563 & 91.31 & B.1 & 80 & 35 &
+ERR5082656 & B.1.177 & B.1.177 & 4849 & 97.06 & B.1.177.68 & 58 & 14 &
+1\tabularnewline
+ERR5082694 & B.1.177 & B.1.177 & 4876 & 97.60 & B.1.177.21 & 35 & 17 &
 7\tabularnewline
-ERR4891711 & B.1.36 & B.1.36 & 4770 & 95.46 & B.1.36.9 & 81 & 27 &
-8\tabularnewline
-ERR4890371 & B.1.36.17 & B.1.36.17 & 4177 & 83.59 & B.1 & 491 & 45 &
+ERR4891304 & B.1.177 & B.1.177 & 4893 & 97.94 & B.1.177.73 & 35 & 30 &
 17\tabularnewline
-ERR5080897 & B.1.36.17 & B.1.36.17 & 4763 & 95.32 & B.1 & 132 & 24 &
-13\tabularnewline
-ERR4890352 & B.1.36.17 & B.1.36.17 & 4938 & 98.82 & B.1 & 20 & 16 &
-10\tabularnewline
-ERR4890337 & B.1.36.17 & B.1.36.17 & 4951 & 99.08 & B.1 & 20 & 9 &
-3\tabularnewline
-ERR4892423 & B.1.523 & B.1.523 & 4493 & 89.91 & B.1 & 128 & 31 &
-9\tabularnewline
-ERR4893393 & B.1.523 & B.1.523 & 4658 & 93.22 & B.1 & 153 & 36 &
-15\tabularnewline
-ERR4890285 & B.1.523 & B.1.523 & 4892 & 97.90 & B.1 & 50 & 23 &
-9\tabularnewline
-ERR4891889 & B.1.98 & B.1.98 & 4166 & 83.37 & B.1 & 311 & 70 &
-42\tabularnewline
-ERR4693061 & B.23 & B.23 & 4734 & 94.74 & B.48 & 113 & 19 &
+ERR5082606 & B.1.177 & B.1.177 & 4895 & 97.98 & B.1.177.68 & 31 & 13 &
 5\tabularnewline
-ERR4694400 & B.3 & B.3 & 4903 & 98.12 & B.3.1 & 42 & 13 &
-3\tabularnewline
-ERR4305816 & B.3.1 & B.3.1 & 4788 & 95.82 & B.3 & 147 & 15 &
-3\tabularnewline
-ERR4892112 & B.39 & B.39 & 4733 & 94.72 & B.3 & 85 & 31 &
-13\tabularnewline
-ERR4890427 & B.39 & B.39 & 4757 & 95.20 & A.16 & 96 & 20 &
+ERR5081293 & B.1.177 & B.1.177 & 4897 & 98.02 & B.1.258 & 27 & 15 &
+7\tabularnewline
+ERR4891433 & B.1.177 & B.1.177 & 4919 & 98.46 & B.1.177.68 & 28 & 11 &
+5\tabularnewline
+ERR4891532 & B.1.177 & B.1.177 & 4956 & 99.20 & B.1.177.68 & 18 & 9 &
+1\tabularnewline
+ERR4891011 & B.1.177.16 & B.1.177.16 & 4897 & 98.02 & B.1.177 & 84 & 6 &
+2\tabularnewline
+ERR5080327 & B.1.177.18 & B.1.177.18 & 4480 & 89.67 & B.1 & 276 & 37 &
+22\tabularnewline
+ERR4891061 & B.1.177.19 & B.1.177.19 & 4821 & 96.50 & B.1.2 & 50 & 14 &
+5\tabularnewline
+ERR4890746 & B.1.177.4 & B.1.177.4 & 4949 & 99.06 & B.1.177 & 28 & 13 &
+8\tabularnewline
+ERR5079423 & B.1.177.57 & B.1.177.57 & 2486 & 49.76 & B.1.177.56 & 2082
+& 34 & 13\tabularnewline
+ERR5082708 & B.1.177.57 & B.1.177.57 & 4922 & 98.52 & B.1.177.73 & 21 &
+13 & 6\tabularnewline
+ERR5082622 & B.1.177.58 & B.1.177.58 & 4898 & 98.04 & B.1.177 & 27 & 17
+& 3\tabularnewline
+ERR5082654 & B.1.177.65 & B.1.177.65 & 4334 & 86.75 & B.1.177 & 308 & 34
+& 15\tabularnewline
+ERR5082702 & B.1.177.65 & B.1.177.65 & 4802 & 96.12 & B.1.177 & 120 & 18
+& 5\tabularnewline
+ERR5080159 & B.1.177.7 & B.1.177.7 & 4339 & 86.85 & B.1.177.16 & 612 & 7
+& 1\tabularnewline
+ERR4891103 & B.1.177.9 & B.1.177.9 & 4896 & 98.00 & B.1.177 & 49 & 18 &
+5\tabularnewline
+ERR4891037 & B.1.258 & B.1.258 & 4729 & 94.66 & B.1.258.14 & 51 & 31 &
+9\tabularnewline
+ERR4891235 & B.1.258 & B.1.258 & 4827 & 96.62 & A & 26 & 26 &
 4\tabularnewline
-ERR4440332 & B.40 & B.40 & 4917 & 98.40 & B.1 & 41 & 8 &
+ERR4890609 & B.1.258 & B.1.258 & 4856 & 97.20 & B.1.258.14 & 40 & 23 &
+7\tabularnewline
+ERR4891261 & B.1.258.12 & B.1.258.12 & 4854 & 97.16 & B.1.258.14 & 27 &
+17 & 3\tabularnewline
+ERR5082600 & B.1.258.5 & B.1.258.5 & 4650 & 93.07 & B.1.258 & 131 & 29 &
+17\tabularnewline
+ERR5082700 & B.1.36.39 & B.1.36.39 & 4696 & 94.00 & B.1 & 160 & 18 &
+6\tabularnewline
+ERR4890820 & B.1.391 & B.1.391 & 4282 & 85.71 & B.1 & 441 & 48 &
+17\tabularnewline
+ERR4891675 & B.1.523 & B.1.523 & 4691 & 93.90 & B.1.400 & 135 & 27 &
+12\tabularnewline
+ERR4891238 & B.4.8 & B.4.8 & 4816 & 96.40 & B.1 & 56 & 25 &
+10\tabularnewline
+ERR4693495 & B.40 & B.40 & 4937 & 98.82 & B.1 & 23 & 11 &
+3\tabularnewline
+SRR12639961 & B.41 & B.41 & 3956 & 79.18 & B.1.1 & 235 & 39 &
+16\tabularnewline
+SRR13021017 & B.4.6 & None & 4885 & 99.53 & A & 18 & 4 &
+1\tabularnewline
+SRR13021008 & A.2.2 & None & 4910 & 99.63 & A & 13 & 6 &
+3\tabularnewline
+SRR13021020 & A & None & 4915 & 99.66 & A & 16 & 3 & 1\tabularnewline
+SRR13020991 & A.1 & None & 4930 & 99.72 & A & 12 & 4 & 2\tabularnewline
+SRR13021124 & B.4.6 & None & 4930 & 99.72 & A & 10 & 5 &
 2\tabularnewline
-ERR4892386 & B.40 & B.40 & 4967 & 99.40 & B.1 & 10 & 8 &
+SRR13021131 & B.1 & None & 4935 & 99.74 & A & 10 & 4 & 1\tabularnewline
+SRR13021013 & B.1 & None & 4940 & 99.76 & A & 6 & 4 & 0\tabularnewline
+SRR11433882 & B.1 & None & 4955 & 99.82 & A & 8 & 3 & 1\tabularnewline
+SRR13021011 & A & None & 4960 & 99.84 & A & 8 & 2 & 0\tabularnewline
+SRR11433888 & B.1.413 & None & 4965 & 99.86 & A & 5 & 4 &
 2\tabularnewline
-ERR4440373 & B.40 & B.40 & 4972 & 99.50 & B & 10 & 9 & 5\tabularnewline
-ERR4891916 & None & None & 4993 & 99.96 & B.1 & 2 & 2 & 0\tabularnewline
-ERR4999251 & None & None & 4997 & 100.00 & NA & NA & 1 &
+SRR11433893 & B.1 & None & 4965 & 99.86 & A & 6 & 3 & 1\tabularnewline
+SRR13021109 & A.1 & None & 4970 & 99.88 & A & 4 & 3 & 0\tabularnewline
+SRR13021111 & B.58 & None & 4970 & 99.88 & A & 5 & 3 & 1\tabularnewline
+SRR13021113 & B.1.1 & None & 4970 & 99.88 & A & 5 & 3 & 1\tabularnewline
+SRR13021099 & A.1 & None & 4980 & 99.92 & A & 2 & 3 & 0\tabularnewline
+SRR13021104 & B.1.1 & None & 4985 & 99.94 & A & 2 & 3 & 1\tabularnewline
+SRR13021130 & A & None & 4990 & 99.96 & A & 2 & 2 & 0\tabularnewline
+SRR13020998 & B.1.1 & None & 4995 & 99.98 & B.1.1 & 1 & 2 &
+1\tabularnewline
+SRR13020999 & B.1 & None & 4995 & 99.98 & B.1 & 1 & 2 & 1\tabularnewline
+SRR13021003 & A.1 & None & 4995 & 99.98 & A.1 & 1 & 2 & 1\tabularnewline
+SRR13021010 & A.2.2 & None & 4995 & 99.98 & A.2.2 & 1 & 2 &
+1\tabularnewline
+SRR13021022 & A.1 & None & 4995 & 99.98 & A.1 & 1 & 2 & 1\tabularnewline
+SRR13021052 & B.1.1 & None & 4995 & 99.98 & B.1.1 & 1 & 2 &
+1\tabularnewline
+SRR13021053 & B.1.1.71 & None & 4995 & 99.98 & B.1.1.71 & 1 & 2 &
+1\tabularnewline
+SRR13021059 & B.1.13 & None & 4995 & 99.98 & B.1.13 & 1 & 2 &
+1\tabularnewline
+SRR13021061 & A.1 & None & 4995 & 99.98 & A.1 & 1 & 2 & 1\tabularnewline
+SRR13021067 & A.2.2 & None & 4995 & 99.98 & A.2.2 & 1 & 2 &
+1\tabularnewline
+SRR13021072 & B.1 & None & 4995 & 99.98 & B.1 & 1 & 2 & 1\tabularnewline
+SRR13021073 & A.1 & None & 4995 & 99.98 & A.1 & 1 & 2 & 1\tabularnewline
+SRR13021077 & A.1 & None & 4995 & 99.98 & A.1 & 1 & 2 & 1\tabularnewline
+SRR13021084 & B.1 & None & 4995 & 99.98 & B.1 & 1 & 2 & 1\tabularnewline
+SRR13021090 & B.1 & None & 4995 & 99.98 & B.1 & 1 & 2 & 1\tabularnewline
+SRR13021093 & A.2.2 & None & 4995 & 99.98 & A.2.2 & 1 & 2 &
+1\tabularnewline
+SRR13021098 & A.1 & None & 4995 & 99.98 & A.1 & 1 & 2 & 1\tabularnewline
+SRR13021107 & A.2.2 & None & 4995 & 99.98 & A.2.2 & 1 & 2 &
+1\tabularnewline
+SRR13021115 & B.1.1.10 & None & 4995 & 99.98 & B.1.1.10 & 1 & 2 &
+1\tabularnewline
+SRR13021133 & A & None & 4995 & 99.98 & A & 1 & 2 & 1\tabularnewline
+SRR13021134 & B.4.6 & None & 4995 & 99.98 & B.4.6 & 1 & 2 &
+1\tabularnewline
+SRR13021135 & A.2.2 & None & 4995 & 99.98 & A.2.2 & 1 & 2 &
+1\tabularnewline
+SRR13021143 & A.2.2 & None & 4995 & 99.98 & A.2.2 & 1 & 2 &
+1\tabularnewline
+ERR4692420 & None & None & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR4999255 & None & None & 4997 & 100.00 & NA & NA & 1 &
+ERR4692568 & None & None & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-ERR4999275 & None & None & 4997 & 100.00 & NA & NA & 1 &
+ERR4692877 & None & None & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
-SRR12639958 & None & None & 4997 & 100.00 & NA & NA & 1 &
+ERR4692945 & None & None & 4996 & 100.00 & NA & NA & 1 &
+0\tabularnewline
+ERR4693014 & None & None & 4996 & 100.00 & NA & NA & 1 &
+0\tabularnewline
+ERR4693019 & None & None & 4996 & 100.00 & NA & NA & 1 &
+0\tabularnewline
+ERR4890819 & None & None & 4996 & 100.00 & NA & NA & 1 &
+0\tabularnewline
+ERR5082599 & None & None & 4996 & 100.00 & NA & NA & 1 &
+0\tabularnewline
+SRR13592146 & None & None & 4996 & 100.00 & NA & NA & 1 &
 0\tabularnewline
 \bottomrule
 \end{longtable}
 
-\includegraphics{pangolin_results_report_files/figure-latex/pareto-2.pdf}
+\includegraphics{pangolin_results_report_files/figure-latex/pareto-1.pdf}
 
 \end{document}
