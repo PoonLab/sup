@@ -324,22 +324,7 @@ We employed the following procedure to construct the nucleotide-level probabilis
 We initialize aligned sequence and quality strings with '&ndash;' and '!' ($Q=0$) repeated $r-1$ times, respectively, where $r$ is the (one-index) position of the leftmost nucleotide in the reference genome.
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
 Deleted bases (`D` operations) are arbitrarily assigned a quality score of zero.
-Insertions (`I` operations) are temporarily excluded from the aligned sequence.
-
-Insertions are cached in a separate data structure ($\mathcal{I}$) that records the inserted sequence, quality string, and position.
-At each insertion site the number of insertions and the length of each insertion at that site are recorded. 
-For each site $j$ and each insertion length ($\ell_{i,j}$), a version of the uncertainty matrix is constructed, $\nps'_{ij}$, which contains the sums of $\epsilon$ for each insertion. 
-Since we can't know how many bases might have been read at the position of insertions (since we can't know how many short reads would have started or ended at or before the insertion sies), the coverage at the position prior to the insertion is used in place of the coverage at the insertion site.
-When using this data structure for re-sampling the sequence, the number of insertions is sampled according to the coverage at the previous submission and the number of insertions of each length (\eg if there were 10 insertions of length one and the coverage was 40, a single insertion would be sampled 25\% of the time).
-Conditional on the number of insertions, the inserted bases are sampled according to the same sampling procedure used for $\nps'$. 
-
-
-
-<!---
-After all reads are processed, we initialize an empty $5\times\ell$ matrix $\nps'$, where $\ell$ is initialized to the length of the longest aligned sequence excluding insertions.
-We map each base in the aligned sequences to the corresponding row and column in $\nps'$ and increment the value at that position by $1-\epsilon$ and $\epsilon/3$ to the other entries in the column, where $\epsilon$ is derived from the base quality score.
-By this construction, the sum of each column represents the coverage at that location. Dividing each entry of $\nps'$ by the sum of that column results in $\nps$.
---->
+Insertions (`I` operations) are non-trivial to include in the sequence uncertatinty matrix.
 
 Some NGS platforms use paired-end reads where the same nucleic acid template is read in both directions.
 In these situations, we simply adjust all values by a factor of two.
@@ -651,6 +636,11 @@ For example, the estimated frequency of alleles in the population could be used 
 Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
 We cannot account for systematic errors, such as those present due to human errors (\eg mis-calibrated machines or that one lab in @blank that kept giving the same mutations). TODO: Ask art about the bad sequences from the bad lab
 Our method allows for adjustments of the base call quality score, such as in @brockmanQualityScoresSNP2008, as well as more sophisticated definitions of genome likelihoods. TODO: some references here.
+
+
+We have developed an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
+The pangolin lineage assignment system appears to treat insertions differently from single nucleotide polymorphisms, and our method of sampling insertions is incompatible with their treatment of insertions in lineage assignment operations.
+This is potentially because the sampled base pair at any given location is independent of each other location, and the insertions observed in real-world data are possibly always associated with particular mutations elsewhere.
 
 This study should not be taken in any way as a criticism of the pangolin lineage assignment procedure.
 Rather, pangolin was chosen as it is a state-of-the art tool based on the best available algorithms for phylogeny reconstruction.
