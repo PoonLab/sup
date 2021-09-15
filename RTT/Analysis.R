@@ -2,11 +2,11 @@
 library(dplyr)
 library(lubridate)
 library(here)
-setwd(here("sampled_trees"))
+setwd(here("RTT/sampled_trees"))
 library(ggplot2)
 
 get_slope_sd <- function(dir) {
-    temp1 <- readLines(here("sampled_trees", dir, "molecular_clock.txt"))
+    temp1 <- readLines(here("RTT/sampled_trees", dir, "molecular_clock.txt"))
     temp1 <- strsplit(temp1[2], split = " ")[[1]]
     slope <- as.numeric(strsplit(temp1[2], split = "\t")[[1]][2])
     st_dev <- as.numeric(temp1[4])
@@ -59,7 +59,7 @@ dates <- read.csv(here("sampled_trees", tree_dirs$dir[1], "dates.tsv"),
     sep = "\t")
 
 get_node0_date <- function(dir) {
-    dates <- read.csv(here("sampled_trees", dir, "dates.tsv"),
+    dates <- read.csv(here("RTT/sampled_trees", dir, "dates.tsv"),
         sep = "\t")
     data.frame(ancestor_date = min(dates$numeric.date), 
         ancestor_ymd = dates$date[which.min(dates$numeric.date)],

@@ -11,7 +11,7 @@ if ("-N" %in% args) {
     N <- args[which(args == "-N") + 1]
     N <- as.numeric(N)
 }
-dirich <- TRUE
+dirich <- "-d" %in% args
 
 metadl <- read.csv("sequences_descr_mt_downloaded.csv")
 
@@ -38,7 +38,7 @@ collapsed <- estlapseds <- double(nloops)
 for (i in seq_len(nloops)) { 
     t1 <- Sys.time()
 
-	S <- readRDS(here("samDONE", rds_names[i]))
+	S <- readRDS(here("RTT", "samDONE", rds_names[i]))
 	S <- fix_unc(S) # aux_funk.R
     if ("character" %in% class(S)) {
         print(paste("S", asc_names[i], sep = " - "))

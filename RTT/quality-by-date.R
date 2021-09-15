@@ -22,6 +22,7 @@ meta <- read.csv(here("RTT", "sequences_descr_mt.csv"))
 meta <- meta[!is.na(meta$SRAAccession), ]
 
 # Sanity check for whether sampled are in metadata
+# If TRUE, I downloaded a file that's not in GISAID, I think
 any(!sams %in% meta$SRAAccession)
 
 s1 <- sams[1]
@@ -48,7 +49,7 @@ datequal$date <- ymd(datequal$date)
 
 plot(coverage ~ date, data = datequal)
 abline(lm(coverage ~ date, data = datequal))
-abline(h = mean(datequal$coverage) + 2*sd(datequal$coverage))
+abline(h = mean(datequal$coverage) + 3*sd(datequal$coverage))
 
 if (move) {
     badsam_index <- which(datequal$coverage > mean(datequal$coverage) + 2*sd(datequal$coverage))
