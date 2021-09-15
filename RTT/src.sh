@@ -16,7 +16,7 @@ Rscript make_descr_mt.R
 figlet "sample-seqs"
 # Sample uniformly from months
 	# Creates sampled_seqs.txt and sampled_SRA.txt
-Rscript sample-seqs_unif.R -N 1
+Rscript sample-seqs_unif.R -N 100
 
 
 
@@ -28,7 +28,7 @@ figlet "download SRA"
 # a bunch of new things to download
 # apt install sra-toolkit
 Rscript SRA_downloader.R
-Rscript quality-by-date.R
+Rscript quality-by-date.R # Moves very uncertain SAM files to samBAD/
 Rscript make_sequences_descr_downloaded.R
 
 
@@ -65,14 +65,13 @@ figlet "treetime"
 # Use tree in treetime
 # https://treetime.readthedocs.io/en/latest/
 # pip install phylo-treetime
-treetime --dates sampled_metadata.csv --aln sampled_seqs_aligned.fasta --outdir raw_tree --covariation
-mv raw_tree sampled_trees
+treetime --dates sampled_metadata.csv --aln sampled_seqs_aligned.fasta --outdir sampled_trees/raw_tree --covariation
 
 
 
 figlet "resample nucleotides"
 # Creates a "sampled_trees" folder with subfolders
-# Each subfolder has a fasta resulting from sampl
+# Each subfolder has a fasta resulting from sample
 Rscript sample-S-collections.R -N 50
 grep -F ">" sampled_trees/sampled_tree_1.fasta > sampled_trees/sample_descr.txt
 Rscript clean_names.R sampled_trees/sample_descr.txt sampled_trees/sampled_metadata.csv
