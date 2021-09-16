@@ -4,6 +4,7 @@ library(lubridate)
 library(here)
 setwd(here("RTT/sampled_trees"))
 library(ggplot2)
+library(ggrepel)
 
 get_slope_sd <- function(dir) {
     temp1 <- readLines(here("RTT/sampled_trees", dir, "molecular_clock.txt"))
@@ -36,10 +37,21 @@ raw$sim <- "raw"
 
 rbind(raw, tree_dirs)
 
+lit_clock <- data.frame(
+    clock = c(1.1e-3, 1.69e-3, 
+        1e-3, 8.26e-4, 
+        6.58e-3, 9.25e-4),
+    study = c("Duchene et al. 2020", "Boni et al. 2020", 
+        "Da Silva et al 2021", " Choudhary et al. 2021",
+        "Benvenuto et al. 2020", "Song et al. 2021")
+    )
+
+png(file = here("RTT", "Results_Slope.png"), width = 600, height = 500)
 ggplot() +
-    geom_hline(yintercept = raw$slope) +
+    theme_bw() +
+    geom_hline(yintercept = raw$slope, col = "red") +
     geom_rect(
-        mapping = aes(xmin = -10, xmax = 60,
+        mapping = aes(xmin = -10, xmax = 100,
             ymin = raw$slope - raw$sd, ymax = raw$slope + raw$sd),
         fill = "red", alpha = 0.2) +
     geom_errorbar(
@@ -50,20 +62,36 @@ ggplot() +
     geom_point(
         mapping = aes(x = as.numeric(sim), y = slope),
         data = tree_dirs) +
-    coord_cartesian(xlim = c(0, 50)) +
-    labs(x = "Sample Index (order is arbitrary)", y = "Slope +/- 1 SD\nRed rectangle is raw data")
+    geom_hline(
+        data = lit_clock,
+        mapping = aes(yintercept = clock, colour = study)
+        ) +
+    geom_label_repel(data = lit_clock,
+        mapping = aes(
+            y = clock, 
+            x = rep(60, nrow(lit_clock)),
+            label = study, colour = study)
+        ) +
+    scale_colour_viridis_d() +
+    coord_cartesian(xlim = c(0, 65)) +
+    labs(x = "Sample Index (order is arbitrary)", y = "Slope +/- 1 SD\nRed rectangle is raw data") +
+    theme(legend.position = "none")
+dev.off()
 
-# What is the estimated date?
 
-dates <- read.csv(here("sampled_trees", tree_dirs$dir[1], "dates.tsv"),
+
+
+# What is the estimated date? -----------------------------
+
+dates <- read.csv(here("RTT/sampled_trees", tree_dirs$dir[1], "dates.tsv"),
     sep = "\t")
 
 get_node0_date <- function(dir) {
     dates <- read.csv(here("RTT/sampled_trees", dir, "dates.tsv"),
         sep = "\t")
-    data.frame(ancestor_date = min(dates$numeric.date), 
-        ancestor_ymd = dates$date[which.min(dates$numeric.date)],
-        dir = dir)
+    data.frame(ancestor_date = min(as.numeric(dates$numeric.date)), 
+        ancestor_ymd = as.numeric(dates$date[which.min(dates$numeric.date)]),
+        dir = dir, stringsAsFactors = FALSE)
 }
 
 tree_dirs <- lapply(tree_dirs$dir, get_node0_date) %>%

@@ -90,4 +90,6 @@ done
 cd ..
 
 
+figlet "Analysis.R"
+Rscript Analysis.R
 
