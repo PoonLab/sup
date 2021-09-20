@@ -46,9 +46,19 @@ lit_clock <- data.frame(
         "Benvenuto et al. 2020", "Song et al. 2021")
     )
 
+lit_clock <- as.data.frame(rbind(
+    c("Duchene et al. 2020 (n=122)", 1.1e-3, 7.03e-4, 1.5e-3),
+    c("Choudhary et al. 2021 (n=261)", 6.77e-4, 5.91e-4, 7.66e-4),
+    c("Song et al. 2021 (n=29)", 9.25e-4, 6.75e-4, 1.28e-3),
+    c("Nie et al. 2020 (n=112)", 9.9e-4, 6.29e-4, 1.35e-3),
+    c("Giedelberg et al. 2021 (n=77)", 1.3e-3, 9.8e-4, 1.7e-3)
+))
+names(lit_clock) <- c("study", "clock", "lo95", "hi95")
+
 png(file = here("RTT", "Results_Slope.png"), width = 600, height = 500)
 ggplot() +
     theme_bw() +
+    geom_hline(yintercept = 0, colour = "darkgrey") +
     geom_hline(yintercept = raw$slope, col = "red") +
     geom_rect(
         mapping = aes(xmin = -10, xmax = 100,
@@ -56,24 +66,41 @@ ggplot() +
         fill = "red", alpha = 0.2) +
     geom_errorbar(
         mapping = aes(x = as.numeric(sim),
-            ymin = slope - sd,
-            ymax = slope + sd),
+            ymin = slope - 2*sd,
+            ymax = slope + 2*sd),
         data = tree_dirs) +
     geom_point(
         mapping = aes(x = as.numeric(sim), y = slope),
         data = tree_dirs) +
-    geom_hline(
+    geom_errorbar(
+        mapping = aes(x = (max(as.numeric(tree_dirs$sim))+1):
+                (max(as.numeric(tree_dirs$sim)) + 
+                    nrow(lit_clock)),
+            ymin = as.numeric(lo95),
+            ymax = as.numeric(hi95)),
         data = lit_clock,
-        mapping = aes(yintercept = clock, colour = study)
+        colour = "darkorchid") +
+    geom_point(
+        data = lit_clock,
+        mapping = aes(x = (max(as.numeric(tree_dirs$sim))+1):
+                (max(as.numeric(tree_dirs$sim)) + 
+                    nrow(lit_clock)), 
+            y = as.numeric(clock)),
+        colour = "darkorchid"
         ) +
-    geom_label_repel(data = lit_clock,
+    geom_text(data = lit_clock,
         mapping = aes(
-            y = clock, 
-            x = rep(60, nrow(lit_clock)),
-            label = study, colour = study)
+            y = as.numeric(hi95), 
+            x = (max(as.numeric(tree_dirs$sim))+1):
+                (max(as.numeric(tree_dirs$sim)) + 
+                    nrow(lit_clock)),
+            label = study),
+        colour = "black", 
+        angle = 90,
+        hjust = -0.05
         ) +
     scale_colour_viridis_d() +
-    coord_cartesian(xlim = c(0, 65)) +
+    coord_cartesian(xlim = c(0, 52)) +
     labs(x = "Sample Index (order is arbitrary)", y = "Slope +/- 1 SD\nRed rectangle is raw data") +
     theme(legend.position = "none")
 dev.off()
