@@ -173,21 +173,6 @@ gg_btwn / gg_crtn
 
 
 
-## Clock rate estimation for SARS-CoV-2
-
-TODO: Better descriptions (more precise, more complete). 
-
-The clock rate for SARS-CoV-2 is estimated to be [fixed|uncorrelated] (citation needed). TODO: Find citations for SARS-CoV-2 clock rate estimates. 
-Using similar resampling methods as above (although without indels), we estimate the clock rate for each of X resamples, as well as the reported conseqs. TODO: How many resamples
-To obtain the data, we sampled 3 genomes uniformly from each month of recorded data in GenBank, assuming that the genomes were complete and the genome had an associated Short Run Accession file (\ie they had an available SAM file).
-The resultant samples were mostly from the United Kingdom since sequences from this country represent a majority of available sequences.
-The full list of accession numbers sampled this way are given in the appendix. TODO: add samples to appendix
-
-The clock rate was estimated using TreeTime (@sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018). 
-We recorded the standard error from the time tree constructed using the consensus sequences, then compared this to the standard deviations of the estimated clock rates in the resampled sequences.
-The results speak for themselves (hopefully - I haven't seen them yet). TODO: do the results speak for themselves?
-
-
 ## Sequential re-analysis with genome likelihoods
 
 TODO: Analysis has been run on a single accession number; not sure how this will compare to resampling in all accessions.
