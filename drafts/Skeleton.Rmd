@@ -615,6 +615,31 @@ This procedure resulted in bootstrap support values that varied from 0.6 to 1.
 After upgrading to pangolin version 2.3.2, which uses a decision tree model, all bootstrap probabilities are reported as 1.
 
 
+# Application: Clock rate estimation for SARS-CoV-2
+
+TODO: Better descriptions (more precise, more complete). 
+TODO: State problem of different coverage *over time*, use that to motivate data filtering.
+
+The clock rate for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year (specific estimates will be given below).
+Using similar resampling methods as above (although without indels), we estimate a clock rate for trees estimated from each of 50 resamples, as well as for the tree estimated based on the reported conseqs.
+To obtain the data, we sampled 3 genomes uniformly from each month of recorded data in GenBank, assuming that the genomes were complete and the genome had an associated Short Run Accession file (\ie they had an available SAM file).
+
+Our re-sampling method will, by definition, introduce other possible mutations beyond what the conseq suggests.
+Because of this, the apparent number of mutations between a re-sampled genome and the estimated root is a function of the coverage, with more positions read or more uncertainty in the sequence leading to artificially inflated phylogenetic branch lengths.
+To account for this, we found the sum of \nps' for each sequence and applied Statistical Process Control techniques to ensure that all of the sequences had a similar level of coverage.
+In particular, we found the mean of the coverage of the sequences in our data set, $\bar c$, and the standard deviation of the coverage, $s$. 
+We removed any sequences outside of $\bar x \pm 3 s$, recalculated $\bar x$ and $s$, and iterated the removal process until all sequence coverages were within the bounds.
+We note that it is not ideal to remove data, but the error rate # TODO: finish this sentence.
+
+We filtered the sequences so that they all had similar overall uncertainty, as defined by the sum of \nps'.
+This filtering was done according methods of statistical process control, where the 
+The resultant samples were mostly from the United Kingdom since sequences from this country represent a majority of available sequences.
+The full list of accession numbers sampled this way are given in the appendix. TODO: add samples to appendix
+
+The clock rate was estimated using TreeTime (@sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018). 
+We recorded the standard error from the time tree constructed using the consensus sequences, then compared this to the standard deviations of the estimated clock rates in the resampled sequences.
+Figure \ref{heydevanputafigurereferencehere} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but there is significantly more variation.
+Rate estimates from @ducheneTemporalSignalPhylodynamic2020, @choudharySevereAcuteRespiratory2021, @songGenomicEpidemiologySARSCoV22021, @niePhylogeneticPhylodynamicAnalyses2020, and @geidelbergGenomicEpidemiologyDensely2021 are also labelled on the plot, indicating that the rates from our re-sampled sequences are in line with other published rates.
 
 
 
@@ -624,7 +649,7 @@ The short run files produced by next generation sequencing platforms include val
 The primary contribution of this research is the construction of the probability sequence, which allows for a wide variety of future research directions.
 One such direction is re-sampling, which allows a more honest appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
 
-Our proposed methods can result in a drastic increase in compuatational expense.
+Our proposed methods can result in a drastic increase in computational expense.
 Even the method base on ordering the sequences by likelihood can result in re-running the analysis numerous times.
 However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results.
 The so-called "consensus sequence" is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity.
