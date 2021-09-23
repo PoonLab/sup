@@ -40,7 +40,6 @@ raw$sim <- "raw"
 rbind(raw, select(tree_dirs, -rank))
 
 
-
 lit_clock <- as.data.frame(rbind(
     c("Duchene et al. 2020 (n=122, 95% BCI)", 1.1e-3, 7.03e-4, 1.5e-3),
     c("Choudhary et al. 2021 (n=261, 95% HPD)", 6.77e-4, 5.91e-4, 7.66e-4),
@@ -52,6 +51,9 @@ names(lit_clock) <- c("study", "clock", "lo95", "hi95")
 lit_clock_x <- (max(as.numeric(tree_dirs$rank))+1):
                 (max(as.numeric(tree_dirs$rank)) + 
                     nrow(lit_clock))
+
+save(raw, tree_dirs, lit_clock, file = "RTT_output.RData")
+
 
 png(file = here("RTT", "Results_Slope.png"), width = 600, height = 500)
 ggplot() +
