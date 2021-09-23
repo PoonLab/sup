@@ -620,26 +620,83 @@ After upgrading to pangolin version 2.3.2, which uses a decision tree model, all
 TODO: Better descriptions (more precise, more complete). 
 TODO: State problem of different coverage *over time*, use that to motivate data filtering.
 
-The clock rate for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year (specific estimates will be given below).
-Using similar resampling methods as above (although without indels), we estimate a clock rate for trees estimated from each of 50 resamples, as well as for the tree estimated based on the reported conseqs.
-To obtain the data, we sampled 3 genomes uniformly from each month of recorded data in GenBank, assuming that the genomes were complete and the genome had an associated Short Run Accession file (\ie they had an available SAM file).
+The clock rate for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year (specific estimates given below).
+Using the same resampling methods as above, we estimate a clock rate for trees estimated from each of 50 resamples, as well as for the tree estimated based on the reported conseqs.
+To obtain the data, we sampled genomes uniformly from each month of recorded data in GenBank, assuming that the genomes were complete and the genome had an associated Short Run Accession file (\ie they had an available SAM file).
 
 Our re-sampling method will, by definition, introduce other possible mutations beyond what the conseq suggests.
 Because of this, the apparent number of mutations between a re-sampled genome and the estimated root is a function of the coverage, with more positions read or more uncertainty in the sequence leading to artificially inflated phylogenetic branch lengths.
-To account for this, we found the sum of \nps' for each sequence and applied Statistical Process Control techniques to ensure that all of the sequences had a similar level of coverage.
+To account for this, we found the sum of $\nps'$ for each sequence and applied Statistical Process Control techniques to ensure that all of the sequences had a similar level of coverage.
 In particular, we found the mean of the coverage of the sequences in our data set, $\bar c$, and the standard deviation of the coverage, $s$. 
 We removed any sequences outside of $\bar x \pm 3 s$, recalculated $\bar x$ and $s$, and iterated the removal process until all sequence coverages were within the bounds.
-We note that it is not ideal to remove data, but the error rate # TODO: finish this sentence.
 
-We filtered the sequences so that they all had similar overall uncertainty, as defined by the sum of \nps'.
-This filtering was done according methods of statistical process control, where the 
-The resultant samples were mostly from the United Kingdom since sequences from this country represent a majority of available sequences.
-The full list of accession numbers sampled this way are given in the appendix. TODO: add samples to appendix
+We acknowledge that it is not ideal to remove data, but original data we were working with had a systematic difference in coverage/quality over time.
+This systematic trend leads to a bias in the estimate of the clock rate since the number of mutations in resampled sequences becomes a function of time.
+TODO: Not all re-samples converged. Is this a problem?
 
 The clock rate was estimated using TreeTime (@sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018). 
 We recorded the standard error from the time tree constructed using the consensus sequences, then compared this to the standard deviations of the estimated clock rates in the resampled sequences.
-Figure \ref{heydevanputafigurereferencehere} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but there is significantly more variation.
-Rate estimates from @ducheneTemporalSignalPhylodynamic2020, @choudharySevereAcuteRespiratory2021, @songGenomicEpidemiologySARSCoV22021, @niePhylogeneticPhylodynamicAnalyses2020, and @geidelbergGenomicEpidemiologyDensely2021 are also labelled on the plot, indicating that the rates from our re-sampled sequences are in line with other published rates.
+Rate estimates from @ducheneTemporalSignalPhylodynamic2020 (n=122), @choudharySevereAcuteRespiratory2021 (n=261), @songGenomicEpidemiologySARSCoV22021 (n=29), @niePhylogeneticPhylodynamicAnalyses2020 (n=112), and @geidelbergGenomicEpidemiologyDensely2021 (n=77) are also labelled on the plot with purple error bars for 95% Bayesian Credible Intervals (BCI) or Highest Posterior Density (HPD), indicating that the rates and errors from our re-sampled sequences are in line with other published results.
+Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but with more variation.
+
+```{r RTT_slope, warning=FALSE, results='hide', fig.cap="\\label{fig:RTT_slope}Clock rates (slope) and 95% Confidence Intervals for the collections of re-sampled sequences. The red line and red shaded region are the clock rate and 95% CI for the consensus sequences. The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled. The re-sampled sequences are in line with the consensus sequences as well as the published sequences, but represent a much larger variation due to the uncertainty in the original genome sequences."}
+library(dplyr)
+library(lubridate)
+library(here)
+library(ggplot2)
+library(ggrepel)
+
+# raw (conseqs), tree_dirs (resampled), and 
+    # lit_clock (published)
+load(here("RTT", "RTT_output.RData"))
+
+ggplot() +
+    theme_bw() +
+    geom_hline(yintercept = 0, colour = "darkgrey") +
+    geom_hline(yintercept = raw$slope, col = "red") +
+    geom_rect(
+        mapping = aes(xmin = -10, xmax = 100,
+            ymin = raw$slope - 1.96*raw$sd, ymax = raw$slope + 1.96*raw$sd),
+        fill = "red", alpha = 0.2) +
+    geom_errorbar(
+        mapping = aes(x = as.numeric(rank),
+            ymin = slope - 1.96*sd,
+            ymax = slope + 1.96*sd),
+        data = tree_dirs) +
+    geom_point(
+        mapping = aes(x = as.numeric(rank), y = slope),
+        data = tree_dirs) +
+    geom_errorbar(
+        mapping = aes(x = lit_clock_x,
+            ymin = as.numeric(lo95),
+            ymax = as.numeric(hi95)),
+        data = lit_clock,
+        colour = "darkorchid") +
+    geom_point(
+        data = lit_clock,
+        mapping = aes(x = lit_clock_x, 
+            y = as.numeric(clock)),
+        colour = "darkorchid"
+        ) +
+    geom_text(data = lit_clock,
+        mapping = aes(
+            y = as.numeric(hi95), 
+            x = lit_clock_x,
+            label = study),
+        colour = "black", 
+        angle = 90,
+        hjust = -0.05,
+        size = 2.5
+        ) +
+    scale_colour_viridis_d() +
+    coord_cartesian(xlim = c(0, 50), ylim = c(-0.001, 0.0035)) +
+    labs(x = "Index (Ordered by Slope)", 
+        y = "Slope +/- 1.96 SD",
+        title = "Root-to-Tip Slopes from collections of re-sampled genomes",
+        subtitle = "Compared to conseqs (red) and published estimates (purple)") +
+    theme(legend.position = "none")
+
+```
 
 
 
