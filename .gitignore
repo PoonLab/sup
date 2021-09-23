@@ -28,6 +28,7 @@ RTT/__pycache__/
 
 # Session Data files
 .RData
+!RTT/RTT_results.Rdata
 src/*.RData
 
 # Example code in package build process
