@@ -623,28 +623,27 @@ TODO: State problem of different coverage *over time*, use that to motivate data
 The clock rate (slope of a root-to-tip regression) for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year (specific estimates given below).
 Using the same resampling methods as above, we estimate a clock rate for trees estimated from each of 50 resamples and for the tree estimated based on the reported conseqs.
 
-To obtain the data, we sampled genomes uniformly from each month of recorded data in GenBank, using filters to ensure that the genomes were complete and had an associated Short Run Accession file (\ie they had an available SAM file).
+To obtain the data, we sampled genomes uniformly from each month of recorded data in GenBank, using filters to ensure that the genomes were complete and had an associated SAM file.
 We further had to filter out SAM files that were incomplete or did not contain the CIGAR strings necessary for alignment.
 The associated GISAID accession numbers are provided in the Appendix. TODO: add accession numbers.
 
 Our re-sampling method will, by definition, introduce other possible mutations beyond what the conseq suggests.
 Because of this, the apparent number of mutations between a re-sampled genome and the estimated root is a function of the coverage, with more positions read or more uncertainty in the sequence leading to artificially inflated phylogenetic branch lengths.
 This implies that the estimates of the time for the most recent common ancestor are not reliable.
-However, assuming that the sequences have comparable levels of uncertainty, each branch increases proportionally and the clock rate should not be affected. 
+However, assuming that the sequences have comparable levels of uncertainty, each branch increases by a similar amount and the clock rate should not be affected. 
 
 The sequences that we acquired did not have comparable levels of uncertainty; the viruses sampled early in the pandemic had considerable higher uncertainty.
 To account for this, we found the sum of $\nps'$ for each sequence and applied Statistical Process Control techniques to ensure that all of the sequences had a similar level of coverage.
 In particular, we found the mean of the coverage of the sequences in our data set, $\bar c$, and the standard deviation of the coverage, $s$. 
 We removed any sequences outside of $\bar x \pm 3 s$, recalculated $\bar x$ and $s$, and iterated the removal process until all sequence coverages were within the bounds.
 
-We acknowledge that it is not ideal to remove data, but original data we were working with had a systematic difference in coverage/quality over time.
-This systematic trend leads to a bias in the estimate of the clock rate since the number of mutations in resampled sequences becomes a function of time.
-TODO: Not all re-samples converged. Is this a problem?
 
 The clock rate was estimated using TreeTime (@sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018). 
-We recorded the standard error from the time tree constructed using the consensus sequences, then compared this to the standard deviations of the estimated clock rates in the resampled sequences.
-Rate estimates from @ducheneTemporalSignalPhylodynamic2020 (n=122), @choudharySevereAcuteRespiratory2021 (n=261), @songGenomicEpidemiologySARSCoV22021 (n=29), @niePhylogeneticPhylodynamicAnalyses2020 (n=112), and @geidelbergGenomicEpidemiologyDensely2021 (n=77) are also labelled on the plot with purple error bars for 95% Bayesian Credible Intervals (BCI) or Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
-Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but all of the error bars miss the variation due to sequence uncertainty.
+We recorded the clock rate and standard error from the time tree constructed using the consensus sequences and compared this to the clock rate and standard deviations of the estimated clock rates in the resampled sequences. The tree built from conseqs had a clock rate of $6.5\times 10^{-4}$ with a standard error of $8.01\times 10^{-5}$. The mean of the clock rates for all of the sets of resampled sequences was $8.6\times 10^{-4}$ with standard deviation of $5.3\times 10^{-4}$, which is approximately 1.6 times as large as the standard error for the conseqs.
+
+
+The estimates of the clock rate are shown in Figure \ref{fig:RTT_slope}. The red line and shaded region are the clock rate for the tree built from conseqs along with $\pm 1.96$ standard errors. Rate estimates from @ducheneTemporalSignalPhylodynamic2020 (n=122), @choudharySevereAcuteRespiratory2021 (n=261), @songGenomicEpidemiologySARSCoV22021 (n=29), @niePhylogeneticPhylodynamicAnalyses2020 (n=112), and @geidelbergGenomicEpidemiologyDensely2021 (n=77) are also labelled on the plot with purple error bars for 95% Bayesian Credible Intervals (BCI) or 95% Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
+Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but each of the individual error bars miss the excess variation due to sequence uncertainty.
 
 ```{r RTT_slope, warning=FALSE, results='hide', fig.cap="\\label{fig:RTT_slope}Clock rates (slope) and 95% Confidence Intervals for the collections of re-sampled sequences. The red line and red shaded region are the clock rate and 95% CI for the consensus sequences. The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled. The re-sampled sequences are in line with the consensus sequences as well as the published sequences, but represent a much larger variation due to the uncertainty in the original genome sequences."}
 library(dplyr)
@@ -652,10 +651,14 @@ library(lubridate)
 library(here)
 library(ggplot2)
 library(ggrepel)
+library(scales)
 
 # raw (conseqs), tree_dirs (resampled), and 
     # lit_clock (published)
-load(here("RTT", "RTT_output.RData"))
+load(here("RTT", "RTT_results.RData"))
+lit_clock_x <- (max(as.numeric(tree_dirs$rank))+1):
+                (max(as.numeric(tree_dirs$rank)) + 
+                    nrow(lit_clock))
 
 ggplot() +
     theme_bw() +
@@ -699,10 +702,22 @@ ggplot() +
     coord_cartesian(xlim = c(0, 50), ylim = c(-0.001, 0.0035)) +
     labs(x = "Index (Ordered by Slope)", 
         y = "Slope +/- 1.96 SD",
-        title = "Root-to-Tip Slopes from collections of re-sampled genomes",
+        title = "Clock rate estimates1518
+         from collections of re-sampled genomes",
         subtitle = "Compared to conseqs (red) and published estimates (purple)") +
-    theme(legend.position = "none")
+    theme(legend.position = "none") +
+    scale_y_continuous(
+        breaks = pretty(seq(-0.001, 0.0035, by = 0.00001), 
+            n = 15)
+        )
 
+if (FALSE) {
+    raw
+    mean(tree_dirs$slope)
+    sd(tree_dirs$slope)
+    qqnorm(tree_dirs$slope)
+    qqline(tree_dirs$slope)
+}
 ```
 
 
