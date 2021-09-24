@@ -52,7 +52,8 @@ lit_clock_x <- (max(as.numeric(tree_dirs$rank))+1):
                 (max(as.numeric(tree_dirs$rank)) + 
                     nrow(lit_clock))
 
-save(raw, tree_dirs, lit_clock, file = "RTT_output.RData")
+save(raw, tree_dirs, lit_clock, 
+    file = here("RTT", "RTT_results.RData"))
 
 
 png(file = here("RTT", "Results_Slope.png"), width = 600, height = 500)
