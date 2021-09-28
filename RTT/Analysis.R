@@ -7,6 +7,10 @@ library(ggplot2)
 library(ggrepel)
 
 get_slope_sd <- function(dir) {
+    if(length(list.files(here("RTT", "sampled_trees", dir))) < 2)
+        return(data.frame(
+            slope = numeric(0), sd = numeric(0), dir = character(0))
+        )
     temp1 <- readLines(here("RTT/sampled_trees", dir, "molecular_clock.txt"))
     temp1 <- strsplit(temp1[2], split = " ")[[1]]
     slope <- as.numeric(strsplit(temp1[2], split = "\t")[[1]][2])
