@@ -61,7 +61,7 @@ fi
 
 
 # Initialize Conda
-[[ -d "~/anaconda3" ]] source ~/anaconda3/etc/profile.d/conda.sh || source ~/miniconda3/etc/profile.d/conda.sh
+[[ -d "~/anaconda3" ]]; source ~/anaconda3/etc/profile.d/conda.sh || source ~/miniconda3/etc/profile.d/conda.sh
 conda init
 conda activate pangolin 
 
