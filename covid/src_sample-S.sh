@@ -90,8 +90,8 @@ done
 
 # Visualize!
 if [ $dirich = true ]; then
-    Rscript -e ".libPaths('/home/devan/R/x86_64-pc-linux-gnu-library/4.0'); rmarkdown::render('figures/pangolin_results_report.Rmd', params = list(dirich=TRUE), output_file='pangolin_results_report_d.pdf')"
+    Rscript -e "rmarkdown::render('figures/pangolin_results_report.Rmd', params = list(dirich=TRUE), output_file='pangolin_results_report_d.pdf')"
 else 
-    Rscript -e ".libPaths('/home/devan/R/x86_64-pc-linux-gnu-library/4.0'); rmarkdown::render('figures/pangolin_results_report.Rmd', params = list(dirich=FALSE))"
+    Rscript -e "rmarkdown::render('figures/pangolin_results_report.Rmd', params = list(dirich=FALSE))"
 fi
 
