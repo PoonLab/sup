@@ -37,16 +37,14 @@ library(patchwork)
 
 
 ```{r load_sampled, include=FALSE}
-
 # Read in CSV files
 lins <- read.csv(here("data", "output", "lins.csv"),
     header = TRUE)
 
 taxons <- sort(unique(lins$taxon))
-
 ```
 
-```{r load_ordered, include=FALSE}
+```{r load_ordered, include=FALSE, eval=FALSE}
 ords <- lapply(
     list.files(here("data/pangordlineages"),
         full.names = TRUE),
@@ -65,7 +63,8 @@ ords <- lapply(
 ```
 
 TODO: Switch to LaTeX (finally time to start worrying about formatting).
-TODO: call probability matrix, uncertainty matrix, or (nucleotide-level) probability sequence - choose one and stick to it.
+TODO: change all "uncertainty matrix" references or similar to "probabilstic sequence"
+TODO: Remove references to dirichlet sampling (abandoned - adds more uncertainty than is reasonable)
 
 
 # Introduction
@@ -121,7 +120,7 @@ We demonstrate the impact of propagating sequence uncertainty by applying our me
 
 # Methods
 
-## Probabilistic Representation of Sequences
+## Probabilistic representation of sequences
 
 Here, we describe two theoretical frameworks to model sequence uncertainty at the \emph{nucleotide level} or at the \emph{sequence level}.
 In both frameworks, the sequence of nucleotides from a biological sample is not treated as a single unambiguous observation (known without error), but rather as a collection of possible sequences weighted by their probability.
@@ -252,7 +251,7 @@ For example, sampling from $\sps$ we expect to observe \sq{ACATCA} $12\%$ of the
 Large genomes or sequencing targets will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
 
 
-### Deletions and Insertions
+### Deletions and insertions
 
 By construction, the \nlps must be defined with its longest possible length.
 Deletions are naturally modelled with our representation but insertions have to be modelled using deletion probabilities. 
@@ -293,7 +292,7 @@ The representation of deletions and insertions with a \slps (not nucleotide-leve
 
 
 
-## Constructing The Uncertainty Matrix
+## Constructing The uncertainty matrix
 
 <!--
 ### Sequence chromatograms
@@ -302,6 +301,7 @@ For sequences derived from conventional capillary-based methods, the uncertainty
 
 
 ### SAM files
+
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with quality (or "Phred") score attributed to each base call produced by sequencing instrument.
 The quality score $Q$ is directly related to the error probability: $\epsilon = 10^{-Q/10}$ (@ewingBaseCallingAutomatedSequencer1998), where $Q$ typically ranges between 1 and 60, depending on the sequencing platform and version of base-calling software.
 More formally, the probability that the base call is correct is expressed as: 
@@ -527,7 +527,7 @@ Results for all lineages can be found in Table \ref{tab:pango} in the Appendix.
 max_label <- 250
 other_label <- 100
 
-par(mfrow = c(21, 1), mar = c(0.05, 7.75, 0.05, 0.05))
+par(mfrow = c(32, 1), mar = c(0.05, 7.75, 0.05, 0.05))
 if (exists("seq_info")) rm(seq_info)
 for (i in seq_along(taxons)) {
     pang <- lins[lins$taxon == taxons[i], ]
@@ -738,7 +738,7 @@ The importance of incorporating sequence uncertainty is not confined to these ap
 For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
 
 Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
-We cannot account for systematic errors, such as those present due to human errors (\eg mis-calibrated machines or that one lab in @blank that kept giving the same mutations). TODO: Ask art about the bad sequences from the bad lab
+We cannot account for systematic errors, such as those present due to human errors (\eg human error, as noted in @IssuesSARSCoV2Sequencing2020). 
 Our method allows for adjustments of the base call quality score, such as in @brockmanQualityScoresSNP2008, as well as more sophisticated definitions of genome likelihoods. TODO: some references here.
 
 
