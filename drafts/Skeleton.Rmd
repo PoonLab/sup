@@ -65,8 +65,6 @@ ords <- lapply(
 ```
 
 TODO: Switch to LaTeX (finally time to start worrying about formatting).
-TODO: change all "uncertainty matrix" references or similar to "probabilistic sequence"
-TODO: Remove references to dirichlet sampling (abandoned - adds more uncertainty than is reasonable)
 
 
 # Introduction
@@ -82,13 +80,12 @@ Errors can be introduced in any one of these steps  (@beerenwinkelUltradeepSeque
 
 
 In some cases, naturally occurring variation, \ie genetic polymorphisms, or variation induced by experimental error is directly quantified and encoded into the output.
-For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T, R for A or G) when the base calling program cannot determine which base is dominant (@NomenclatureIncompletelySpecified1986). TODO: Check this reference in the bib file.
+For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T, R for A or G) when the base calling program cannot determine which base is dominant (@NomenclatureIncompletelySpecified1986).
 @ewingBaseCallingAutomatedSequencer1998 and @richterichEstimationErrorsRaw1998 both showed that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
 The accuracy of Phred quality scores has been disputed and other methods for quantifying error probabilities have been proposed (@liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009), Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
 Generally, these scores are used to censor the base calls (\ie label them "N" rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold.
 It is also common practice to remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg @doroninaPhylogeneticPositionEmended2005, @robaskyRoleReplicatesError2014, @oraweAccountingUncertaintyDNA2015.
 Some authors/tools, such as @lippiPotentialPreanalyticalAnalytical2020, use a more sophisticated form of quality control, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
-@clementGNUMAPAlgorithmUnbiased2010 present an alignment algorithm (GNUMAP) that takes nucleotide-level uncertainty into account by assigning a matching score to each match based on the probability scores from the output of Solexa and Illumina platforms (which are generally not publically available). TODO: A later paragraph also describes this - is it redundant?
 Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihoods of partial or full sequences.
 For example, @depristoFrameworkVariationDiscovery2011 and @gompertHierarchicalBayesianModel2011 incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity (@fumagalliQuantifyingPopulationGenetic2013a).
 @kuoEAGLEExplicitAlternative2018 recently used a similar approach to develop a statistical test of test whether a given genome sequence is consistent with a specified alternative sequence.
@@ -106,7 +103,7 @@ Though rare, some studies have proposed methods for propogation of uncertainty f
 Another exception can be found in @kuhnerCorrectingSequencingError2014, who incorporate an assumed or estimated error rate for the entire sequence into the calculation of a phylogenetic tree and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
 Though they did not use nucleotide-level uncertainty, @gompertHierarchicalBayesianModel2011 incorporate the coverage of NGS technologies as part of the uncertainty of estimates for the frequency of allelles in a population.
 @clementGNUMAPAlgorithmUnbiased2010 present an alignment algorithm (called GNUMAP) that takes nucleotide-level uncertainty into account. 
-Their method incorporates Position Weight Matrices into a method of scoring matches against a reference genome. 
+Their method incorporates Position Weight Matrices into a method of scoring multiple possible matches against a reference genome in order to choose the best alignment. 
 These studies are the exceptions, rather than the rules, and their methods have not yet attained widespread use.
 
 
@@ -427,7 +424,7 @@ We arbitrarily chose to censor any position that had fewer than 10 reads, which 
 In a maximum likelihood framework, this procdedure is similar to bootstrapping.
 In fact, the ultimate effect of this is to decrease the bootstrap confidence to a level that is more in line with the measured uncertainty in the base calls.
 
-In a Bayesian framework, the Dirichlet-multinomial sampling could be incorporated as prior distribution on each nucleotide.
+In a Bayesian framework, the multinomial sampling could be incorporated as prior distribution on each nucleotide.
 For large collections of large sequences in an Markov Chain Monte Carlo algorithm, this increases the dimensionality dramatically.
 
 <!---
@@ -509,7 +506,7 @@ There was no particular reason for choosing any given file, but the resulting da
 Each result page likely includes several runs from the same study, and runs were chosen arbitrarily within each result page.
 We were not attempting a completely random sampling strategy, we simply wanted a collection of runs on which to demonstrate our methods.
 
-## Re-sampling the call probability matrix 
+## Re-sampling the probabilistic sequence 
 
 
 Since pangoLEARN is a pre-trained model, assigning lineage designations to a large number of resampled genome sequences is not computationally burdensome.
@@ -724,12 +721,30 @@ if (FALSE) {
 
 The short run files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses.
 The primary contribution of this research is the construction of the probability sequence, which allows for a wide variety of future research directions.
-One such direction is re-sampling, which allows a more honest appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
+The direction we described here is focused on re-sampling, which allows a more honest appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
+However, this is not the only application of the probabilistic sequence.
+
+Instead of SAM files, FASTQ files are often the best available quantification of the potential sequence read errors. 
+We have already shown that probability sequences can be trivially constructed by spreading the remaining error probability uniformly across the remaining bases.
+Another use of FASTQ files would be to construct a probability sequence as a reference genome for a given category.
+This would entail collecting all available FASTQ files for a given lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file.
+From here, lineage designation for a newly acquired sequence (and it's probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar.
 
 Our proposed methods can result in a drastic increase in computational expense.
 Even the method base on ordering the sequences by likelihood can result in re-running the analysis numerous times.
 However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results.
 The so-called "consensus sequence" is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity.
+Ideally individual analyses would be constructed to take nucleotide-level uncertainty into account.
+For instance, phylogenies have been estimated based on uncertain sequence information in @rossOncoNEMInferringTumor2016, @jahnTreeInferenceSinglecell2016, and @zafarSiFitInferringTumor2017 but the uncertainty is not derived from base quality scores.
+An extension of these methods to incorporate the base quality scores may be a worthwhile research direction.
+
+Computational burden can also be reduced by ording the sequences according to the sequence level uncertainty discussed above.
+By putting all possible sequences in order of uncertainty, we can analyse how the biggest changes in uncertainty affect our analysis.
+It is possible to devise an algorithm that puts the sequences in order of their uncertainty without calculating the uncertainty for every sequence.
+The conseq is clearly the least uncertain sequence, and by the construction of the probability sequence, it is computationally easy to calculate sequence uncertainty relative to the conseq.
+Because of this, it should be reasonable to calculate all sequence uncertainties for a single mutation, then all pairs of mutations, and so on (we note that it is possible for some pairs of mutations to be more likely than single mutations, thus this algorithm cannot be perfect).
+This allows for easy sorting of the most likely sequences, assuming enough sequence uncertainties have been calculated.
+With this sorted list, we can re-fit a model at various levels of uncertainty as a way to test the robustness of a given conclusion to sequence uncertainty.
 
 Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model.
 The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
@@ -737,7 +752,7 @@ For example, the estimated frequency of alleles in the population could be used 
 
 Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
 We cannot account for systematic errors, such as those present due to human errors (\eg human error, as noted in @IssuesSARSCoV2Sequencing2020). 
-Our method allows for adjustments of the base call quality score, such as in @brockmanQualityScoresSNP2008, as well as more sophisticated definitions of genome likelihoods. TODO: some references here.
+Our method allows for adjustments of the base call quality score, such as in @brockmanQualityScoresSNP2008, as well as more sophisticated definitions of genome likelihoods (\eg @liAdjustQualityScores2004, @depristoFrameworkVariationDiscovery2011, @liSNPDetectionMassively2009.
 
 We have developed an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
 The pangolin lineage assignment system appears to treat insertions differently from single nucleotide polymorphisms, and our method of sampling insertions is incompatible with their treatment of insertions in lineage assignment operations.
@@ -749,12 +764,7 @@ The phylogeny created by this team has been a vital resource for researchers and
 In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
 
 TODO: Add more conclusions:
-- Resample to get variance around representative sequence for a given lineage (\eg HIV).
-    - Can be done with just FASTQ files (less accurate).
-- Given a canonical reference seqeunce for a lineage, find level of entropy that makes it a different sequence.
 - Conclusions from clock rate estimation.
-- Phylogenies have been estimated based on uncertain sequence information in @rossOncoNEMInferringTumor2016, @jahnTreeInferenceSinglecell2016, and @zafarSiFitInferringTumor2017 but the uncertainty is not derived from base quality scores. An extension of these methods to incorporate the base quality scores may be a worthwhile research direction.
-- Document problems with root-to-tip regression.
 
 # Appendix: Results for all lineages
 
