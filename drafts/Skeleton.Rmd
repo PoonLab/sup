@@ -212,42 +212,6 @@ $$
 such that there are $2\times 3 \times 2^3 \times 3 = 144$ possible sequences.
 The most likely sequence has the highest joint nucleotide probability: \sq{ACATGA} with probability 0.2694 ($0.9\times 0.8\times 0.99 \times 0.7 \times 0.9 \times 0.6$).
 If there is a positive probability of deletion for at least one position, then the sequence has a variable length.
-Let us take the same example as above, but modify one position to have a possible empty state:
-
-$$
-\nps = 
-\bordermatrix{
-&\scriptscriptstyle{1} & \scriptscriptstyle{2}& \scriptscriptstyle{3}& \scriptscriptstyle{4} & \scriptscriptstyle{5} & \scriptscriptstyle{6} \cr
-\sq{A} & 0.9 & 0.05   & 0.99 & 0 & 0 & 0.6\cr
-\sq{C} & 0   & 0.8 & 0 & 0 & 0.1 & 0.1\cr
-\sq{G} & 0.1 & 0.15 & 0 & 0.2 & 0.9 & 0\cr
-\sq{T} & 0 & 0 & 0.01 & 0.7 & 0 & 0.3\cr
-\sq{-} & 0 & 0 & 0 & 0.1 & 0 & 0\cr
-}.
-$$
-
-\noindent As above, there is still a 0.2694 probability that the sequence is \sq{ACATGA}, but now there is a chance that position 4 is deleted.
-For example, the sequence is \sq{ACA-GA} with probability 0.038.
-
-Below is an example for a \slps $\sps$ for $m=5$:
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{lc}
-\hline
-\textbf{sequence} & $a$ \\
-\hline
-\sq{ACATGA} & 0.60 \\
-\sq{ACATCA} & 0.12 \\
-\sq{AGATCA} & 0.15 \\
-\sq{ACAGA}  & 0.05 \\
-\sq{GCATGA} & 0.08 \\
-\hline
-\end{tabular}
-\end{center}
-\label{default}
-\end{table}
-
-For example, sampling from $\sps$ we expect to observe \sq{ACATCA} $12\%$ of the time.
 Large genomes or sequencing targets will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
 
 
