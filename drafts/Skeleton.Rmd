@@ -373,7 +373,7 @@ Usually, the genetic sequence \sq{ACATG} would be considered as certain and qual
 In contrast, the probability of the sequence \sq{ACATG} is only 0.899 within the probabilistic sequence framework.
 
 
-Incorporating insertions and deletions ('indels') in the absence of raw data is also challenging.
+Incorporating deletions in the absence of raw data is also challenging.
 If one is willing to assume global deletion rate, then it is possible to extend the parameterization of $\nps$.
 For example, if the probability of a single nucleotide deletion is $d$, then the probability of the called base is $(1-d_j)(1-\epsilon_j)$ and the other three nucleotides have probability $(1-d)\epsilon_j/3$.
 Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
@@ -389,7 +389,12 @@ Hence, if we assume the base call is \sq{A}, the column of the \nlps for that po
 }
 \label{eq:deletion}
 \end{equation}
-Insertion rates are more challenging because the composition of the insertion sequence will vary by position, and even within a given position.
+
+Since the FASTQ file only has a single sequence, we do have the same issues with alignment of differing lengths of insertions.
+In fact, insertions are only insertions relative to the reference sequence; they can simply be treated as observed nucleotides with an associated quality score.
+It would be possible to give insertions special treatment, however, by defining a global insertion rate.
+This insertion rate can be expressed as a deletion rate relative to the observed sequence, and thus one minus the insertion rate can be treated as the deletion rate in the probabilistic sequence.
+As with the deletion rate, this requires an assumption about a global rate which may be arbitrary.
 
 
 ### Consensus sequence FASTA files
@@ -523,11 +528,11 @@ There were 95 sequences total, but we only plotted ones where the second most co
 Results for all lineages can be found in Table \ref{tab:pango} in the Appendix. 
 
 
-```{r sampled_bars, fig.height=11, fig.width=13, fig.cap='\\label{fig:covidcalls}Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with fewer than 100 observations was grouped into the "Other" category.'}
+```{r sampled_bars, fig.height=16, fig.width=13, fig.cap='\\label{fig:covidcalls}Distribution of called lineages from pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with fewer than 100 observations was grouped into the "Other" category.'}
 max_label <- 250
 other_label <- 100
 
-par(mfrow = c(32, 1), mar = c(0.05, 7.75, 0.05, 0.05))
+par(mfrow = c(45, 1), mar = c(0.05, 7.75, 0.05, 0.05))
 if (exists("seq_info")) rm(seq_info)
 for (i in seq_along(taxons)) {
     pang <- lins[lins$taxon == taxons[i], ]
@@ -617,9 +622,6 @@ After upgrading to pangolin version 2.3.2, which uses a decision tree model, all
 
 # Application: Clock rate estimation for SARS-CoV-2
 
-TODO: Better descriptions (more precise, more complete). 
-TODO: State problem of different coverage *over time*, use that to motivate data filtering.
-
 The clock rate (slope of a root-to-tip regression) for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year (specific estimates given below).
 Using the same resampling methods as above, we estimate a clock rate for trees estimated from each of 50 resamples and for the tree estimated based on the reported conseqs.
 
@@ -697,8 +699,7 @@ ggplot() +
     coord_cartesian(xlim = c(0, 50), ylim = c(-0.001, 0.0035)) +
     labs(x = "Index (Ordered by Slope)", 
         y = "Slope +/- 1.96 SD",
-        title = "Clock rate estimates1518
-         from collections of re-sampled genomes",
+        title = "Clock rate estimates from collections of re-sampled genomes",
         subtitle = "Compared to conseqs (red) and published estimates (purple)") +
     theme(legend.position = "none") +
     scale_y_continuous(
