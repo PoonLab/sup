@@ -685,8 +685,13 @@ if (FALSE) {
 # Conclusions
 
 The short run files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses.
+In this study, we demonstrated that these errors in base calling can lead to different conclusions when determining a lineage via Pangolin and that the variance in clock rate estimates is larger than previously shown due to these errors.
+Both of these situations could lead to incorrect conclusions, such as missing a variant of interest or making overconfident conclusions about the date of the first case of COVID-19.
+The potential for errors in base calls should always be taken into account when making decisions based on genetic sequencing data.
+
+
 The primary contribution of this research is the construction of the probability sequence, which allows for a wide variety of future research directions.
-The direction we described here is focused on re-sampling, which allows a more honest appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
+The direction we described here is focused on re-sampling, which allows a more complete appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
 However, this is not the only application of the probabilistic sequence.
 
 Instead of SAM files, FASTQ files are often the best available quantification of the potential sequence read errors. 
@@ -711,7 +716,7 @@ Because of this, it should be reasonable to calculate all sequence uncertainties
 This allows for easy sorting of the most likely sequences, assuming enough sequence uncertainties have been calculated.
 With this sorted list, we can re-fit a model at various levels of uncertainty as a way to test the robustness of a given conclusion to sequence uncertainty.
 
-Our analysis focused on phylogenetic trees based on HIV sequences as well as designation of lineages according to the Pangolin model.
+Our analysis focused on designation of lineages according to the Pangolin model as well as estimation of the clock rate.
 The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
 For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
 
@@ -728,9 +733,6 @@ Rather, pangolin was chosen as it is a state-of-the art tool based on the best a
 The phylogeny created by this team has been a vital resource for researchers and for public health professionals.
 In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
 
-TODO: Add more conclusions:
-- Conclusions from clock rate estimation.
-
 # Appendix: Results for all lineages
 
 \LTcapwidth=\textwidth
@@ -740,6 +742,18 @@ TODO: Move this to a separate file
 \scriptsize
 
 ```{r big_kable, fig.cap='\\label{tab:pango}Results for re-sampling analysis all accession numbers in our analysis. The "Conseq" column refers to the lineage designated to the consensus sequence. "Mode" refers to the most common lineage across all re-samples, with "Mode #" indicating the number of re-samples with this lineage. "Runner Up" and "RU #" are the second most likely lineage designation and the number with that designation, respectively. "Unique" is the total number of unique lineage designations, and "Atoms" are the total number of lineage designations that were only observed for a single re-sample.'}
+if (file.exists(here("data", "pangoLEARN_lineage-recall-report.csv"))) {
+    lin_report <- read.csv(here("data", 
+        "pangoLEARN_lineage-recall-report.csv"))
+} else { # download from pagoLEARN
+    lin_report <- read.csv("https://raw.githubusercontent.com/cov-lineages/pangoLEARN/master/pangoLEARN/data/lineage_recall_report.csv")
+    write.csv(lin_report, file = here("data", "pangoLEARN_lineage-recall-report.csv"))
+}
+
+lin_report <- select(lin_report, lineage, F1 = f1_score) %>%
+    mutate(F1 = round(F1*100, 2))
+
+
 seq_info$taxon <- taxons
 seq_info <- arrange(seq_info, mode, mode_n) %>%
     select(taxon, everything())
@@ -747,6 +761,9 @@ seq_info <- rename(seq_info, Accession = taxon, Conseq = called,
     Mode = mode, `Mode #` = mode_n, `Mode #/N` = perc,
     `Runner-Up` = runner_up, `RU #` = ru_n,
     Unique = unique, Atoms = atoms)
+
+seq_info <- left_join(seq_info, lin_report, by = c("Conseq" = "lineage"))
+
 knitr::kable(seq_info, row.names = FALSE)
 ```
 
