@@ -1,0 +1,191 @@
+---
+title: "Deleted sections"
+author: "David Champredon&ast;, Devan Becker&ast;, Connor Chato, Gopi Gugan, Art Poon"
+date: "&ast;contributed equally"
+output:
+    pdf_document:
+        number_sections: yes
+        keep_tex: yes
+        includes:
+            in_header: 
+                - preamble.tex
+#classoption:
+documentclass: article
+fontsize: 12pt
+#    - table
+#    - "aspectratio=1610"
+
+
+bibliography: supbib.bib
+#csl: apa.csl
+abstract: |
+    | Genetic sequencing is subject to many different types of errors, but most analyses treat the resultant sequences as if they are perfect. Since the process of sequencing is very difficult, modern machines rely on significantly larger numbers of reads rather than making each read significantly more accurate. Still, the coverage of such machines is imperfect and leaves uncertainty in many of the base calls. Furthermore, there are circumstances around the sequencing that can induce further problems. In this work, we demonstrate that the uncertainty in sequencing techniques will affect downstream analysis and propose a straightforward (if computationally expensive) method to propagate the uncertainty.
+    | Our method uses a probabilistic matrix representation of individual sequences which incorporates base quality scores and makes various uncertainty propagation methods obvious and easy. With the matrix representation, resampling possible base calls according to quality scores provides a bootstrap- or prior distribution-like first step towards genetic analysis. Analyses based on these re-sampled sequences will include an honest evaluation of the error involved in such analyses.
+    | We demonstrate our resampling method on HIV and SARS-CoV-2 data. The resampling procedures adds computational cost to the analyses, but the large impact on the variance in downstream estimates makes it clear that ignoring this uncertainty leads to invalid conclusions. For HIV data, we show that phylogenetic reconstructions are much more sensitive to sequence error uncertainty than previously believed, and for SARS-CoV-2 data we show that lineage designations via Pangolin are much less certain than the bootstrap support would imply.
+---
+
+
+
+## Generated Uncertainty as Evaluation
+
+TODO: Better conclusions for this section. 
+
+If only FASTA files are available, then it's unclear how much variation there is.
+FASTQ files have a measure of uncertainty at each position, but this does not tell us whether the added uncertainty has a large or a small effect on the results.
+In this analysis, we generate a phylogeny so we know exactly what the truth is.
+From this phylogeny, we simulate uncertainty (FASTQ-style) at four different parameter combinations, based on those found in @zaniniPopulationGenomicsIntrapatient2015. 
+These parameter combinations represent increasing levels of entropy.
+With this uncertainty, we re-sample our sequences and attempt to reconstruct the phylogeny.
+From these re-sampled phylogenies, we calculate the distance between each new tree and the original perfectly known tree.
+The results demonstrate the additional variance that can be added to a tree on top of the variance that other analysis will consider.
+In a study of real sequences, the entropy can be calculated from the FASTQ file then compared to a similar entropy level for simulated data.
+The variation in tree distance for that level of entropy can be seen as a measure of the un-accounted-for variance in the results.
+
+Our simulation was set up as follows.
+The 300 nucleotide long base sequence and its evolutionary tree with 20 terminal nodes were simulated using the functions in the PhyloSim R package.
+Error probabilities were introduced based on random draws from a beta distribution.
+The mean values of this beta distribution were chosen to represent reasonable amounts of error, then the standard deviations were chosen based on the order of magnitude of the mean, then the corresponding shape parameters were found (see Figure \ref{fig:btshp}). 
+New sequences were simulated from this uncertainty based on sampling from the uncertainty matrix defined by these error probabilities, with the remaining probability distributed uniformly across the other bases (see Section \ref{fastq_construction}).
+We also set the probability of deletion based on a beta distribution with shape parameters 1 and 6, but only for nucleotide positions 5 to 15 and 200 to 250.
+The sequence uncertainty generation process was repeated 1,000 times for each parameter set (the original sequence and evolutionary tree were the same for all simulations).
+The resultant set of sequences is used to estimate a tree using RAxML @stamatakisRAxMLVersionTool2014. 
+
+To summarise the results of this simulation, we looked at the pairwise distance between the trees as well as the distance between nodes within each tree.
+We looked at the Robinson-Foulds distance, where the distance is the number of splits that exist in one tree but not the other  @robinsonComparisonPhylogeneticTrees1981, weighted Robinson-Foulds distance, which adds the branch lengths of the splits rather than counting each split as one unit, and the Kuhner-Felsenstein distance @SimulationComparisonPhylogeny1994, which measures the sum of the squared differences in branch lengths between trees.
+
+<!-- The TN93 distance analysis isn't in working order right now.
+The distance within a tree is calculated as the mean of the TN93 distance between nodes.
+-->
+
+
+```{r prmset, warning=FALSE, message="hide"}
+prmset <- read.csv(here("src", "entropy-prmset.out"), header = F)
+colnames(prmset) <- c("prmset", "s1", "s2", "entropy")
+
+prmset$mean <- prmset$s1/(prmset$s1 + prmset$s2)
+beta_var <- function(a, b) (a * b) / ((a + b)^2*(a + b + 1))
+prmset$var <- beta_var(prmset$s1, prmset$s2)
+prmset <- prmset[!is.na(prmset[, 1]), ]
+knitr::kable(arrange(prmset, prmset))
+```
+
+```{r prm.btshp, fig.cap="\\label{fig:btshp}The parameters used to add uncertainty to the known sequences. The mean and sd of the beta distribution were chosen, then the corresponding shape parameters were determined."}
+options(scipen=60)
+
+# Method of Moments for Beta distribution
+mom <- function(xbar, s){
+    tmp <- xbar * (1 - xbar) / s - 1
+    alpha <- xbar * tmp
+    beta <- (1 - xbar) * tmp
+    return(c(xbar = xbar, s = s, alpha = alpha, beta = beta))
+}
+
+pad <- function(x, pad = -3){
+    x <- as.character(x)
+    if (length(gregexpr("\\.", x)[[1]]) > 1) {
+        stop("Invalid number.")
+    }
+    if (pad < 0) {
+        if (grepl("\\.", x)) {
+            # nchar of everything after the decimal
+            n <- nchar(strsplit(x, "\\.")[[1]][2])
+            if (n < abs(pad)) {
+                x <- paste0(x, 
+                    paste0(rep(0, abs(pad) - n),
+                        collapse = ""),
+                    collapse = "")
+            }
+        } else {
+            x <- paste0(x, ".")
+            x <- paste0(x,
+                paste0(rep(0, abs(pad)), collapse = ""),
+                collapse = "")
+        }
+    } else { # pad > 0
+    # nchar of everything before the decimal
+        n <- nchar(strsplit(x, "\\.")[[1]][1])
+        x <- paste0(rep(0, max(0, pad - n)), x)
+    }
+    x
+}
+
+
+xseq <- seq(0, 0.075, 0.0001)
+
+bts <- lapply(seq_len(nrow(prmset)), function(x) {
+    thislabel <- paste0(
+        "xbar=", pad(prmset[x, 5], -4),
+        ", s=", pad(prmset[x, 6], -5),
+        " | alpha=", pad(round(prmset[x, 2], 3), -3),
+        ", beta=", pad(round(prmset[x, 3], 3), -3),
+        collapse = ""
+    )
+    data.frame(x = xseq,
+        y = dbeta(xseq,
+            shape1 = prmset[x, 2],
+            shape2 = prmset[x, 3]),
+        prm = thislabel)
+}) %>% bind_rows()
+
+ggplot(bts) +
+    aes(x = x, y = y, colour = prm) +
+    geom_line(size = 1) +
+    scale_colour_viridis_d(option = 1) +
+    coord_cartesian(ylim = c(0, 40)) +
+    theme_dark() +
+    theme(legend.position = c(0.7, 0.65)) +
+    labs(x = "x", y = "Probability Density",
+        colour = "Parameters")
+```
+
+
+
+
+```{r tree_distances, fig.cap="\\label{tree_distances}Distances between inferred trees."}
+between <- readRDS(here("data", "output",
+    "between-inferred-distances.RDS"))
+certain <- readRDS(here("data", "output",
+    "inferred-to-certain-distances.RDS"))
+
+gg_btwn <- ggplot(between) +
+    aes(x = entropy, y = m, ymin = q.lo, ymax = q.hi) +
+    geom_ribbon(alpha = 0.2) +
+    facet_wrap(~ distance.type, nrow = 1) +
+    geom_line() +
+    labs(x = "Entropy", y = "Average Distance", 
+        title = "Average distance between inferred trees")
+
+
+gg_crtn <- ggplot(certain) +
+    aes(x = entropy, y = m, ymin = q.lo, ymax = q.hi) +
+    geom_ribbon(alpha = 0.2) +
+    facet_wrap(~ distance.type, nrow = 1) +
+    geom_line() +
+    labs(x = "Entropy", y = "Average Distance", 
+        title = "Average distance from inferred trees to certain tree")
+
+gg_btwn / gg_crtn
+```
+
+
+
+
+
+
+
+## Sequential re-analysis with genome likelihoods
+
+TODO: Analysis has been run on a single accession number; not sure how this will compare to resampling in all accessions.
+
+TODO: Wishlist
+
+- Average number of substitutions (or average likelihood difference) before the called lineage changes
+- Overarching conclusion
+
+```{r ordered_lik, dev="png", fig.cap="\\label{fig:ord}The decrease in the likelihood as more/different alternative base calls are made. It is important to note that these are not substitutions relative to a main sequence, but rather possible alternatives based on the error probabilities inherent in the sequencing process."}
+ggplot(ords) +
+    aes(x = order, y = lik, group = factor(acc)) +
+    geom_line(alpha = 0.2) +
+    theme(legend.position = "none")
+```
+
