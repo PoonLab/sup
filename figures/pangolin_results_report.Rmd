@@ -7,7 +7,7 @@ output:
       citation_package: natbib
       keep_tex: yes
 params:
-    dirich: TRUE
+    dirich: FALSE
 ---
 
 
@@ -41,8 +41,8 @@ lins <- lins %>%
     mutate(taxon = str_replace(taxon, "\\_", ""))
 
 badlins <- table(lins$taxon)
-badlins <- names(badlins[which(badlins < 4500)])
-cat(length(badlins), " runs were removed for having too few samples.")
+badlins <- names(badlins[which(badlins < 9700 | badlins > 10300)])
+cat(length(badlins), " runs were removed for having too few samples.\n")
 lins <- filter(lins, !taxon %in% badlins)
 
 write.csv(lins, here("data", "output", "lins.csv"),
@@ -80,7 +80,7 @@ print(summs)
 max_label <- 250
 other_label <- 100
 
-par(mfrow = c(17, 1), mar = c(0.05, 7.75, 0.05, 0.05))
+par(mfrow = c(45, 1), mar = c(0.05, 7.75, 0.05, 0.05))
 if (exists("seq_info")) rm(seq_info)
 for (i in seq_along(taxons)) {
     pang <- lins[lins$taxon == taxons[i], ]
