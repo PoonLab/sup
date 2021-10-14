@@ -73,6 +73,7 @@ ms/*.toc
 drafts/Skeleton.aux
 drafts/*out
 *latexmk
+*fls
 
 
 
