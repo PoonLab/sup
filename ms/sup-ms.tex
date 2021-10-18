@@ -40,35 +40,35 @@ Nucleic acids must be extracted from the sample while avoiding contamination by 
 If working with RNA, then we must use a reverse transcriptase reaction to convert the RNA into DNA.
 PCR amplification is often employed to enrich the sample for the target of interest.
 For next-generation sequencing (NGS) protocols, we have to generate a sequencing library for instance by random shearing of nucleic acids into fragments that are ligated onto special 'adaptors'. TODO: ref?
-NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \cite{fullerChallengesSequencingSynthesis2009}.
+NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009}.
 In addition, the short reads produced by NGS platforms need to be aligned --- either by alignment against a reference genome, *de novo* assembly, or a combination of the two --- to reconstruct a consensus sequence using one or more bioinformatic programs.
-Errors can be introduced in any one of these steps  (\cite{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}).
+Errors can be introduced in any one of these steps \citep{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}.
 
 
 In some cases, naturally occurring variation, \ie genetic polymorphisms, or variation induced by experimental error is directly quantified and encoded into the output.
-For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant (\cite{NomenclatureIncompletelySpecified1986}).
-\cite{ewingBaseCallingAutomatedSequencer1998} and \cite{richterichEstimationErrorsRaw1998} both showed that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
-The accuracy of Phred quality scores has been disputed and other methods for quantifying error probabilities have been proposed (\cite{liAdjustQualityScores2004}, \cite{depristoFrameworkVariationDiscovery2011}, \cite{liSNPDetectionMassively2009}), Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
+For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \citep{NomenclatureIncompletelySpecified1986}.
+\citet{ewingBaseCallingAutomatedSequencer1998} and \citet{richterichEstimationErrorsRaw1998} both showed that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
+The accuracy of Phred quality scores has been disputed and other methods for quantifying error probabilities have been proposed \citep{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}, Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
 Generally, these scores are used to censor the base calls (\ie label them "N" rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold.
-It is also common practice to remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg \cite{doroninaPhylogeneticPositionEmended2005}, \cite{robaskyRoleReplicatesError2014}, \cite{oraweAccountingUncertaintyDNA2015}.
-Some authors/tools, such as \cite{lippiPotentialPreanalyticalAnalytical2020}, use a more sophisticated form of quality control, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
+It is also common practice to remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg \citet{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014,oraweAccountingUncertaintyDNA2015}.
+Some authors/tools, such as \citet{lippiPotentialPreanalyticalAnalytical2020}, use a more sophisticated form of quality control, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
 Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihoods of partial or full sequences.
-For example, \cite{depristoFrameworkVariationDiscovery2011} and \cite{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity (\cite{fumagalliQuantifyingPopulationGenetic2013a}). TODO: rephrase "population-level allele distributions"
-\cite{kuoEAGLEExplicitAlternative2018} recently used a similar approach to develop a statistical test of whether a given genome sequence is consistent with a specified alternative sequence.
+For example, \citet{depristoFrameworkVariationDiscovery2011} and \citet{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity \citep{fumagalliQuantifyingPopulationGenetic2013a}. TODO: rephrase "population-level allele distributions"
+\citet{kuoEAGLEExplicitAlternative2018} recently used a similar approach to develop a statistical test of whether a given genome sequence is consistent with a specified alternative sequence.
 In general, the reported error probabilities from NGS technologies are primarily used for filtering low quality sequences and improving alignment algorithms (which both result in a consensus sequence that is treated as error-free) or for hypothesis tests concerning small collections (usually pairs) of sequences.
 
 
 The uncertainty present in the sequences are seldom propagated to downstream analyses.
 For example, methods for sequence alignment and homology searches generally employ heuristic algorithms that utilize similarity scores that do not explicitly incorporate the probabilities of sequencing errors.
-Moreover, methods to reconstruct the evolutionary relationships among sequences as a phylogenetic tree tend to interpret ambiguous base calls as completely missing data, although some exceptions are found in the literature, \eg \cite{depristoFrameworkVariationDiscovery2011}.
+Moreover, methods to reconstruct the evolutionary relationships among sequences as a phylogenetic tree tend to interpret ambiguous base calls as completely missing data, although some exceptions are found in the literature, \eg \citet{depristoFrameworkVariationDiscovery2011}.
 This problem is exacerbated when each sequence represents the consensus of diverse copies of a genome, such as rapidly evolving virus populations where genuine polymorphisms are confounded with sequencing error. 
-See \cite{schneiderConsensusSequenceZen2002} for more criticisms of the use of consensus sequences, along with visualizations (called *sequence logos*, \cite{schneiderSequenceLogosNew1990}) to display the deviations from a consensus.
+See \citet{schneiderConsensusSequenceZen2002} for more criticisms of the use of consensus sequences, along with visualizations \citep[called *sequence logos*, ]{schneiderSequenceLogosNew1990} to display the deviations from a consensus.
 
 Though rare, some studies have proposed methods for propogation of uncertainty from one step to later steps of an analysis.
-\cite{oraweAccountingUncertaintyDNA2015} suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
-Another exception can be found in \cite{kuhnerCorrectingSequencingError2014}, who incorporate an assumed or estimated error rate for the entire sequence into the calculation of a phylogenetic tree and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
-Though they did not use nucleotide-level uncertainty, \cite{gompertHierarchicalBayesianModel2011} incorporate the coverage of NGS technologies as part of the uncertainty of estimates for the frequency of allelles in a population.
-\cite{clementGNUMAPAlgorithmUnbiased2010} present an alignment algorithm (called GNUMAP) that takes nucleotide-level uncertainty into account. 
+\citet{oraweAccountingUncertaintyDNA2015} suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
+Another exception can be found in \citet{kuhnerCorrectingSequencingError2014}, who incorporate an assumed or estimated error rate for the entire sequence into the calculation of a phylogenetic tree and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
+Though they did not use nucleotide-level uncertainty, \citet{gompertHierarchicalBayesianModel2011} incorporate the coverage of NGS technologies as part of the uncertainty of estimates for the frequency of allelles in a population.
+\citet{clementGNUMAPAlgorithmUnbiased2010} present an alignment algorithm (called GNUMAP) that takes nucleotide-level uncertainty into account. 
 Their method incorporates Position Weight Matrices into a method of scoring multiple possible matches against a reference genome in order to choose the best alignment. 
 These studies are the exceptions, rather than the rules, and their methods have not yet attained widespread use.
 
@@ -138,9 +138,9 @@ For example, a probability sequence populated from short read data from a divers
 We also lose information about autocorrelation in sequencing error, such as clusters of miscalled bases associated with later cycles of sequencing-by-synthesis platforms.
 Sequence chromatograms are affected by the same loss of information.
 
-We note that this representation is similar to the "CATG" file type as described in \cite{kozlovModelsOptimizationsTools2018}, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
+We note that this representation is similar to the "CATG" file type as described in \citet{kozlovModelsOptimizationsTools2018}, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
 This file type is able to be used by RAxML-NG to estimate an overall error rate which is then used to estimate phylogenetic trees.
-Our probability sequence is also similar in concept to Position Weight Matrices (PWMs, \cite{stormoUsePerceptronAlgorithm1982}) which are built according to the frequency of each base at each position of a multiple alignment. 
+Our probability sequence is also similar in concept to Position Weight Matrices \citep[PWMs, ]{stormoUsePerceptronAlgorithm1982} which are built according to the frequency of each base at each position of a multiple alignment. 
 Our construction differs in that we are creating one matrix per sequence where the entries are weighted according to error probability within that sequence, rather than one matrix for a collection of sequences. 
 However, methods that accept PWMs will be applicable to our probability sequences (and *vice-versa*).
 
@@ -229,7 +229,7 @@ The representation of deletions and insertions with a \slps (not nucleotide-leve
 \subsubsection{SAM files}
 
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with the quality (or "Phred") score attributed to each base call produced by sequencing instrument.
-The quality score $Q$ is directly related to this error probability: $\epsilon = 10^{-Q/10}$ (\cite{ewingBaseCallingAutomatedSequencer1998}), where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
+The quality score $Q$ is directly related to this error probability: $\epsilon = 10^{-Q/10}$ \citep{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
 It is important to note that this quality score only measures the probability of error from the machine; $1 - \epsilon$ should not be interpreted as the probability that a call is correct.
 
 More formally, the probability that the base call is correct is expressed as: 
@@ -244,7 +244,7 @@ In the absence of information about the other bases, we assume that these other 
 Raw short read data are typically recorded in a FASTQ format that stores both the sequences (base calls) and base-specific quality scores.
 Since the reads often correspond to different positions of the target nucleic acid, \eg randomly sheared genomic DNA, it is necessary to align the reads to identify base calls on different reads that represent the same genome position.
 This alignment step can be accomplished by mapping reads to a reference genome, by the *de novo* assembly of reads, or a hybrid approach that incorporates both methods.
-The aligned outputs are frequently recorded in the tabular Sequence Alignment/Map (SAM) format (\cite{liSequenceAlignmentMap2009}).
+The aligned outputs are frequently recorded in the tabular Sequence Alignment/Map (SAM) format \citep{liSequenceAlignmentMap2009}.
 Each row represents a short read, including the raw nucleotide sequence and quality strings; the optimal placement of the read with respect to the reference sequence (as an integer offset); and the compact idiosyncratic gapped alignment report (CIGAR), an application-specific serialization of the edit operations required to align the read to the reference.
 
 
@@ -274,14 +274,14 @@ In addition, the coverage calculated from $\nps'$ is scaled to the number of tem
 Full length or partial genome sequences are now frequently the product of next-generation sequencing, by taking the consensus of the aligned or assembled read data.
 However, the original read data are often not published alongside the consensus sequence.
 Some consensus sequences are released in a format where the bases are annotated with quality scores, \eg FASTQ.
-There are several programs that provide methods to convert a SAM file into a consensus FASTQ file (\cite{liAdjustQualityScores2004}, \cite{keithSimulatedAnnealingAlgorithm2002}, \cite{liMappingShortDNA2008a}).
+There are several programs that provide methods to convert a SAM file into a consensus FASTQ file \citep{liAdjustQualityScores2004, keithSimulatedAnnealingAlgorithm2002, liMappingShortDNA2008a}.
 These programs use slightly different methods for generated consensus quality scores, but generally filter quality scores for the majority base.
 For example, suppose there are three reads with the following base calls at position $j$: \sq{A} with $Q=30$, \sq{A} with $Q=31$, and \sq{C} with $Q=15$.
 Calculation of the consensus quality score will thereby exclude the $Q=15$ value.
 
 
 This omission makes it challenging for us to generate an $\nps$ matrix from a consensus FASTQ file.
-Given the consensus base and its associated quality score at position $j$, we must assume that the other bases are all equally likely with probability $\epsilon_j/3$ (similar to \cite{kuoEAGLEExplicitAlternative2018} and Chapter 5 of \cite{kozlovModelsOptimizationsTools2018}).
+Given the consensus base and its associated quality score at position $j$, we must assume that the other bases are all equally likely with probability $\epsilon_j/3$ (similar to \cite{kuoEAGLEExplicitAlternative2018} and Chapter 5 of \citet{kozlovModelsOptimizationsTools2018}).
 For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$.
 The probabilistic sequence is:
 \begin{equation}
@@ -364,7 +364,7 @@ For large collections of large sequences in an Markov Chain Monte Carlo algorith
 In this section, we apply the re-sampling method to evaluate the impact of sequencing error on the lineage assignments of SARS-CoV-2.
 Sequences are sampled from $\nps'$ and then assigned a lineage based on the current state-of-the-art in phylogenetic analyis.
 
-We use the lineage designation algorithm described in \cite{rambautDynamicNomenclatureProposal2020} and assign our sequences to lineages using the pangoLEARN tool (Pangolin version 2.3.2, pangoLEARN version 2021-02-21) that the authors have made available (\url{github.com/cov-lineages/Pangolin}).
+We use the lineage designation algorithm described in \citet{rambautDynamicNomenclatureProposal2020} and assign our sequences to lineages using the pangoLEARN tool (Pangolin version 2.3.2, pangoLEARN version 2021-02-21) that the authors have made available (\url{github.com/cov-lineages/Pangolin}).
 This tool uses a decision tree model to determine which lineage a given sequence is most likely to belong to.
 We demonstrate that even the best available tools are underestimating the variance and therefore producing overconfident conclusions.
 
@@ -435,11 +435,11 @@ In particular, we found the mean of the coverage of the sequences in our data se
 We removed any sequences outside of $\bar x \pm 3 s$, recalculated $\bar x$ and $s$, and iterated the removal process until all sequence coverages were within the bounds.
 
 
-The clock rate was estimated using TreeTime (\cite{sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018}). 
+The clock rate was estimated using TreeTime \citep{sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018}. 
 We recorded the clock rate and standard error from the time tree constructed using the consensus sequences and compared this to the clock rate and standard deviations of the estimated clock rates in the resampled sequences. The tree built from conseqs had a clock rate of $6.5\times 10^{-4}$ with a standard error of $8.01\times 10^{-5}$. The mean of the clock rates for all of the sets of resampled sequences was $8.6\times 10^{-4}$ with standard deviation of $5.3\times 10^{-4}$, which is approximately 1.6 times as large as the standard error for the conseqs.
 
 
-The estimates of the clock rate are shown in Figure \ref{fig:RTT_slope}. The red line and shaded region are the clock rate for the tree built from conseqs along with $\pm 1.96$ standard errors. Rate estimates from \cite{ducheneTemporalSignalPhylodynamic2020} (n=122), \cite{choudharySevereAcuteRespiratory2021} (n=261), \cite{songGenomicEpidemiologySARSCoV22021} (n=29), \cite{niePhylogeneticPhylodynamicAnalyses2020} (n=112), and \cite{geidelbergGenomicEpidemiologyDensely2021} (n=77) are also labelled on the plot with purple error bars for 95\% Bayesian Credible Intervals (BCI) or 95\% Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
+The estimates of the clock rate are shown in Figure \ref{fig:RTT_slope}. The red line and shaded region are the clock rate for the tree built from conseqs along with $\pm 1.96$ standard errors. Rate estimates from \citet{ducheneTemporalSignalPhylodynamic2020} (n=122), \citet{choudharySevereAcuteRespiratory2021} (n=261), \citet{songGenomicEpidemiologySARSCoV22021} (n=29), \citet{niePhylogeneticPhylodynamicAnalyses2020} (n=112), and \citet{geidelbergGenomicEpidemiologyDensely2021} (n=77) are also labelled on the plot with purple error bars for 95\% Bayesian Credible Intervals (BCI) or 95\% Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
 Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but each of the individual error bars miss the excess variation due to sequence uncertainty.
 
 
@@ -472,7 +472,7 @@ Even the method based on ordering the sequences by likelihood inevitably requrie
 However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results.
 The so-called "consensus sequence" is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity.
 Ideally individual analyses would be constructed to take nucleotide-level uncertainty into account.
-For instance, phylogenies have been estimated based on uncertain sequence information in \cite{rossOncoNEMInferringTumor2016}, \cite{jahnTreeInferenceSinglecell2016}, and \cite{zafarSiFitInferringTumor2017} but the uncertainty is not derived from base quality scores.
+For instance, phylogenies have been estimated based on uncertain sequence information in \citet{rossOncoNEMInferringTumor2016, jahnTreeInferenceSinglecell2016, zafarSiFitInferringTumor2017} but the uncertainty is not derived from base quality scores.
 An extension of these methods to incorporate the base quality scores may be a worthwhile research direction.
 
 Computational burden can also be reduced by ording the sequences according to the sequence level uncertainty discussed above.
@@ -488,8 +488,8 @@ The importance of incorporating sequence uncertainty is not confined to these ap
 For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
 
 Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
-We cannot account for systematic errors, such as those present due to human errors (\eg human error, as noted in \cite{IssuesSARSCoV2Sequencing2020}). 
-Our method allows for adjustments of the base call quality score, such as in \cite{brockmanQualityScoresSNP2008}, as well as more sophisticated definitions of genome likelihoods (\eg \cite{liAdjustQualityScores2004}, \cite{depristoFrameworkVariationDiscovery2011}, \cite{liSNPDetectionMassively2009}).
+We cannot account for systematic errors, such as those present due to human errors (\eg human error, as noted in \citet{IssuesSARSCoV2Sequencing2020}). 
+Our method allows for adjustments of the base call quality score, such as in \citet{brockmanQualityScoresSNP2008}, as well as more sophisticated definitions of genome likelihoods \citep[\eg]{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}.
 
 We have developed an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
 The Pangolin lineage assignment system appears to treat insertions differently from single nucleotide polymorphisms, and our method of sampling insertions is incompatible with their treatment of insertions in lineage assignment operations.
