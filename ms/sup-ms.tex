@@ -53,7 +53,7 @@ Generally, these scores are used to censor the base calls (\ie label them ``N'' 
 It is also common practice to remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg \citet{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014,oraweAccountingUncertaintyDNA2015}.
 Some authors/tools, such as \citet{lippiPotentialPreanalyticalAnalytical2020}, use a more sophisticated form of quality control, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
 Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihoods of partial or full sequences.
-For example, \citet{depristoFrameworkVariationDiscovery2011} and \citet{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of population-level allele distributions; this approach has subsequently been used to develop new estimators for population genetic diversity \citep{fumagalliQuantifyingPopulationGenetic2013a}. TODO: rephrase "population-level allele distributions"
+For example, \citet{depristoFrameworkVariationDiscovery2011} and \citet{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of genetic diversity within a population; this approach has subsequently been used to develop new estimators of genetic diversity \citep{fumagalliQuantifyingPopulationGenetic2013a}. 
 \citet{kuoEAGLEExplicitAlternative2018} recently used a similar approach to develop a statistical test of whether a given genome sequence is consistent with a specified alternative sequence.
 In general, the reported error probabilities from NGS technologies are primarily used for filtering low quality sequences and improving alignment algorithms (which both result in a consensus sequence that is treated as error-free) or for hypothesis tests concerning small collections (usually pairs) of sequences.
 
@@ -357,9 +357,9 @@ In a Bayesian framework, the multinomial sampling could be incorporated as prior
 For large collections of large sequences in an Markov Chain Monte Carlo algorithm, this increases the dimensionality dramatically.
 
 
+\section{Applications}
 
-
-\section{Application: SARS-CoV-2 lineage assignemnt}
+\subsection{SARS-CoV-2 lineage assignemnt}
 
 In this section, we apply the re-sampling method to evaluate the impact of sequencing error on the lineage assignments of SARS-CoV-2.
 Sequences are sampled from $\nps'$ and then assigned a lineage based on the current state-of-the-art in phylogenetic analyis.
@@ -368,7 +368,7 @@ We use the lineage designation algorithm described in \citet{rambautDynamicNomen
 This tool uses a decision tree model to determine which lineage a given sequence is most likely to belong to.
 We demonstrate that even the best available tools are underestimating the variance and therefore producing overconfident conclusions.
 
-\subsection{Data}
+\subsubsection{Data}
 
 The data for this application were downloaded from NCBI's SRA web interface (\url{https://www.ncbi.nlm.nih.gov/sra/?term=txid2697049}).
 Search results were filtered to only include records that had SAM files.
@@ -379,7 +379,7 @@ The GISAID accession numbers for the seqeunces we used are provided in the appen
 TODO: add the accessions to the appendix
 
 
-\subsection{Re-sampling the probabilistic sequence}
+\subsubsection{Re-sampling the probabilistic sequence}
 
 
 Since pangoLEARN is a pre-trained model, assigning lineage designations to a large number of resampled genome sequences is not computationally burdensome.
@@ -415,7 +415,7 @@ We have included the F values of the for the lineage that the conseq was assigne
 
 
 
-\section{Application: Clock rate estimation for SARS-CoV-2}
+\subsection{Clock rate estimation for SARS-CoV-2}
 
 The clock rate (slope of a root-to-tip regression) for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year (specific estimates given below).
 Using the same resampling methods as above, we estimate a clock rate for trees estimated from each of 50 resamples and for the tree estimated based on the reported conseqs.
@@ -455,7 +455,6 @@ The short run files produced by next generation sequencing platforms include val
 In this study, we demonstrated that these errors in base calling can lead to different conclusions when determining a lineage via Pangolin and that the variance in clock rate estimates is larger than previously shown due to these errors.
 Both of these situations could lead to incorrect conclusions, such as missing a variant of interest or making overconfident conclusions about the date of the first case of COVID-19.
 The potential for errors in base calls should always be taken into account when making decisions based on genetic sequencing data.
-
 
 The primary contribution of this research is the construction of the probability sequence, which allows for a wide variety of future research directions.
 The direction we described here is focused on re-sampling, which allows a more complete appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
