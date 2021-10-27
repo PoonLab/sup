@@ -475,7 +475,7 @@ We recorded the clock rate and standard error from the time tree constructed usi
 
 
 The estimates of the clock rate are shown in Figure \ref{fig:RTT_slope}. The red line and shaded region are the clock rate for the tree built from conseqs along with $\pm 1.96$ standard errors. Rate estimates from \citet{ducheneTemporalSignalPhylodynamic2020} (n=122), \citet{choudharySevereAcuteRespiratory2021} (n=261), \citet{songGenomicEpidemiologySARSCoV22021} (n=29), \citet{niePhylogeneticPhylodynamicAnalyses2020} (n=112), and \citet{geidelbergGenomicEpidemiologyDensely2021} (n=77) are also labelled on the plot with purple error bars for 95\% Bayesian Credible Intervals (BCI) or 95\% Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
-Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but each of the individual error bars miss the excess variation due to sequence uncertainty.
+Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the conseqs, but each of the individual error bars (from the five studies identified above) miss the excess variation due to sequence uncertainty.
 
 
 \begin{figure}
@@ -499,10 +499,10 @@ Instead of SAM files, FASTQ files are often the best available quantification of
 We have already shown that probability sequences can be trivially constructed by spreading the remaining error probability uniformly across the remaining bases.
 Another use of FASTQ files would be to construct a probability sequence as a reference genome for a given category.
 This would entail collecting all available FASTQ files for a given lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file.
-From here, lineage designation for a newly acquired sequence (and it's probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar.
+From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar. \dc{great point!}
 
 Our proposed methods can result in a linear increase in computational expense.
-Even the method based on ordering the sequences by likelihood inevitably requries re-running the analysis numerous times. TODO: delete?
+Even the method based on ordering the sequences by likelihood inevitably requries re-running the analysis numerous times. TODO: delete? \dc{I would keep it}
 However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results.
 The so-called ``consensus sequence'' is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity.
 Ideally individual analyses would be constructed to take nucleotide-level uncertainty into account.
@@ -516,13 +516,14 @@ The conseq is clearly the least uncertain sequence, and by the construction of t
 Because of this, it should be reasonable to calculate all sequence uncertainties for a single mutation, then all pairs of mutations, and so on (we note that it is possible for some pairs of mutations to be more likely than single mutations, thus this algorithm cannot be perfect).
 This allows for easy sorting of the most likely sequences, assuming enough sequence uncertainties have been calculated.
 With this sorted list, we can re-fit a model at various levels of uncertainty as a way to test the robustness of a given conclusion to sequence uncertainty.
+\dc{I'm not sure I understand well this paragraph... I guess we don't want to spend too long explaining here, but is there a way to clarify a bit more?}
 
 Our analysis focused on designation of lineages according to the Pangolin model as well as estimation of the clock rate.
 The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
 For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
 
 Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
-We cannot account for systematic errors, such as those present due to human errors \citep[\eg human error, as noted in][]{IssuesSARSCoV2Sequencing2020}. 
+We cannot account for systematic errors, such as those present due to human errors \citep[\eg as noted in][]{IssuesSARSCoV2Sequencing2020}. 
 Our method allows for adjustments of the base call quality score, such as in \citet{brockmanQualityScoresSNP2008}, as well as more sophisticated definitions of genome likelihoods \citep[\eg ][]{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}.
 
 We have developed an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
