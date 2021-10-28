@@ -436,7 +436,8 @@ Figure \ref{fig:covidcalls} shows that the consensus sequence almost always is a
 The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 22.09\%. TODO: Provide accession number.
 It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' or for the lineage labelled B.1.1.7, which is a significantly more infectious lineage and is of special concern to health authorities. TODO: make sure this is still truel; newer versions of Pangolin use post-processing of B.1.1.7 according to Art.
 
-\dc{I'd like to suggest an alternative to Figure 1. A histogram where the x-axis is the proportion of resamples that are assigned the same lineage as the consensus sequence. This way we would have a figure that represent \emph{all} the data (not truncated to those that have more than 250 observations); this may also be more to the point: taking sequencing uncertainty into account, some (many?) sequences cannot be so confidently assigned to a single consensus sequence.}
+\dc{I'd like to suggest an alternative to Figure 1. A histogram where the x-axis is the proportion of resamples that are assigned the same lineage as the consensus sequence. This way we would have a figure that represent \emph{all} the data (not truncated to those that have more than 250 observations); this may also be more to the point: taking sequencing uncertainty into account, some (many?) sequences cannot be so confidently assigned to a single consensus sequence.
+We could even add another panel (so that would be a 2-panel figure) with a histogram again, but this time the x-axis shows the number of lineages associated to the sequences with probability, say, greater than 5\%.}
 
 Initial analyses used Pangolin version 2.0.8, which used multinomial logistic regression, rather than decision trees, to assign lineages.
 This procedure resulted in bootstrap support values that varied from 0.6 to 1.
@@ -534,6 +535,8 @@ This study should not be taken in any way as a criticism of the Pangolin lineage
 Rather, Pangolin was chosen as it is a state-of-the art tool based on the best available algorithms for phylogeny reconstruction.
 The phylogeny created by this team has been a vital resource for researchers and for public health professionals.
 In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
+\dc{I think we could hammer one last time the deterministic versus probabilistic interpretation. Below is an attempt, feel free to discard/edit}. The output from Pangolin (and some other bioinformatics tools) are usually taken as \emph{deterministic} results, whereas, as we showed here, inherent uncertainty in sequencing warrants propagating this uncertainty in downstream analyses.
+
 
 TODO: ordered likelihood conclusions / usefulness as a way of approximating the distribution (kinda but not really like a Taylor series).
 
