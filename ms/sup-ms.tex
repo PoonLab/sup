@@ -39,7 +39,7 @@ Generating a genetic sequence from a biological sample is a complex process.
 Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
 If working with RNA, then we must use a reverse transcriptase reaction to convert the RNA into DNA.
 PCR amplification is often employed to enrich the sample for the target of interest.
-For next-generation sequencing (NGS) protocols, we have to generate a sequencing library for instance by random shearing of nucleic acids into fragments that are ligated onto special 'adaptors'. TODO: ref?
+For next-generation sequencing (NGS) protocols, we have to generate a sequencing library for instance by random shearing of nucleic acids into fragments that are ligated onto special 'adaptors'. TODO: help wanted: reference for this?
 NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009}.
 In addition, the short reads produced by NGS platforms need to be aligned --- either by alignment against a reference genome, \emph{de novo} assembly, or a combination of the two --- to reconstruct a consensus sequence using one or more bioinformatic programs.
 Errors can be introduced in any one of these steps \citep{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}.
@@ -375,8 +375,8 @@ Search results were filtered to only include records that had SAM files.
 To select which runs to download, an arbitrary selection of 5-10 records from each of 20 non-sequential results pages were chosen.
 Once collecting the run accession numbers from the search results, an R script was run to download the relevant files and check that all information was complete.
 23 out of 275 files were labelled incomplete due to having too few reads (possibly because the download timed out) or not containing any CIGAR strings.
-The GISAID accession numbers for the seqeunces we used are provided in the appendix. TODO: Other info about the files?
-TODO: add the accessions to the appendix
+The GISAID accession numbers for the seqeunces we used are provided in the appendix. TODO: (Devan) Other info about the files?
+TODO: (Devan) add the accessions to the appendix
 
 
 \subsubsection{Re-sampling the probabilistic sequence}
@@ -388,23 +388,23 @@ Sampling 5,000 different sequences from a probabilistic sequence can be done in 
 For this analysis we use the most basic resampling strategy described above.
 We sample base calls from the multinomial distribution then use pangoLEARN to determine the lineage assignment.
 
-TODO: Maybe move this to the figure legend? Or parts of it?
-In \ref{fig:covidcalls}, each row represents 10,000 resamples from one SAM file. TODO: It's 10,000 resamples, right?
+TODO: Maybe move this to the figure legend? Or just parts of it?
+In \ref{fig:covidcalls}, each row represents 10,000 resamples from one SAM file.
 Each bar represents one lineage assignment from Pangolin.
 The width of the bars represents the number times a re-sampled sequence resulted in the labelled lineage designation.
-There were 95 sequences total, but we only plotted ones where the second most common lineage designation had more than 250 observations. TODO: exact number of plots (I think it's 52 or something).
+There were 95 sequences total, but we only plotted the 45 accession numbers where the second most common lineage designation had more than 250 observations.
 Results for all lineages can be found in Table \ref{tab:pango} in the Appendix. 
 
 \begin{figure}
-sampled\_bars
+\includegraphics[width=\textwidth]{figs/sampled_bars.pdf}
 
 \caption{\label{fig:covidcalls}Distribution of called lineages from Pangolin. Red bars indicate the lineage of the most probable sequence. Any lineage with fewer than 100 observations was grouped into the ``Other'' category.}
 \end{figure}
 
 
 Figure \ref{fig:covidcalls} shows that the consensus sequence almost always is assigned the same lineage as the majority of the resamples; the full results are in Table \ref{tab:pango}.
-The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 22.09\%. TODO: Provide accession number.
-It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' or for the lineage labelled B.1.1.7, which is a significantly more infectious lineage and is of special concern to health authorities. TODO: make sure this is still truel; newer versions of Pangolin use post-processing of B.1.1.7 according to Art.
+The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 22.09\%. TODO: (Devan) Provide accession number.
+It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' or for the lineage labelled B.1.1.7, which is a significantly more infectious lineage and is of special concern to health authorities. TODO: (Devan) make sure this is still truel; newer versions of Pangolin use post-processing of B.1.1.7 according to Art.
 
 Initial analyses used Pangolin version 2.0.8, which used multinomial logistic regression, rather than decision trees, to assign lineages.
 This procedure resulted in bootstrap support values that varied from 0.6 to 1.
@@ -422,7 +422,7 @@ Using the same resampling methods as above, we estimate a clock rate for trees e
 
 To obtain the data, we sampled genomes uniformly from each month of recorded data in GenBank, using filters to ensure that the genomes were complete and had an associated SAM file.
 We further had to filter out SAM files that were incomplete or did not contain the CIGAR strings necessary for alignment.
-The associated GISAID accession numbers are provided in the Appendix. TODO: add accession numbers.
+The associated GISAID accession numbers are provided in the Appendix. TODO: (Devan) add accession numbers.
 
 Our re-sampling method will, by definition, introduce other possible mutations beyond what the conseq suggests.
 Because of this, the apparent number of mutations between a re-sampled genome and the estimated root is a function of the coverage, with more positions read or more uncertainty in the sequence leading to artificially inflated phylogenetic branch lengths.
@@ -444,7 +444,7 @@ Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates ha
 
 
 \begin{figure}
-RTT\_Slope
+\includegraphics[width=\textwidth]{figs/RTT_Slope.pdf}
 \caption{\label{fig:RTT_slope}Clock rates (slope) and 95\% Confidence Intervals for the collections of re-sampled sequences. The red line and red shaded region are the clock rate and 95\% CI for the consensus sequences. The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled. The re-sampled sequences are in line with the consensus sequences as well as the published sequences, but represent a much larger variation due to the uncertainty in the original genome sequences.}
 \end{figure}
 
@@ -467,7 +467,6 @@ This would entail collecting all available FASTQ files for a given lineage desig
 From here, lineage designation for a newly acquired sequence (and it's probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar.
 
 Our proposed methods can result in a linear increase in computational expense.
-Even the method based on ordering the sequences by likelihood inevitably requries re-running the analysis numerous times. TODO: delete?
 However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results.
 The so-called ``consensus sequence'' is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity.
 Ideally individual analyses would be constructed to take nucleotide-level uncertainty into account.
@@ -499,7 +498,7 @@ Rather, Pangolin was chosen as it is a state-of-the art tool based on the best a
 The phylogeny created by this team has been a vital resource for researchers and for public health professionals.
 In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
 
-TODO: ordered likelihood conclusions / usefulness as a way of approximating the distribution (kinda but not really like a Taylor series).
+TODO: Comment on ordered likelihood conclusions / usefulness as a way of approximating the distribution and evaluating how many mutations it takes before the methods break.
 
 
 
