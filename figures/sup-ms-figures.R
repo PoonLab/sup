@@ -6,13 +6,14 @@ library(here)
 library(patchwork)
 library(ggrepel)
 library(scales)
+library(xtable)
 
 
 
 #```{r load_sampled, include=FALSE}
 # Read in CSV files
 lins <- read.csv(here("data", "output", "lins.csv"),
-    header = TRUE)
+    header = TRUE, stringsAsFactors = FALSE)
 
 taxons <- sort(unique(lins$taxon))
 #```
@@ -221,6 +222,9 @@ knitr::kable(seq_info, row.names = FALSE)
 #```
 
 
+
+# Generate table of accession numbers
+print(xtable(matrix(unique(lins$taxon), ncol = 6)), include.rownames=FALSE)
 
 
 
