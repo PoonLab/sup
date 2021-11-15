@@ -123,6 +123,45 @@ for (i in seq_along(taxons)) {
 #```
 
 
+# \dc{I'd like to suggest an alternative to Figure 1. A histogram where the x-axis is the proportion of resamples that are assigned the same lineage as the consensus sequence. This way we would have a figure that represent \emph{all} the data (not truncated to those that have more than 250 observations); this may also be more to the point: taking sequencing uncertainty into account, some (many?) sequences cannot be so confidently assigned to a single consensus sequence. We could even add another panel (so that would be a 2-panel figure) with a histogram again, but this time the x-axis shows the number of lineages associated to the sequences with probability, say, greater than 5\%.}
+prop_correct <- prop_second <- prop_third <- double(length(taxons))
+atoms <- len_unique <- one_v_two <- double(length(taxons))
+
+
+for (i in seq_along(taxons)) {
+    pang <- lins[lins$taxon == taxons[i], ]
+    called <- pang$lineage[pang$sample == 0][1]
+    pangtab <- sort(table(pang$lineage), decreasing = TRUE)
+
+    prop_correct[i] <- pangtab[1] / sum(pangtab)
+    prop_second[i] <- pangtab[2] / sum(pangtab)
+    prop_third[i] <- pangtab[3] / sum(pangtab)
+
+    atoms[i] <- sum(pangtab == 1)
+    len_unique[i] <- length(pangtab)
+    one_v_two[i] <- pangtab[1] / pangtab[2]
+}
+
+# TODO: Add these instead of just the one?
+
+bins = seq(0, 1, 0.01)
+par(mfrow = c(3, 2))
+hist(prop_correct[prop_correct > 0], breaks = bins)
+hist(prop_second[prop_second > 0], breaks = bins)
+hist(prop_third[prop_third > 0], breaks = bins)
+hist(atoms, breaks = 40)
+hist(len_unique, breaks = 40)
+hist(1/one_v_two, breaks = 40)
+par(mfrow = c(1,1))
+
+pdf(here("ms", "figs", "prop_correct.pdf"), width = 6, height = 4)
+ggplot(mapping = aes(x = prop_correct[prop_correct > 0])) + 
+    geom_histogram(binwidth=0.025, center = 0.0125,
+        colour = "black", fill = "lightgrey") +
+    theme_bw() +
+    labs(x = "Proportion of resampled sequences assigned to\n the same lineage as the consensus sequence",
+        y = "Count")
+dev.off()
 
 #```{r RTT_slope, warning=FALSE, results='hide', fig.cap="\\label{fig:RTT_slope}Clock rates (slope) and 95% Confidence Intervals for the collections of re-sampled sequences. The red line and red shaded region are the clock rate and 95% CI for the consensus sequences. The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled. The re-sampled sequences are in line with the consensus sequences as well as the published sequences, but represent a much larger variation due to the uncertainty in the original genome sequences."}
 
@@ -225,7 +264,6 @@ knitr::kable(seq_info, row.names = FALSE)
 
 # Generate table of accession numbers
 print(xtable(matrix(unique(lins$taxon), ncol = 6)), include.rownames=FALSE)
-
 
 
 
