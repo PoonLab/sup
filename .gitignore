@@ -94,6 +94,7 @@ src/raxml.out
 src/Rplots.pdf
 src/plot*.pdf
 data/zanini/plot*.pdf
+ms/figs/*pdf
 
 # Trees generated:
 src/trees/*.nwk
