@@ -262,8 +262,21 @@ knitr::kable(seq_info, row.names = FALSE)
 
 
 
-# Generate table of accession numbers
-print(xtable(matrix(unique(lins$taxon), ncol = 6)), include.rownames=FALSE)
+# Generate table of accession numbers for Resampling
+resampled_acc <- unique(lins$taxon)
+# Pad with NAs to avoid recycling
+resampled_acc <- resampled_acc[1:(ceiling(length(resampled_acc)/6)*6)]
+print(xtable(matrix(resampled_acc, ncol = 6)), include.rownames=FALSE)
+
+# Generate table of accession numbers for RTT
+rtt_acc <- here("RTT", "samDONE") %>%
+    list.files() %>%
+    parse_accession()
+# Pad with NAs to avoid recycling
+rtt_acc <- rtt_acc[1:(ceiling(length(rtt_acc)/6)*6)]
+print(xtable(matrix(rtt_acc, ncol = 6)), include.rownames=FALSE)
+
+
 
 
 
