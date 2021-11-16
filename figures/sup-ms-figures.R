@@ -127,13 +127,12 @@ for (i in seq_along(taxons)) {
 prop_correct <- prop_second <- prop_third <- double(length(taxons))
 atoms <- len_unique <- one_v_two <- double(length(taxons))
 
-
 for (i in seq_along(taxons)) {
     pang <- lins[lins$taxon == taxons[i], ]
     called <- pang$lineage[pang$sample == 0][1]
     pangtab <- sort(table(pang$lineage), decreasing = TRUE)
 
-    prop_correct[i] <- pangtab[1] / sum(pangtab)
+    prop_correct[i] <- pangtab[names(pangtab) == called]/sum(pangtab)
     prop_second[i] <- pangtab[2] / sum(pangtab)
     prop_third[i] <- pangtab[3] / sum(pangtab)
 
@@ -145,14 +144,27 @@ for (i in seq_along(taxons)) {
 # TODO: Add these instead of just the one?
 
 bins = seq(0, 1, 0.01)
-par(mfrow = c(3, 2))
-hist(prop_correct[prop_correct > 0], breaks = bins)
-hist(prop_second[prop_second > 0], breaks = bins)
-hist(prop_third[prop_third > 0], breaks = bins)
-hist(atoms, breaks = 40)
-hist(len_unique, breaks = 40)
-hist(1/one_v_two, breaks = 40)
+pdf(here("ms", "figs", "histograms.pdf"), width = 9, height = 6)
+par(mfrow = c(2, 3))
+hist(prop_correct, breaks = bins,
+    main = "Proportion of resamples agreeing\nwith consensus sequence,\nnot including 0s",
+    xlab = "Proportion")
+hist(prop_second[prop_second > 0], breaks = bins, 
+    main = "Proportion of resamples agreeing\nwith second most common lineage\nnot including 0s",
+    xlab = "Proportion")
+hist(prop_third[prop_third > 0], breaks = bins,
+    main = "Proportion of resamples agreeing\nwith third most common lineage\nnot including 0s",
+    xlab = "Proportion")
+hist(atoms, breaks = 40,
+    main = "Number of atoms sampled",
+    xlab = "Count")
+hist(len_unique, breaks = 40,
+    main = "Number of unique lineages sampled",
+    xlab = "Count")
+hist(one_v_two, breaks = 40,
+    main = "Ratio of most common versus\nsecond most common lineage")
 par(mfrow = c(1,1))
+dev.off()
 
 pdf(here("ms", "figs", "prop_correct.pdf"), width = 6, height = 4)
 ggplot(mapping = aes(x = prop_correct[prop_correct > 0])) + 
