@@ -141,8 +141,6 @@ for (i in seq_along(taxons)) {
     one_v_two[i] <- pangtab[1] / pangtab[2]
 }
 
-# TODO: Add these instead of just the one?
-
 bins = seq(0, 1, 0.01)
 pdf(here("ms", "figs", "histograms.pdf"), width = 9, height = 6)
 par(mfrow = c(2, 3))

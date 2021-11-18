@@ -25,11 +25,19 @@ Poon}
 \tableofcontents
 
 \begin{abstract}
-Genetic sequencing is subject to many different types of errors, but most analyses treat the resultant sequences as if they are known without error. Next generation sequencing methods rely on significantly larger numbers of reads than previous sequencing methods in exchange for a loss of accuracy in each individual read. Still, the coverage of such machines is imperfect and leaves uncertainty in many of the base calls. On top of this machine-level uncertainty, there is uncertainty induced by human error. In this work, we demonstrate that the uncertainty in sequencing techniques will affect downstream analysis and propose a straightforward method to propagate the uncertainty.
+Genetic sequencing is subject to many different types of errors, but most analyses treat the resultant sequences as if they are known without error.
+Next generation sequencing methods rely on significantly larger numbers of reads than previous sequencing methods in exchange for a loss of accuracy in each individual read.
+Still, the coverage of such machines is imperfect and leaves uncertainty in many of the base calls. 
+On top of this machine-level uncertainty, there is uncertainty induced by human error, such as errors in data entry or incorrect parameter settings.
+In this work, we demonstrate that the uncertainty in sequencing techniques will affect downstream analysis and propose a straightforward method to propagate the uncertainty.
 
-Our method uses a probabilistic matrix representation of individual sequences which incorporates base quality scores as a measure of uncertainty that naturally lead to resampling and replication as a framework for uncertainty propagation. With the matrix representation, resampling possible base calls according to quality scores provides a bootstrap- or prior distribution-like first step towards genetic analysis. Analyses based on these re-sampled sequences will include an more complete evaluation of the error involved in such analyses.
+Our method uses a probabilistic matrix representation of individual sequences which incorporates base quality scores as a measure of uncertainty that naturally lead to resampling and replication as a framework for uncertainty propagation.
+With the matrix representation, resampling possible base calls according to quality scores provides a bootstrap- or prior distribution-like first step towards genetic analysis.
+Analyses based on these re-sampled sequences will include an more complete evaluation of the error involved in such analyses.
 
-We demonstrate our resampling method on SARS-CoV-2 data. The resampling procedures adds a linear computational cost to the analyses, but the large impact on the variance in downstream estimates makes it clear that ignoring this uncertainty may lead to overly confident conclusions. We show that SARS-CoV-2 lineage designations via Pangolin are much less certain than the bootstrap support reported by Pangolin would imply and the clock rate estimates for SARS-CoV-2 are much more variable than reported.
+We demonstrate our resampling method on SARS-CoV-2 data.
+The resampling procedures adds a linear computational cost to the analyses, but the large impact on the variance in downstream estimates makes it clear that ignoring this uncertainty may lead to overly confident conclusions.
+We show that SARS-CoV-2 lineage designations via Pangolin are much less certain than the bootstrap support reported by Pangolin would imply and the clock rate estimates for SARS-CoV-2 are much more variable than reported.
 \end{abstract}
 
 
@@ -37,33 +45,34 @@ We demonstrate our resampling method on SARS-CoV-2 data. The resampling procedur
 
 Generating a genetic sequence from a biological sample is a complex process.
 Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
-If working with RNA, then we must use a reverse transcriptase reaction to convert the RNA into DNA.
+If working with RNA, then we must use a reverse transcriptase reaction (which has a high base misincorporation rate) to convert the RNA into DNA. TODO: confirm parenthesis element with Art.
 
 Polymerase chain reaction (PCR) amplification is often employed to enrich the sample for the target of interest.
 For next-generation sequencing (NGS) protocols, we have to generate a sequencing library for instance by random shearing of nucleic acids into fragments that are ligated onto special ``adaptors''.
-NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009}.
+NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009}. TODO: More recent paper
 In addition, the short reads produced by NGS platforms need to be aligned --- either by alignment against a reference genome, \emph{de novo} assembly, or a combination of the two --- to reconstruct a consensus sequence using one or more bioinformatic programs.
 Errors can be introduced in any one of these steps \citep{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}.
 
 
 In some cases, naturally occurring variation, \ie genetic polymorphisms, or variation induced by experimental error is directly quantified and encoded into the output.
 For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \citep{NomenclatureIncompletelySpecified1986}.
-\citet{ewingBaseCallingAutomatedSequencer1998} and \citet{richterichEstimationErrorsRaw1998} both showed that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
-The accuracy of Phred quality scores has been disputed and other methods for quantifying error probabilities have been proposed \citep{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}, Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
+\citet{ewingBaseCallingAutomatedSequencer1998} and \citet{richterichEstimationErrorsRaw1998} both argued that estimates of the base call quality, typically quantified as Phred quality scores ($Q=-10 \log_{10} P$, where $P$ is the estimated error probability), can be an accurate estimate of the number of errors that the machines at the time would make.
+The accuracy of Phred quality scores has been disputed and other methods for quantifying error probabilities have been proposed \citep{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}. TODO: rephrase "disputed".
+Nevertheless, Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
 Generally, these scores are used to censor the base calls (\ie label them ``N'' rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold.
 It is also common practice to remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg \citet{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014,oraweAccountingUncertaintyDNA2015}.
-Some authors/tools, such as \citet{lippiPotentialPreanalyticalAnalytical2020}, use a more sophisticated form of quality control, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
+Some authors/tools use more sophisticated models, such as \citet{wuEstimatingErrorModels2017} who use statistical models that incorporate read depth to determine a probability of a sequencing error, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
 Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihoods of partial or full sequences.
 For example, \citet{depristoFrameworkVariationDiscovery2011} and \citet{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of genetic diversity within a population; this approach has subsequently been used to develop new estimators of genetic diversity \citep{fumagalliQuantifyingPopulationGenetic2013a}. 
 \citet{kuoEAGLEExplicitAlternative2018} recently used a similar approach to develop a statistical test of whether a given genome sequence is consistent with a specified alternative sequence.
-In general, the reported error probabilities from NGS technologies are primarily used for filtering low quality sequences and improving alignment algorithms (which both result in a consensus sequence that is treated as error-free) or for hypothesis tests concerning small collections (usually pairs) of sequences.
+In general, the reported error probabilities from NGS technologies are primarily used for filtering low quality sequences and improving alignment algorithms (which both result in a consensus sequence that is assumed to be error-free) or for hypothesis tests concerning small collections (usually pairs) of sequences.
 
 
 The uncertainty present in the sequences are seldom propagated to downstream analyses.
 For example, methods for sequence alignment and homology searches generally employ heuristic algorithms that utilize similarity scores that do not explicitly incorporate the probabilities of sequencing errors.
 Moreover, methods to reconstruct the evolutionary relationships among sequences as a phylogenetic tree tend to interpret ambiguous base calls as completely missing data, although some exceptions are found in the literature, \eg \citet{depristoFrameworkVariationDiscovery2011}.
 This problem is exacerbated when each sequence represents the consensus of diverse copies of a genome, such as rapidly evolving virus populations where genuine polymorphisms are confounded with sequencing error. 
-See \citet{schneiderConsensusSequenceZen2002} for more criticisms of the use of consensus sequences, along with visualizations \citep[called \emph{sequence logos}, ]{schneiderSequenceLogosNew1990} to display the deviations from a consensus.
+See \citet{schneiderConsensusSequenceZen2002} for more criticisms of the use of consensus sequences, along with visualizations \citep[][called \emph{sequence logos}, ]{schneiderSequenceLogosNew1990} to display the deviations from a consensus.
 
 Though rare, some studies have proposed methods for propogation of uncertainty from one step to later steps of an analysis.
 \citet{oraweAccountingUncertaintyDNA2015} suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
@@ -81,8 +90,8 @@ This framework involves converting the uncertainty scores into a matrix of proba
 Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns or distributions in the data.
 In so doing, we can gain more accurate estimation of the errors at the expense of computation time.
 Our technique is amenable to quality score adjustments prior to applying our methods.
-We demonstrate the impact of propagating sequence uncertainty by applying our methods to the problem of classifying SARS-CoV-2 genomes into predefined clusters known as ``lineages'', several of which correspond to variants carrying mutations that are known to confer an advantage to virus transmission or infectivity.
-We also analyse a collection of SARS-CoV-2 sequences to demonstrate that the clock rate from a root-to-tip regression is much more variable than studies relying on deterministic sequences would conclude.
+We demonstrate the impact of propagating sequence uncertainty by applying our methods to the problem of classifying SARS-CoV-2 genomes into predefined clusters known as ``lineages'' \citep{rambautDynamicNomenclatureProposal2020}, several of which correspond to variants carrying mutations that are known to confer an advantage to virus transmission or infectivity.
+We also analyse a collection of SARS-CoV-2 sequences to demonstrate that the estimated rate of new mutations is much more variable than studies relying on deterministic sequences would conclude.
 
 
 
@@ -133,11 +142,11 @@ The nucleotide (or deletion) drawn at each position is independent from all the 
 
 
 A major limitation of this probabilistic representation of a sequence is that we lose all information on linkage disequilibrium.
-This is especially problematic for recording insertions.
+This is especially problematic for recording insertions because insertions with $L \ge 2$ nucleotides are treated as $L$ independent single nucleotide insertions.
 Instead, we assume that every nucleotide is an independent observation.
 For example, a probability sequence populated from short read data from a diverse population would not store the information that two polymorphisms were always observed in the same reads, \ie in complete linkage disequilibrium.
 We also lose information about autocorrelation in sequencing error, such as clusters of miscalled bases associated with later cycles of sequencing-by-synthesis platforms.
-Sequence chromatograms are affected by the same loss of information.
+Sequence chromatograms and base quality scores are affected by the same loss of information.
 
 We note that this representation is similar to the ``CATG'' file type as described in \citet{kozlovModelsOptimizationsTools2018}, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
 This file type is able to be used by RAxML-NG to estimate an overall error rate which is then used to estimate phylogenetic trees.
