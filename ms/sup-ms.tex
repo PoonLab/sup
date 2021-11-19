@@ -162,13 +162,13 @@ For example, the reference SARS-CoV-2 genome is 29,903 nucleotides, and a substa
 Thus it would not be surprising if $\ell$ exceeded 30,000 nucleotides (nt).
 The majority of these technically possible $5^\ell$ sequences are not biologically plausible.
 Therefore, we formulate an ordered subset $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of the first $m$ most likely sequences, which are ranked in descending order by the joint probability of nucleotide composition.
-Note that the $\sps_i$ do not necessarily have the same length.
+Note that the sequences in $\sps$, $\sps_i$, do not necessarily have the same length.
 The observed genetic sequence, $s^*$, is a sample from a specified discrete probability distribution $a$:
 \begin{equation}
-\pr{s^* = \sps_i | i \le m} = a(i)
+\pr{s^* = \sps_i | i ... m} = a(i)
 \end{equation}
 This compact and approximate representation drastically reduces the number of operations to one sample, after some pre-processing to calcualte $a$.
-The observed consensus sequence $s^*$ (the sequence consisting of the most likely base at each position) is guaranteed to be a member of $\sps$ if $\nps_{s(j), j} > 0.5\;\forall\;j$ where $s(j)$ is the $j$-th nucleotide of $s^*$; indeed, it is guaranteed to be the highest ranked member $i=0$.
+The observed plurality sequence $s^*$ (the sequence consisting of the most likely base at each position) is guaranteed to be a member of $\sps$ if $\nps_{s(j), j} > 0.5\;\forall\;j$ where $s(j)$ is the $j$-th nucleotide of $s^*$; indeed, it is guaranteed to be the highest ranked member $i=0$.
 We refer to any member of the set $\sps$ as a \emph{\slps}.
 Note that because $a$ is a probability distribution, we must have $\sum_{i=1}^m a(i) = 1$.
 In other words, this probability is conditional on the sequence being in $\sps$.
@@ -191,7 +191,7 @@ The most likely sequence has the highest joint nucleotide probability: \sq{ACATG
 If there is a positive probability of deletion for at least one position, then the sequence has a variable length.
 Large genomes or sequencing targets will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
 
-\dc{Shouldn't we also give a simple example for a sequence-level uncertainty $\sps$?}
+TODO: \dc{Shouldn't we also give a simple example for a sequence-level uncertainty $\sps$?}, also calculate the probability of the $m$th sequence and normalized probability.
 
 
 \subsubsection{Deletions and insertions}
@@ -245,8 +245,8 @@ $\sps_4$ = \sq{CATAT}  & $a(4) = 0.0001$  \\
 \subsubsection{SAM files}
 
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with the quality (or ``Phred'') score attributed to each base call produced by sequencing instrument.
-The quality score $Q$ is directly related to this error probability: $\epsilon = 10^{-Q/10}$ \citep{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
-It is important to note that this quality score only measures the probability of error from the machine; $1 - \epsilon$ should not be interpreted as the probability that a call is correct.
+The quality score $Q$ is directly related to this estimated error probability: $\epsilon = 10^{-Q/10}$ \citep{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
+It is important to note that this quality score only measures the probability of error from the machine; $1 - \epsilon$ is an estmate of the probability of no sequencing errors and does not account for any other source of error.
 
 More formally, the probability that the base call is correct is expressed as: 
 \begin{equation}
@@ -266,7 +266,6 @@ The SAM format contains much more information (\url{https://samtools.github.io/h
 
 
 We employed the following procedure to construct the nucleotide-level probabilistic sequence from the contents of a SAM file.
-We initialize aligned sequence and quality strings with '-' and '!' ($Q=0$) repeated $r-1$ times, respectively, where $r$ is the (one-indexed) position of the leftmost nucleotide in the reference genome.
 We initialize aligned sequence and quality strings with '-' in all positions before the first read and after the last read, and '!', which corresponds to a quality score of 0 ($Q=0$), to all other positions.
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
 Deleted bases (`D` operations) are not assigned Phred scores, so we assume them to have 0 error probability.
@@ -274,9 +273,11 @@ Deleted bases (`D` operations) are not assigned Phred scores, so we assume them 
 Insertions (`I` operations) are non-trivial to include in the probabilistic sequence.
 Consider a short read with two bases inserted at position $j$ (say, an \sq{A} at position $j+1$ and a \sq{T} at position $j+2$) and a short read with one insertion at position $j$ (say, a \sq{C}).
 It is entirely ambiguous whether the single insertion (\sq{C}) aligns with the first insertion (\sq{A}) or the second insertion (\sq{T}) of the first short read. 
+This is problematic for building up the matrix from reads aligned to the reference sequence.
+It is conceptually and computationally simpler to start from a populated matrix and sampling insertions.
 For our purposes, we only consider the alignment of these sequences with a reference sequence and thus do not consider insertions.
 
-Some NGS platforms use paired-end reads where the same nucleic acid template is read in both directions.
+Some NGS platforms (e.g., Illumina) use paired-end reads where the same nucleic acid template is read in both directions.
 In these situations, we simply adjust all values by a factor of one half.
 For bases where the paired-end reads overlap, this has the effect of averaging the base probability $1-\epsilon$.
 For example, if $1-\epsilon$ is 90\% for $\sq{A}$ in one read and 95\% $\sq{A}$ in its mate, then 0.925 is added to the $\sq{A}$ row in $\nps'$ (with the remaining 0.075 uniformly distributed across the other nucleotides.
@@ -293,14 +294,14 @@ Full length or partial genome sequences are now frequently the product of next-g
 However, the original read data are often not published alongside the consensus sequence.
 Some consensus sequences are released in a format where the bases are annotated with quality scores, \eg FASTQ.
 There are several programs that provide methods to convert a SAM file into a consensus FASTQ file \citep{liAdjustQualityScores2004, keithSimulatedAnnealingAlgorithm2002, liMappingShortDNA2008a}.
-These programs use slightly different methods for generated consensus quality scores, but generally filter quality scores for the majority base.
+These programs use slightly different methods for generating consensus quality scores, but filter quality scores for the majority base.
 For example, suppose there are three reads with the following base calls at position $j$: \sq{A} with $Q=30$, \sq{A} with $Q=31$, and \sq{C} with $Q=15$.
-Calculation of the consensus quality score will thereby exclude the $Q=15$ value.
+Calculation of the consensus quality score will thereby exclude the $Q=15$ value and report a quality score calculated from $Q=30$ and $Q=31$, with the details of the calculation differing by software.
 
 
 This omission makes it challenging for us to generate an $\nps$ matrix from a consensus FASTQ file.
 Given the consensus base and its associated quality score at position $j$, we must assume that the other bases are all equally likely with probability $\epsilon_j/3$ (similar to \cite{kuoEAGLEExplicitAlternative2018} and Chapter 5 of \citet{kozlovModelsOptimizationsTools2018}).
-For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=60,30,50,10,40$.
+For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=(60,30,50,10,40)$.
 The probabilistic sequence is:
 \begin{equation}
 \nps = 
@@ -346,10 +347,12 @@ As with the deletion rate, this requires an assumption about a global rate which
 
 If we do not have access to any base quality information, \eg the consensus sequence is published as a FASTA file, then our ability to populate $\nps$ is severely limited.
 Any uncertainty that we impose upon the data will be a principled assumption.
-The error probability at the $j$ position of the consensus sequence can be simulated as a beta distribution, \ie 
+The error probability at the $j$ position of the consensus sequence can be simulated as a beta distribution, \ie \vspace{-4mm}
+
 $$
 \epsilon_j \sim\text{Beta}(\alpha, \beta)
 $$
+
 The called base at position $j$ has probability $1-\epsilon_j$, and the remaining bases are assigned $\epsilon_j/3$.
 To incorporate deletions, another probability $d$ can be generated as the \emph{gap probability}.
 With these defined, the nucleotide-level probabilistic sequence at the $j$th column (assuming the base call at position $j$ was $\sq{A}$) can be written as above.
@@ -374,6 +377,11 @@ In fact, the ultimate effect of this is to decrease the bootstrap confidence to 
 In a Bayesian framework, the multinomial sampling could be incorporated as prior distribution on each nucleotide.
 For large collections of large sequences in an Markov Chain Monte Carlo algorithm, this increases the dimensionality dramatically.
 
+\subsection{Implementation}
+
+A C program has been written to convert SAM files into our matrix representation. The program assumes that the reads are aligned to a reference, then uses that reference to initiate the matrix. Because of our methods for handling paired reads, the program is able to stream the file line-by-line in a parallel computing environment. 
+
+The resampling algorithm defined above has been implemented in the R programming language. A shell script is used to repeatedly call the necessary R functions and apply the resampling algorithm to all outputs of the C program until the desired number of samples is obtained. All of the code for this project is available at \url{https://github.com/Poonlab/SUP}.
 
 \section{Applications}
 
