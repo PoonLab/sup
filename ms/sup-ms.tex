@@ -74,7 +74,7 @@ Moreover, methods to reconstruct the evolutionary relationships among sequences 
 This problem is exacerbated when each sequence represents the consensus of diverse copies of a genome, such as rapidly evolving virus populations where genuine polymorphisms are confounded with sequencing error. 
 See \citet{schneiderConsensusSequenceZen2002} for more criticisms of the use of consensus sequences, along with visualizations \citep[][called \emph{sequence logos}, ]{schneiderSequenceLogosNew1990} to display the deviations from a consensus.
 
-Though rare, some studies have proposed methods for propogation of uncertainty from one step to later steps of an analysis.
+Though rare, some studies have proposed methods for propagation of uncertainty from one step to later steps of an analysis.
 \citet{oraweAccountingUncertaintyDNA2015} suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
 Another exception can be found in \citet{kuhnerCorrectingSequencingError2014}, who incorporate an assumed or estimated error rate for the entire sequence into the calculation of a phylogenetic tree and found that incorporation of errors makes the inferred branch lengths much closer to the true (simulated) branch lengths.
 Though they did not use nucleotide-level uncertainty, \citet{gompertHierarchicalBayesianModel2011} incorporate the coverage of NGS technologies as part of the uncertainty of estimates for the frequency of alleles in a population.
@@ -167,7 +167,7 @@ The observed genetic sequence, $s^*$, is a sample from a specified discrete prob
 \begin{equation}
 \pr{s^* = \sps_i | i ... m} = a(i)
 \end{equation}
-This compact and approximate representation drastically reduces the number of operations to one sample, after some pre-processing to calcualte $a$.
+This compact and approximate representation drastically reduces the number of operations to one sample, after some pre-processing to calculate $a$.
 The observed plurality sequence $s^*$ (the sequence consisting of the most likely base at each position) is guaranteed to be a member of $\sps$ if $\nps_{s(j), j} > 0.5\;\forall\;j$ where $s(j)$ is the $j$-th nucleotide of $s^*$; indeed, it is guaranteed to be the highest ranked member $i=0$.
 We refer to any member of the set $\sps$ as a \emph{\slps}.
 Note that because $a$ is a probability distribution, we must have $\sum_{i=1}^m a(i) = 1$.
@@ -246,7 +246,7 @@ $\sps_4$ = \sq{CATAT}  & $a(4) = 0.0001$  \\
 
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with the quality (or ``Phred'') score attributed to each base call produced by sequencing instrument.
 The quality score $Q$ is directly related to this estimated error probability: $\epsilon = 10^{-Q/10}$ \citep{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
-It is important to note that this quality score only measures the probability of error from the machine; $1 - \epsilon$ is an estmate of the probability of no sequencing errors and does not account for any other source of error.
+It is important to note that this quality score only measures the probability of error from the machine; $1 - \epsilon$ is an estimate of the probability of no sequencing errors and does not account for any other source of error.
 
 More formally, the probability that the base call is correct is expressed as: 
 \begin{equation}
@@ -364,7 +364,7 @@ The results from such an analysis would not indicate anything about the sequence
 \subsection{Propagation of uncertainty via resampling}
 
 The most general way to propagate uncertainty is through resampling.
-Given $\nps$ and assuming that individual nucleotides are independent outcomes --- or precomputing a reduced set of $m$ sequences and calculating the distribution $a$ of their joint probabilities, \ie the sequence-level approach --- we can propagate uncertainty by running downstream analyses on each set of sampled sequences.
+Given $\nps$ and assuming that individual nucleotides are independent outcomes --- or pre-computing a reduced set of $m$ sequences and calculating the distribution $a$ of their joint probabilities, \ie the sequence-level approach --- we can propagate uncertainty by running downstream analyses on each set of sampled sequences.
 
 At a nucleotide level, we are sampling from a multinomial distribution.
 If the $j$th column of $\nps$ is (0.5, 0.2, 0.2, 0.09, 0.01), then we could sample $\sq{A}$ with 50\% probability, $\sq{C}$ with 20\%, etc.
@@ -385,7 +385,7 @@ The resampling algorithm defined above has been implemented in the R programming
 
 \section{Applications}
 
-\subsection{SARS-CoV-2 lineage assignemnt}
+\subsection{SARS-CoV-2 lineage assignment}
 
 In this section, we apply the re-sampling method to evaluate the impact of sequencing error on the lineage assignments of SARS-CoV-2.
 Sequences are sampled from $\nps$ and then assigned a lineage based on the current state-of-the-art in phylogenetic analysis.
@@ -440,7 +440,7 @@ We could even add another panel (so that would be a 2-panel figure) with a histo
 
 \begin{figure}
 \includegraphics[width=\textwidth]{figs/histograms.pdf}
-\caption{\label{fig:covidcalls3}(Second alternative to Figure 1)Histograms representing the results from each SAM file. From left to right, top to bottom: the proportion of sampled sequences that were assigned the same lineage as the consensus sequence; the proportion of resamples assigned to the second most common lineage; the same histogram, but for the third most likely lineage; the number of lineages that were only observed once (atoms); the total number of different lineages observed; and the ratio of the number of resamples agreeing with the most common lineage divided by the number of lineags agreeing with the second most common (e.g., 5000 means that there were 5000 times as many lineages in the most common category versus the second most common category).}
+\caption{\label{fig:covidcalls3}(Second alternative to Figure 1)Histograms representing the results from each SAM file. From left to right, top to bottom: the proportion of sampled sequences that were assigned the same lineage as the consensus sequence; the proportion of resamples assigned to the second most common lineage; the same histogram, but for the third most likely lineage; the number of lineages that were only observed once (atoms); the total number of different lineages observed; and the ratio of the number of resamples agreeing with the most common lineage divided by the number of lineages agreeing with the second most common (e.g., 5000 means that there were 5000 times as many lineages in the most common category versus the second most common category).}
 \end{figure}
 
 
@@ -458,7 +458,7 @@ The associated GISAID accession numbers are provided in the Appendix.
 
 Our re-sampling method will, by definition, introduce other possible mutations beyond what the consensus sequence suggests.
 Because of this, the apparent number of mutations between a re-sampled genome and the estimated root is a function of the coverage, with more positions read or more uncertainty in the sequence leading to artificially inflated terminal branch lengths.
-Furthermore, we are sampling nucleotides at each postion independently of other positions as well as independently of ancestral sequences. 
+Furthermore, we are sampling nucleotides at each position independently of other positions as well as independently of ancestral sequences. 
 This implies that the estimates of the time for the most recent common ancestor are not reliable.
 However, assuming that the sequences have comparable levels of uncertainty, each branch increases by a similar amount and the clock rate should not be affected, only the intercept. 
 
@@ -473,7 +473,7 @@ We recorded the clock rate and standard error from the time tree constructed usi
 
 
 The estimates of the clock rate are shown in Figure \ref{fig:RTT_slope}. The red line and shaded region are the clock rate for the tree built from consensus sequences along with $\pm 1.96$ standard errors. Rate estimates from \citet{ducheneTemporalSignalPhylodynamic2020} (n=122), \citet{choudharySevereAcuteRespiratory2021} (n=261), \citet{songGenomicEpidemiologySARSCoV22021} (n=29), \citet{niePhylogeneticPhylodynamicAnalyses2020} (n=112), and \citet{geidelbergGenomicEpidemiologyDensely2021} (n=77) are also labelled on the plot with purple error bars for 95\% Bayesian Credible Intervals (BCI) or 95\% Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
-Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from the consensus sequences, but each of the individual error bars (from the five studies identified above) miss the excess variation due to sequence uncertainty.
+Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from our tree estimated from consensus sequences as well as the rates from other studies, but each of the individual error bars (from the five studies identified above) miss the excess variation due to sequence uncertainty.
 
 
 \begin{figure}
@@ -484,31 +484,33 @@ Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates ha
 
 \section{Conclusions}
 
-The short run files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses.
+The short read files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses.
 In this study, we demonstrated that these errors in base calling can lead to different conclusions when determining a lineage via Pangolin and that the variance in clock rate estimates is larger than previously shown due to these errors.
 Both of these situations could lead to incorrect conclusions, such as missing a variant of interest or making overconfident conclusions about the date of the first case of COVID-19.
 The potential for errors in base calls should always be taken into account when making decisions based on genetic sequencing data.
 
 The primary contribution of this research is the construction of the probability sequence, which allows for a wide variety of future research directions.
 The direction we described here is focused on re-sampling, which allows a more complete appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
-However, this is not the only application of the probabilistic sequence.
+%However, this is not the only application of the probabilistic sequence.
 
-Instead of SAM files, FASTQ files are often the best available quantification of the potential sequence read errors. 
+In the absence of SAM files, FASTQ files for the consensus sequence also offer quantification of the potential sequence read errors. 
 We have already shown that probability sequences can be trivially constructed by spreading the remaining error probability uniformly across the remaining bases.
 Another use of FASTQ files would be to construct a probability sequence as a reference genome for a given category.
 This would entail collecting all available FASTQ files for a given lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file.
 From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar. 
 
+TODO: Split into Discussion and Conclusions (may require re-organizing the section).
+
 Our proposed methods can result in a linear increase in computational expense.
-Even the method based on ordering the sequences by likelihood inevitably requries re-running the analysis numerous times. 
-However, we have demonstrated that the uncertainty in the sequences themseleves can lead to major changes to the interpretations of the results.
-The so-called ``consensus sequence'' is simply the most likely sequence, and the reported uncertainty is not merely an academic curiousity.
+Even the method based on ordering the sequences by likelihood inevitably requires re-running the analysis numerous times. 
+However, we have demonstrated that the uncertainty in the sequences themselves can lead to major changes to the interpretations of the results.
+The so-called ``consensus sequence'' is simply the most likely sequence, and the reported uncertainty is not merely an academic curiosity.
 Ideally individual analyses would be constructed to take nucleotide-level uncertainty into account.
 For instance, phylogenies have been estimated based on uncertain sequence information in \citet{rossOncoNEMInferringTumor2016, jahnTreeInferenceSinglecell2016, zafarSiFitInferringTumor2017} but the uncertainty is not derived from base quality scores.
 An extension of these methods to incorporate the base quality scores may be a worthwhile research direction.
 
-Computational burden can also be reduced by ording the sequences according to the sequence level uncertainty discussed above.
-By putting all possible sequences in order of uncertainty, we can analyse how the biggest changes in uncertainty affect our analysis.
+Computational burden can also be reduced by sorting the sequences in decreasing uncertainty.
+By doing so, we can analyse how the increases in uncertainty affect our analysis.
 It is possible to devise an algorithm that puts the sequences in order of their uncertainty without calculating the uncertainty for every sequence.
 The consensus sequence is clearly the least uncertain sequence, and by the construction of the probability sequence, it is computationally easy to calculate sequence uncertainty relative to this sequence.
 Because of this, it should be reasonable to calculate all sequence uncertainties for a single mutation, then all pairs of mutations, and so on (we note that it is possible for some pairs of mutations to be more likely than single mutations, thus this algorithm cannot readily calculate the $n$ most likely sequences).
@@ -516,22 +518,23 @@ This allows for easy sorting of the most likely sequences, assuming enough seque
 With this sorted list, we can examine each sequence in increasing uncertainty in order to approximate the distribution of sequence uncertainties.
 Any model that uses sequence data could be re-fit with each sequence to investigate the robustness of that model to sequence uncertainty.
 
-Our analysis focused on designation of lineages according to the Pangolin model as well as estimation of the clock rate.
-The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incoporating the uncertainty or including some measure of robustness.
+Our analysis focused on lineage classification according to the Pangolin model as well as estimation of the clock rate.
+The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incorporating the uncertainty or including some measure of robustness.
 For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
 
-Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption.
-We cannot account for systematic errors, such as those present due to human errors \citep[\eg as noted in][]{IssuesSARSCoV2Sequencing2020}. 
+Our method does not preclude tertiary analyses to test for systematic errors or deviations from a Mendelian inheritance pattern assumption. TODO: This came from a reference, find that reference and expand upon it.
+We cannot account for systematic errors, such as those present due to human errors \citep[\eg as noted in][]{IssuesSARSCoV2Sequencing2020}. TODO: Fix this reference. 
 Our method allows for adjustments of the base call quality score, such as in \citet{brockmanQualityScoresSNP2008}, as well as more sophisticated definitions of genome likelihoods \citep[\eg ][]{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}.
 
-We have developed an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
+We have evaluated an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
 The Pangolin lineage assignment system appears to treat insertions differently from single nucleotide polymorphisms, and our method of sampling insertions is incompatible with their treatment of insertions in lineage assignment operations.
 This is potentially because the sampled base pair at any given position is independent of each other position, and the insertions observed in real-world data are possibly always associated with particular mutations elsewhere.
+However, insertions in the SARS-CoV-2 genome have been relatively rare.
 
 This study should not be taken in any way as a criticism of the Pangolin lineage assignment procedure.
-Rather, Pangolin was chosen as it is a state-of-the art tool based on the best available algorithms for phylogeny reconstruction.
+Rather, Pangolin was chosen as it is the state-of-the art tool for lineage classification.
 The phylogeny created by this team has been a vital resource for researchers and for public health professionals.
-In particular, their label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
+In particular, the PANGO label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
 The output from Pangolin and many other bioinformatics tools are usually interpreted as \emph{deterministic} results.
 This study is an argument that inherent uncertainty in sequencing warrants propagation into downstream analyses.
 
@@ -539,8 +542,9 @@ This study is an argument that inherent uncertainty in sequencing warrants propa
 
 \section*{Appendix}
 
-The following table lists all of the GISAID accession numbers used in this paper.
+The following table lists all of the NCBI SRA accession numbers used in this paper.
 
+TODO: Split the ERR and SRR into separate tables?
 
 % latex table generated in R 4.0.4 by xtable 1.8-4 package
 % Tue Nov 16 10:42:23 2021
@@ -594,6 +598,8 @@ ERR4085809 & ERR4890354 & ERR4892048 & ERR5064166 & ERR5082590 & SRR13021020 \\
 \caption{\label{resampled_acc}Accession numbers for the resampling application.}
 \end{table}
 
+
+TODO: Remove duplicates (in sup-ms-figures.R)
 % latex table generated in R 4.0.4 by xtable 1.8-4 package
 % Tue Nov 16 10:43:08 2021
 \begin{table}[ht]
@@ -639,11 +645,13 @@ ERR4333012 & ERR4598849 & ERR4645575 & ERR4763502 & ERR4893972 & ERR5189526 \\
   ERR4597906 & ERR4644945 & ERR4763252 & ERR4878261 & ERR5188799 &  \\ 
   ERR4597906 & ERR4644945 & ERR4763252 & ERR4878261 & ERR5188799 &
 \end{tabular}
-\caption{\label{rtt_acc}Accession numbers for the root-to-tip application.}
+\caption{\label{rtt_acc}Accession numbers used in the root-to-tip application.}
 \end{table}
 
 \normalsize\clearpage
 
+
+TODO: Fix bibliography numbers.
 \bibstyle{apa}
 \bibliography{supbib}
 
