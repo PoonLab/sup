@@ -7,6 +7,7 @@ library(patchwork)
 library(ggrepel)
 library(scales)
 library(xtable)
+source(here("covid", "aux_funk.R"))
 
 
 
@@ -281,7 +282,8 @@ print(xtable(matrix(resampled_acc, ncol = 6)), include.rownames=FALSE)
 # Generate table of accession numbers for RTT
 rtt_acc <- here("RTT", "samDONE") %>%
     list.files() %>%
-    parse_accession()
+    parse_accession() %>%
+    unique()
 # Pad with NAs to avoid recycling
 rtt_acc <- rtt_acc[1:(ceiling(length(rtt_acc)/6)*6)]
 print(xtable(matrix(rtt_acc, ncol = 6)), include.rownames=FALSE)
