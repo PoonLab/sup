@@ -290,11 +290,25 @@ print(xtable(matrix(rtt_acc, ncol = 6)), include.rownames=FALSE)
 
 
 
+# Data for application section
+lindata <- lins %>%
+    group_by(taxon) %>%
+    summarise(agree = mean(lineage[sample == 0] == lineage[sample != 0]),
+        max_lin = names(sort(table(lineage), decreasing = TRUE))[1],
+        plurality = lineage[sample == 0],
+        none = sum(lineage[sample != 0] == "None"),
+        nuns = lineage[sample == 0] == "None") # Plurality none -> "None"s -> nuns
 
-
-
-
-
-
+nrow(lindata)
+mean(lindata$plurality == "B.1.1.7")
+sum(lindata$max_lin == "B.1.1.7")
+sum(lindata$agree == 0)
+sum(lindata$agree == 1)
+lindata[lindata$agree == 0, ]  %>% arrange(plurality) %>% print(n = Inf) 
+lindata[lindata$agree == 1, ]  %>% arrange(plurality) %>% print(n = Inf) 
+lindata[lindata$plurality == "B.1.1.7",]
+arrange(lindata, agree) %>% print(n = 60)
+arrange(lindata, -none) %>% print(n = 100)
+lindata[lindata$nuns, ]
 
 

@@ -443,10 +443,10 @@ There were 95 sequences total, but we only the plotted ones where the second mos
 
 
 Figure \ref{fig:covidcalls} shows that the consensus sequence is almost always assigned the same lineage as the majority of the resamples; the full results are in Table \ref{tab:pango} in the appendix.
-The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 32.86\% (accession number ERR4440425). TODO: How many were 100\%?
-TODO: Explain "None", find out how many were None, and explain why it's not in the graph (if None was one of the possibilities, then all of the samples were None).
-It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' or for the lineage labelled B.1.1.7.
-This lineage is a significantly more infectious lineage, represents blank\% of our data, TODO: what percent of the data, and is of special concern to health authorities TODO: Citation Needed. 
+The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 32.86\% (accession number ERR4440425).
+There were 52 cases where the proportion agreeing with the consensus sequence was either exactly 0 or less than 1\%, and these cases occurred when the most common lineage sampled was labelled or "None" (sequences are labelled "None" when pangolin's classification does not reach a confidence threshold).
+It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' (13 cases) or for the lineage labelled B.1.1.7 (16 cases).
+This lineage represents 6\% of our data and is a significantly more infectious lineage that is of special concern to health authorities TODO: Citation Needed. 
 
 TODO: \dc{I'd like to suggest an alternative to Figure 1. A histogram where the x-axis is the proportion of resamples that are assigned the same lineage as the consensus sequence. This way we would have a figure that represent \emph{all} the data (not truncated to those that have more than 250 observations); this may also be more to the point: taking sequencing uncertainty into account, some (many?) sequences cannot be so confidently assigned to a single consensus sequence.
 We could even add another panel (so that would be a 2-panel figure) with a histogram again, but this time the x-axis shows the number of lineages associated to the sequences with probability, say, greater than 5\%.}
