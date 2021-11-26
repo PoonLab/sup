@@ -27,7 +27,7 @@ Poon}
 \begin{abstract}
 Genetic sequencing is subject to many different types of errors, but most analyses treat the resultant sequences as if they are known without error.
 Next generation sequencing methods rely on significantly larger numbers of reads than previous sequencing methods in exchange for a loss of accuracy in each individual read.
-Still, the coverage of such machines is imperfect and leaves uncertainty in many of the base calls. 
+Still, the coverage of such machines is imperfect and leaves uncertainty in many of the base calls.
 On top of this machine-level uncertainty, there is uncertainty induced by human error, such as errors in data entry or incorrect parameter settings.
 In this work, we demonstrate that the uncertainty in sequencing techniques will affect downstream analysis and propose a straightforward method to propagate the uncertainty.
 
@@ -192,7 +192,9 @@ If there is a positive probability of deletion for at least one position, then t
 Large genomes or sequencing targets will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
 
 
-Table \ref{tab:biopossible} demonstrates the calculation of sequence-level uncertainties using the values in \eqref{eq:nlps}. The probability column is the product of the matrix entries for each nucleotide. If the four sequences shown are the only biologically plausible sequences, then the normalized probabilities can be expressed as $a(i)$.
+Table \ref{tab:biopossible} demonstrates the calculation of sequence-level uncertainties using the values in \eqref{eq:nlps}.
+The probability column is the product of the matrix entries for each nucleotide.
+If the four sequences shown are the only biologically plausible sequences, then the normalized probabilities can be expressed as $a(i)$.
 
 \begin{table}[H]
 \begin{center}
@@ -398,9 +400,13 @@ For large collections of large sequences in an Markov Chain Monte Carlo algorith
 
 \subsection{Implementation}
 
-A C program has been written to convert SAM files into our matrix representation. The program assumes that the reads are aligned to a reference, then uses that reference to initiate the matrix. Because of our methods for handling paired reads, the program is able to stream the file line-by-line in a parallel computing environment. 
+A C program has been written to convert SAM files into our matrix representation.
+The program assumes that the reads are aligned to a reference, then uses that reference to initiate the matrix.
+Because of our methods for handling paired reads, the program is able to stream the file line-by-line in a parallel computing environment.
 
-The resampling algorithm defined above has been implemented in the R programming language. A shell script is used to repeatedly call the necessary R functions and apply the resampling algorithm to all outputs of the C program until the desired number of samples is obtained. All of the code for this project is available at \url{https://github.com/Poonlab/SUP}.
+The resampling algorithm defined above has been implemented in the R programming language.
+A shell script is used to repeatedly call the necessary R functions and apply the resampling algorithm to all outputs of the C program until the desired number of samples is obtained.
+All of the code for this project is available at \url{https://github.com/Poonlab/SUP}.
 
 \section{Applications}
 
@@ -423,7 +429,7 @@ Once collecting the run accession numbers from the search results, an R script w
 The SRA accession numbers for the sequences we used are provided in the appendix. 
 
 
-\subsubsection{Re-sampling the probabilistic sequence}
+\subsubsection{Re-sampling the probabilistic sequence}\label{sec:Res1}
 
 
 Since pangoLEARN is a pre-trained model, assigning lineage designations to a large number of resampled genome sequences is not computationally burdensome.
@@ -442,31 +448,29 @@ There were 95 sequences total, but we only the plotted ones where the second mos
 \end{figure}
 
 
-Figure \ref{fig:covidcalls} shows that the consensus sequence is almost always assigned the same lineage as the majority of the resamples; the full results are in Table \ref{tab:pango} in the appendix.
+Figure \ref{fig:covidcalls} shows that the consensus sequence is almost always assigned the same lineage as the majority of the resamples; the full results are in the appendix.
 The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 32.86\% (accession number ERR4440425).
 There were 52 cases where the proportion agreeing with the consensus sequence was either exactly 0 or less than 1\%, and these cases occurred when the most common lineage sampled was labelled or "None" (sequences are labelled "None" when pangolin's classification does not reach a confidence threshold).
 It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' (13 cases) or for the lineage labelled B.1.1.7 (16 cases).
-This lineage represents 6\% of our data and is a significantly more infectious lineage that is of special concern to health authorities TODO: Citation Needed. 
+This lineage represents 6\% of our data and is a significantly more infectious lineage that is of special concern to health authorities \citep{Wisem4857, europeancentrefordiseasepreventionandcontrolSARSCoV2VariantsConcern2021}. 
 
-TODO: \dc{I'd like to suggest an alternative to Figure 1. A histogram where the x-axis is the proportion of resamples that are assigned the same lineage as the consensus sequence. This way we would have a figure that represent \emph{all} the data (not truncated to those that have more than 250 observations); this may also be more to the point: taking sequencing uncertainty into account, some (many?) sequences cannot be so confidently assigned to a single consensus sequence.
-We could even add another panel (so that would be a 2-panel figure) with a histogram again, but this time the x-axis shows the number of lineages associated to the sequences with probability, say, greater than 5\%.}
 
 \begin{figure}
 \includegraphics[width=\textwidth]{figs/prop_correct.pdf}
-\caption{\label{fig:covidcalls2}(First alternative to Figure 1)Proportion of resampled sequences that are assigned to the same lineage as the consensus sequence. One proportion is calculated for each SAM file. TODO: Only show parts of the plot to reduce whitespace; include this as well as Figure \ref{fig:covidcalls}.}
-\end{figure}
-
-
-\begin{figure}
-\includegraphics[width=\textwidth]{figs/histograms.pdf}
-\caption{\label{fig:covidcalls3}(Second alternative to Figure 1)Histograms representing the results from each SAM file. From left to right, top to bottom: the proportion of sampled sequences that were assigned the same lineage as the consensus sequence; the proportion of resamples assigned to the second most common lineage; the same histogram, but for the third most likely lineage; the number of lineages that were only observed once (atoms); the total number of different lineages observed; and the ratio of the number of resamples agreeing with the most common lineage divided by the number of lineages agreeing with the second most common (e.g., 5000 means that there were 5000 times as many lineages in the most common category versus the second most common category).}
+\caption{\label{fig:covidcalls2}\textbf{Main {}plot:} Proportion of resampled sequences that are assigned to the same lineage as the consensus sequence.
+One proportion is calculated for each SAM file.
+The sets of resampled sequences where the proportion was less than 1\% or exactly 100\% are explained in Section \ref{sec:Res1}.
+\textbf{Inset:} The number of distinct lineage assignments within each set of resampled sequences.}
 \end{figure}
 
 
 
 \subsection{Clock rate estimation for SARS-CoV-2}
 
-TODO: Explanation of root-to-tip regression, including the purpose, interpretation of the clock rate and intercept (aka date of MRCA), and references for more information.  
+The molecular clock rate (the number of mutations per site per unit of time) of a phylogenetic tree is found by considering both the number of mutations for each observed sequence relative to the root of the tree and the sample dates of those sequences.
+Assuming heterochronous sampling dates, the rate of mutations can be estimated by regressing the number of mutations against the sampling date.
+In the simplest case the clock rate is the slope estimate from a linear regression, which assumes a fixed clock rate.
+Polynomial and non-linear clock rates can be estimated \citep{sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018}, as well as Bayesian non-parametric estimates \citep{drummondBayesianEvolutionaryAnalysis2015}. 
 
 The clock rate (slope of a root-to-tip regression) for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year \citep{ducheneTemporalSignalPhylodynamic2020, choudharySevereAcuteRespiratory2021, songGenomicEpidemiologySARSCoV22021, niePhylogeneticPhylodynamicAnalyses2020, geidelbergGenomicEpidemiologyDensely2021}.
 Using the same resampling methods as above, we estimate a clock rate for trees estimated from each of 50 resamples and for the tree estimated based on the reported consensus sequences.
@@ -477,51 +481,65 @@ The associated SRA accession numbers are provided in the Appendix.
 
 Our re-sampling method will, by definition, introduce other possible mutations beyond what the consensus sequence suggests.
 Because of this, the apparent number of mutations between a re-sampled genome and the estimated root is a function of the coverage, with more positions read or more uncertainty in the sequence leading to artificially inflated terminal branch lengths.
-Furthermore, we are sampling nucleotides at each position independently of other positions as well as independently of ancestral sequences. 
+Furthermore, we are sampling nucleotides at each position independently of other positions as well as independently of ancestral sequences.
 This implies that the estimates of the time for the most recent common ancestor are not reliable.
-However, assuming that the sequences have comparable levels of uncertainty, each branch increases by a similar amount and the clock rate should not be affected, only the intercept. 
+However, assuming that the sequences have comparable levels of uncertainty, each branch increases by a similar amount and the clock rate should not be affected, only the intercept.
 
 The sequences that we acquired did not have comparable levels of uncertainty; the viruses sampled early in the pandemic had considerably higher uncertainty, most likely due to a lack of consistent laboratory guidelines for sequencing this new virus.
 To account for this, we calculated the sum of $\nps'$ for each sequence and applied Statistical Process Control techniques to ensure that all of the sequences had a similar level of coverage.
-In particular, we calculated the mean coverage of the sequences in our data set, $\bar c$, and the standard deviation of the coverage, $s$. 
+In particular, we calculated the mean coverage of the sequences in our data set, $\bar c$, and the standard deviation of the coverage, $s$.
 We removed any sequences outside of $\bar c \pm 3 s$, recalculated $\bar c$ and $s$, and iterated the removal process until all sequence coverages were within the bounds, amounting to 20 removed sequences.
 
 
-The clock rate was estimated using TreeTime \citep{sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018}. 
-We recorded the clock rate and standard error from the time tree constructed using the consensus sequences and compared this to the clock rate and standard deviations of the estimated clock rates in the resampled sequences. The tree built from consensus sequences had a clock rate of $6.5\times 10^{-4}$ with a standard error of $8.01\times 10^{-5}$. The mean of the clock rates for all of the sets of resampled sequences was $8.6\times 10^{-4}$ with standard deviation of $5.3\times 10^{-4}$, which is approximately 1.6 times as large as the standard error for the consensus sequences.
+The clock rate was estimated using TreeTime \citep{sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018}.
+We recorded the clock rate and standard error from the time tree constructed using the consensus sequences and compared this to the clock rate and standard deviations of the estimated clock rates in the resampled sequences.
+The tree built from consensus sequences had a clock rate of $6.5\times 10^{-4}$ with a standard error of $8.01\times 10^{-5}$.
+The mean of the clock rates for all of the sets of resampled sequences was $8.6\times 10^{-4}$ with standard deviation of $5.3\times 10^{-4}$, which is approximately 1.6 times as large as the standard error for the consensus sequences.
 
 
-The estimates of the clock rate are shown in Figure \ref{fig:RTT_slope}. The red line and shaded region are the clock rate for the tree built from consensus sequences along with $\pm 1.96$ standard errors. Rate estimates from \citet{ducheneTemporalSignalPhylodynamic2020} (n=122), \citet{choudharySevereAcuteRespiratory2021} (n=261), \citet{songGenomicEpidemiologySARSCoV22021} (n=29), \citet{niePhylogeneticPhylodynamicAnalyses2020} (n=112), and \citet{geidelbergGenomicEpidemiologyDensely2021} (n=77) are also labelled on the plot with purple error bars for 95\% Bayesian Credible Intervals (BCI) or 95\% Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
+The estimates of the clock rate are shown in Figure \ref{fig:RTT_slope}.
+The red line and shaded region are the clock rate for the tree built from consensus sequences along with $\pm 1.96$ standard errors.
+Rate estimates from \citet{ducheneTemporalSignalPhylodynamic2020} (n=122), \citet{choudharySevereAcuteRespiratory2021} (n=261), \citet{songGenomicEpidemiologySARSCoV22021} (n=29), \citet{niePhylogeneticPhylodynamicAnalyses2020} (n=112), and \citet{geidelbergGenomicEpidemiologyDensely2021} (n=77) are also labelled on the plot with purple error bars for 95\% Bayesian Credible Intervals (BCI) or 95\% Highest Posterior Density (HPD), indicating that the rates and errors from each root-to-tip regression are in line with other published results.
 Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates have an average close to the rate estimated from our tree estimated from consensus sequences as well as the rates from other studies, but each of the individual error bars (from the five studies identified above) miss the excess variation due to sequence uncertainty.
 
 
 \begin{figure}
 \includegraphics[width=\textwidth]{figs/RTT_Slope.pdf}
-\caption{\label{fig:RTT_slope}Clock rates (slope) and 95\% Confidence Intervals for the collections of re-sampled sequences. The red line and red shaded region are the clock rate and 95\% CI for the consensus sequences. The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled. The re-sampled sequences are in line with the consensus sequences as well as the published sequences, but represent a much larger variation due to the uncertainty in the original genome sequences.}
+\caption{\label{fig:RTT_slope}Clock rates (slope) and 95\% Confidence Intervals for the collections of re-sampled sequences.
+The red line and red shaded region are the clock rate and 95\% CI for the consensus sequences.
+The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled.
+The re-sampled sequences are in line with the consensus sequences as well as the published sequences, but represent a much larger variation due to the uncertainty in the original genome sequences.}
 \end{figure}
 
 
 \section{Conclusions}
 
-The short read files produced by next generation sequencing platforms include valuable information about the quality of base calls which can easily be propagated into analyses.
-In this study, we demonstrated that these errors in base calling can lead to different conclusions when determining a lineage via Pangolin and that the variance in clock rate estimates is larger than previously shown due to these errors.
+The files produced by NGS platforms include valuable information about the quality of base calls which should be propagated into analyses.
+In this study, we have demonstrated that these errors in base calling can lead to different conclusions when determining a lineage via Pangolin and that the variance in clock rate estimates is larger than previously shown due to these errors.
 Both of these situations could lead to incorrect conclusions, such as missing a variant of interest or making overconfident conclusions about the date of the first case of COVID-19.
 The potential for errors in base calls should always be taken into account when making decisions based on genetic sequencing data.
 
+Our analysis of Pangolin lineage classification demonstrates that the uncertainty in the base calls has a non-trivial affect on the potential lineage calls.
+The reported lineage classifications are based on a sophisticated classification algorithm which has high confidence in the predicted category, but this assumes that the input sequence is known without error.
+We are not aware of any classification system that incorporates per-base error, so we suggest that interpretations of the output of any classification system be interpreted with reference to the uncertainty in their sequence.
+
+Our clock rate estimation suggest that the confidence/credible intervals for the published clock rates are underestimated.
+As with lineage classification, we are not aware of any clock rate estimation procedures that incorporate the uncertainty in the base calls of the sequences.
+Researchers should be conscious of this potential source of currently unacknowledged error when reporting any results from sequenced genomes.
+
+\section{Discussion}
+
 The primary contribution of this research is the construction of the probability sequence, which allows for a wide variety of future research directions.
 The direction we described here is focused on re-sampling, which allows a more complete appraisal of the variance in the estimates (or provides a reasonable prior distribution in a Bayesian setting), while comparing results for the most likely sequences provide a measure of robustness to sequence uncertainty.
-%However, this is not the only application of the probabilistic sequence.
 
-In the absence of SAM files, FASTQ files for the consensus sequence also offer quantification of the potential sequence read errors. 
+In the absence of SAM files, FASTQ files for the consensus sequence also offer quantification of the potential sequence read errors.
 We have already shown that probability sequences can be trivially constructed by spreading the remaining error probability uniformly across the remaining bases.
 Another use of FASTQ files would be to construct a probability sequence as a reference genome for a given category.
 This would entail collecting all available FASTQ files for a given lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file.
 From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar. 
 
-TODO: Split into Discussion and Conclusions (may require re-organizing the section).
-
 Our proposed methods can result in a linear increase in computational expense.
-Even the method based on ordering the sequences by likelihood inevitably requires re-running the analysis numerous times. 
+Even the method based on ordering the sequences by likelihood inevitably requires re-running the analysis numerous times.
 However, we have demonstrated that the uncertainty in the sequences themselves can lead to major changes to the interpretations of the results.
 The so-called ``consensus sequence'' is simply the most likely sequence, and the reported uncertainty is not merely an academic curiosity.
 Ideally individual analyses would be constructed to take nucleotide-level uncertainty into account.
@@ -562,8 +580,6 @@ This study is an argument that inherent uncertainty in sequencing warrants propa
 \section*{Appendix}
 
 The following table lists all of the NCBI SRA accession numbers used in this paper.
-
-TODO: Split the ERR and SRR into separate tables?
 
 % latex table generated in R 4.0.4 by xtable 1.8-4 package
 % Tue Nov 16 10:42:23 2021
@@ -614,7 +630,8 @@ ERR4085809 & ERR4890354 & ERR4892048 & ERR5064166 & ERR5082590 & SRR13021020 \\
   ERR4890337 & ERR4891898 & ERR5063813 & ERR5082578 & SRR13021013 &  \\ 
   ERR4890352 & ERR4891988 & ERR5063922 & ERR5082580 & SRR13021017 &
 \end{tabular}
-\caption{\label{resampled_acc}Accession numbers for the resampling application.}
+\caption{\label{resampled_acc}Accession numbers for the resampling application.
+The prefix ERR indicates that the sequence comes from the European Nucleotide Archive, whereas the prefix SRR indicates that it comes from the NCBI's Short Read Archive.}
 \end{table}
 
 % latex table generated in R 4.0.4 by xtable 1.8-4 package                                                                                                                             
@@ -642,7 +659,8 @@ ERR4333012 & ERR4598849 & ERR4645575 & ERR4763502 & ERR4893972 & ERR5189526 \\
   ERR4597698 & ERR4643184 & ERR4706873 & ERR4874858 & ERR5187190 &  \\ 
   ERR4597906 & ERR4644945 & ERR4763252 & ERR4878261 & ERR5188799 &  \\ 
 \end{tabular}
-\caption{\label{rtt_acc}Accession numbers used in the root-to-tip application.}
+\caption{\label{rtt_acc}Accession numbers used in the root-to-tip application.
+The prefix ERR indicates that the sequence comes from the European Nucleotide Archive, whereas the prefix SRR indicates that it comes from the NCBI's Short Read Archive.}
 \end{table}
 
 \normalsize\clearpage

@@ -44,6 +44,7 @@ ords <- lapply(
 max_label <- 250
 other_label <- 100
 
+pdf(here("ms", "figs", "sampled_bars.pdf"), width = 14, height = 17)
 par(mfrow = c(45, 1), mar = c(0.05, 7.75, 0.05, 0.05))
 if (exists("seq_info")) rm(seq_info)
 for (i in seq_along(taxons)) {
@@ -109,7 +110,7 @@ for (i in seq_along(taxons)) {
         }
         mtext(side = 2, cex = 1, las = 1,
             text = paste(substr(taxons[i], 1, 3),
-                substr(taxons[i], 4, 20), sep = "\n"))
+                substr(taxons[i], 4, 20), sep = ""))
         abline(v = seq(0, 10000, 1000), lty = 2)
         "pretty_labels <- seq(0, sum(pangtab),
                 by = ifelse(sum(pangtab) < 2000, 100, 1000))
@@ -121,6 +122,7 @@ for (i in seq_along(taxons)) {
         )"
     }
 }
+dev.off()
 #```
 
 
@@ -166,13 +168,24 @@ par(mfrow = c(1,1))
 dev.off()
 
 pdf(here("ms", "figs", "prop_correct.pdf"), width = 6, height = 4)
-ggplot(mapping = aes(x = prop_correct[prop_correct > 0])) + 
+hinset <- ggplot(mapping = aes(x = len_unique)) + 
+    theme_bw() +
+    geom_histogram(colour = "black", fill = "lightgrey") +
+    labs(x = "Number of unique lineages in \neach set of resampled sequences",
+        y = "Count")
+
+ggplot(mapping = aes(x = prop_correct[prop_correct > 0.2 & prop_correct < 1])) + 
     geom_histogram(binwidth=0.025, center = 0.0125,
         colour = "black", fill = "lightgrey") +
     theme_bw() +
-    labs(x = "Proportion of resampled sequences assigned to\n the same lineage as the consensus sequence",
-        y = "Count")
+    labs(x = "Proportion of resampled sequences assigned to the same lineage \nas the consensus sequence, not including <1% or exactly 100%",
+        y = "Count") +
+    annotation_custom(ggplotGrob(hinset),
+        xmin = 0.3, xmax = 0.7,
+        ymin = 15, ymax = 65)
 dev.off()
+
+hist(prop_correct[prop_correct > 0 & prop_correct < 1])
 
 #```{r RTT_slope, warning=FALSE, results='hide', fig.cap="\\label{fig:RTT_slope}Clock rates (slope) and 95% Confidence Intervals for the collections of re-sampled sequences. The red line and red shaded region are the clock rate and 95% CI for the consensus sequences. The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled. The re-sampled sequences are in line with the consensus sequences as well as the published sequences, but represent a much larger variation due to the uncertainty in the original genome sequences."}
 
