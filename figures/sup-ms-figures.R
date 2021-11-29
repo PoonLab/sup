@@ -167,13 +167,14 @@ hist(one_v_two, breaks = 40,
 par(mfrow = c(1,1))
 dev.off()
 
-pdf(here("ms", "figs", "prop_correct.pdf"), width = 6, height = 4)
 hinset <- ggplot(mapping = aes(x = len_unique)) + 
     theme_bw() +
+    theme(axis.text = element_text(size = 6), axis.title = element_text(size = 8)) + 
     geom_histogram(colour = "black", fill = "lightgrey") +
     labs(x = "Number of unique lineages in \neach set of resampled sequences",
         y = "Count")
 
+pdf(here("ms", "figs", "prop_correct.pdf"), width = 6, height = 4)
 ggplot(mapping = aes(x = prop_correct[prop_correct > 0.2 & prop_correct < 1])) + 
     geom_histogram(binwidth=0.025, center = 0.0125,
         colour = "black", fill = "lightgrey") +
