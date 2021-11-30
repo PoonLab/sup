@@ -33,7 +33,7 @@ In this work, we demonstrate that the uncertainty in sequencing techniques will 
 
 Our method uses a probabilistic matrix representation of individual sequences which incorporates base quality scores as a measure of uncertainty that naturally lead to resampling and replication as a framework for uncertainty propagation.
 With the matrix representation, resampling possible base calls according to quality scores provides a bootstrap- or prior distribution-like first step towards genetic analysis.
-Analyses based on these re-sampled sequences will include an more complete evaluation of the error involved in such analyses.
+Analyses based on these re-sampled sequences will include a more complete evaluation of the error involved in such analyses.
 
 We demonstrate our resampling method on SARS-CoV-2 data.
 The resampling procedures adds a linear computational cost to the analyses, but the large impact on the variance in downstream estimates makes it clear that ignoring this uncertainty may lead to overly confident conclusions.
@@ -72,7 +72,7 @@ The uncertainty present in the sequences are seldom propagated to downstream ana
 For example, methods for sequence alignment and homology searches generally employ heuristic algorithms that utilize similarity scores that do not explicitly incorporate the probabilities of sequencing errors.
 Moreover, methods to reconstruct the evolutionary relationships among sequences as a phylogenetic tree tend to interpret ambiguous base calls as completely missing data, although some exceptions are found in the literature, \eg \citet{depristoFrameworkVariationDiscovery2011}.
 This problem is exacerbated when each sequence represents the consensus of diverse copies of a genome, such as rapidly evolving virus populations where genuine polymorphisms are confounded with sequencing error. 
-See \citet{schneiderConsensusSequenceZen2002} for more criticisms of the use of consensus sequences, along with visualizations \citep[][called \emph{sequence logos}, ]{schneiderSequenceLogosNew1990} to display the deviations from a consensus.
+See \citet{schneiderConsensusSequenceZen2002} for more criticisms of the use of consensus sequences, along with visualizations \citep[][called \emph{sequence logos}]{schneiderSequenceLogosNew1990} to display the deviations from a consensus.
 
 Though rare, some studies have proposed methods for propagation of uncertainty from one step to later steps of an analysis.
 \citet{oraweAccountingUncertaintyDNA2015} suggest methods for propagation of sequence-level uncertainty into determining whether two subjects have the same alleles, as well as estimating confidence intervals for allele frequencies. 
@@ -298,10 +298,10 @@ This is problematic for building up the matrix from reads aligned to the referen
 It is conceptually and computationally simpler to start from a populated matrix and sampling insertions.
 For our purposes, we only consider the alignment of these sequences with a reference sequence and thus do not consider insertions.
 
-Some NGS platforms (e.g., Illumina) use paired-end reads where the same nucleic acid template is read in both directions.
+Some NGS platforms (\eg Illumina) use paired-end reads where the same nucleic acid template is read in both directions.
 In these situations, we simply adjust all values by a factor of one half.
 For bases where the paired-end reads overlap, this has the effect of averaging the base probability $1-\epsilon$.
-For example, if $1-\epsilon$ is 90\% for $\sq{A}$ in one read and 95\% $\sq{A}$ in its mate, then 0.925 is added to the $\sq{A}$ row in $\nps'$ (with the remaining 0.075 uniformly distributed across the other nucleotides.
+For example, if $1-\epsilon$ is 90\% for $\sq{A}$ in one read and 95\% $\sq{A}$ in its mate, then 0.925 is added to the $\sq{A}$ row in $\nps'$ (with the remaining 0.075 uniformly distributed across the other nucleotides).
 If the two reads were 60\% $\sq{A}$ and 55\% $\sq{C}$ at the same position, then we would increment the corresponding column vector ($\sq{A}, \sq{T}, \sq{C}, \sq{G}$) by $(0.6/2, 0.1/2, 0.1/2, 0.1/2)$ for the first read and $(0.15/2, 0.15/2, 0.55/2, 0.15/2)$ for the second, resulting in an addition of $(0.375, 0.125, 0.325, 0.125)$ for this pair.
 Bases outside of the overlapping region contribute a maximum of 0.5 to $\nps'$, because the base call on the other read is missing data.
 This approach has the advantage of making the parsing of SAM files trivially parallelizable since we do not need to know how reads are paired.
@@ -340,7 +340,7 @@ In contrast, the probability of the sequence \sq{ACATG} is only 0.899 within the
 
 
 Incorporating deletions in the absence of raw data is also challenging.
-If one is willing to assume global deletion rate, then it is possible to extend the parameterization of $\nps$.
+If one is willing to assume a global deletion rate, then it is possible to extend the parameterization of $\nps$.
 For example, if the probability of a single nucleotide deletion is $d$, then the probability of the called base is $(1-d_j)(1-\epsilon_j)$ and the other three nucleotides have probability $(1-d)\epsilon_j/3$.
 Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
 \begin{equation}
@@ -426,7 +426,7 @@ Search results were filtered to only include records that had SAM files so that 
 To select which runs to download, an arbitrary selection of 5-10 records from each of 20 non-sequential results pages were chosen.
 Once collecting the run accession numbers from the search results, an R script was run to download the relevant files and check that all information was complete.
 23 out of 275 files were incomplete due to technical errors during the download process and a further 4 were rejected due to lack of CIGAR strings. 
-The SRA accession numbers for the sequences we used are provided in the appendix. 
+The SRA accession numbers for the sequences we used are provided in the Appendix. 
 
 
 \subsubsection{Re-sampling the probabilistic sequence}\label{sec:Res1}
@@ -448,7 +448,7 @@ There were 95 sequences total, but we only the plotted ones where the second mos
 \end{figure}
 
 
-Figure \ref{fig:covidcalls} shows that the consensus sequence is almost always assigned the same lineage as the majority of the resamples; the full results are in the appendix.
+Figure \ref{fig:covidcalls} shows that the consensus sequence is almost always assigned to the same lineage as the majority of the resamples; the full results are in the Appendix.
 The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 32.86\% (accession number ERR4440425).
 There were 52 cases where the proportion agreeing with the consensus sequence was either exactly 0 or less than 1\%, and these cases occurred when the most common lineage sampled was labelled or "None" (sequences are labelled "None" when pangolin's classification does not reach a confidence threshold).
 It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' (13 cases) or for the lineage labelled B.1.1.7 (16 cases).
@@ -519,7 +519,7 @@ In this study, we have demonstrated that these errors in base calling can lead t
 Both of these situations could lead to incorrect conclusions, such as missing a variant of interest or making overconfident conclusions about the date of the first case of COVID-19.
 The potential for errors in base calls should always be taken into account when making decisions based on genetic sequencing data.
 
-Our analysis of Pangolin lineage classification demonstrates that the uncertainty in the base calls has a non-trivial affect on the potential lineage calls.
+Our analysis of Pangolin lineage classification demonstrates that the uncertainty in the base calls has a non-trivial effect on the potential lineage calls.
 The reported lineage classifications are based on a sophisticated classification algorithm which has high confidence in the predicted category, but this assumes that the input sequence is known without error.
 We are not aware of any classification system that incorporates per-base error, so we suggest that interpretations of the output of any classification system be interpreted with reference to the uncertainty in their sequence.
 
