@@ -9,16 +9,23 @@
 
 \title{Variance in Variants: Propagating Genome Sequence Uncertainty
 into Phylogenetic Lineage Assignment}
+\date{}
 
 % Suggestion for including affiliations:
-\author[1,2,*]{David Champredon}
-\author[1,*]{Devan Becker}
-\author[1]{Connor Chato}
-\author[1]{Gopi Gugan}
-\author[1]{Art Poon}
+\author[1,2,*,a]{David Champredon}
+\author[1,*,b]{Devan Becker}
+\author[1,c]{Connor Chato}
+\author[1,d]{Gopi Gugan}
+\author[1,e]{Art Poon}
 \affil[1]{Department of Pathology and Laboratory Medicine, Schulich School of Medicine and Dentistry, Western University. London, Ontario, Canada.}
 \affil[2]{Public Health Agency of Canada - National Microbiology Laboratory - Public Health Risk Sciences Division. Guelph, Ontario, Canada.}
 \affil[*]{contributed equally}
+\affil[a]{dchampre@uwo.ca}
+\affil[b]{dbecker7@uwo.ca}
+\affil[c]{cchato@uwo.ca}
+\affil[d]{ggugan@uwo.ca}
+\affil[e]{apoon42@uwo.ca}
+
 
 
 \linenumbers
@@ -28,10 +35,26 @@ into Phylogenetic Lineage Assignment}
 \begin{document}
 \maketitle
 
-\normalsize
-\vspace{1cm}
-\tableofcontents
+\textbf{Classification:} Research Report
 
+\textbf{Keywords:} Next-Generation Sequencing, Phred scores, SARS-CoV-2
+
+\textbf{Significance Statement:} 
+The ``lineages'' used to categorize sequences of the SARS-CoV-2 viral genome are being used in public health decisions and clinical decisions, as well as being used as a way to categorize data prior to model building in academic research.
+The estimation of the rate of mutations in the SARS-CoV-2 genome is used to estimate the date of the first human cases of COVID-19.
+Both of these applications hinge upon having the correct genome sequence.
+In this work, we demonstrate that potential errors in the sequencing process are not only present, but have a noticeable effect on the aforementioned applications. 
+
+\textbf{Competing Interests:}
+None of the authors have competing interests.
+
+
+\normalsize
+%\vspace{1cm}
+%\tableofcontents
+
+
+\clearpage
 \begin{abstract}
 Genetic sequencing is subject to many different types of errors, but most analyses treat the resultant sequences as if they are known without error.
 Next generation sequencing methods rely on significantly larger numbers of reads than previous sequencing methods in exchange for a loss of accuracy in each individual read.
