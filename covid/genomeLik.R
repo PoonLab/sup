@@ -42,7 +42,7 @@ calc_genlLik <- function(S, seq){
     }))
 }
 
-S <- readRDS("data/unc_covid/open_seSAMe-S-ERR4363387.RDS")
+S <- readRDS("data/unc_covid/S-ERR4892386.RDS")
 if(ncol(S) == 6) {
     S[,5] <- S[,5] + S[,6]
     S <- S[,1:5]
