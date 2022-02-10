@@ -4,7 +4,6 @@
 \input{latex-pckg.tex}
 \input{latex-macro.tex}
 
-
 % ===================
 
 \title{Variance in Variants: Propagating Genome Sequence Uncertainty into Phylogenetic Lineage Assignment}
@@ -12,7 +11,7 @@
 
 % Suggestion for including affiliations:
 \author[1,2,*,a]{David Champredon}
-\author[1,*,b]{Devan Becker}
+\author[1,2,*,b]{Devan Becker}
 \author[1,c]{Connor Chato}
 \author[1,d]{Gopi Gugan}
 \author[1,e]{Art Poon}
@@ -161,7 +160,6 @@ Note that we have for all $1\leq j \leq \ell$:
 Also, the sequence length is stochastic if $0<\nps_{\sq{-},i}<1$ for at least one $i$.
 The nucleotide (or deletion) drawn at each position is independent from all the others, so there are up to $5^\ell$ possible different sequences for a given probabilistic nucleotide sequence, but these sequences are \emph{not} equally probable.
 
-
 A major limitation of this probabilistic representation of a sequence is that we lose all information on linkage disequilibrium.
 This is especially problematic for recording insertions because insertions with $L \ge 2$ nucleotides are treated as $L$ independent single nucleotide insertions.
 Instead, we assume that every nucleotide is an independent observation.
@@ -169,7 +167,7 @@ For example, a probability sequence populated from short read data from a divers
 We also lose information about autocorrelation in sequencing error, such as clusters of miscalled bases associated with later cycles of sequencing-by-synthesis platforms.
 Sequence chromatograms and base quality scores are affected by the same loss of information.
 
-We note that this representation is similar to the ``CATG'' file type as described in \cite{kozlovModelsOptimizationsTools2018}, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
+We note that this representation is similar to the ``CATG'' file type as described in \cite{kozlov}, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
 This file type is able to be used by RAxML-NG to estimate an overall error rate which is then used to estimate phylogenetic trees.
 Our probability sequence is also similar in concept to Position Weight Matrices \cite[PWMs, ][]{stormoUsePerceptronAlgorithm1982} which are built according to the frequency of each base at each position of a multiple alignment. 
 Our construction differs in that we are creating one matrix per sequence where the entries are weighted according to error probability within that sequence, rather than one matrix for a collection of sequences. 
@@ -178,6 +176,68 @@ However, methods that accept PWMs will be applicable to our probability sequence
 It is also possible to determine the sequence-level uncertainty as the product of nucleotide uncertainties for all possible sequences.
 This could be useful for creating an ordered list of the most likely sequences or removing any sequences that are not biologically plausible (\eg sequences missing a crucial amino acid, especially a start or stop codon).
 A full discussion of this is in the supplementary materials.
+
+
+
+\subsection{Sequence-level uncertainty}
+
+A significant problem of storing probabilities at the level of individual nucleotides is that generating a sequence from this matrix requires drawing $\ell$ independent outcomes.
+For example, the reference SARS-CoV-2 genome is 29,903 nucleotides, and a substantial number of naturally-occurring sequence insertions have been described.
+Thus it would not be surprising if $\ell$ exceeded 30,000 nucleotides (nt).
+The majority of these technically possible $5^\ell$ sequences are not biologically plausible.
+Therefore, we formulate an ordered subset $\sps = (\sps_i)_{i\in\{1\ldots m\} }$ of the first $m$ most likely sequences, which are ranked in descending order by the joint probability of nucleotide composition.
+Note that the sequences in $\sps$, $\sps_i$, do not necessarily have the same length.
+The observed genetic sequence, $s^*$, is a sample from a specified discrete probability distribution $a$:
+\begin{equation}
+\pr{s^* = \sps_i | i ... m} = a(i)
+\end{equation}
+This compact and approximate representation drastically reduces the number of operations to one sample, after some pre-processing to calculate $a$.
+The observed plurality sequence $s^*$ (the sequence consisting of the most likely base at each position) is guaranteed to be a member of $\sps$ if $\nps_{s(j), j} > 0.5\;\forall\;j$ where $s(j)$ is the $j$-th nucleotide of $s^*$; indeed, it is guaranteed to be the highest ranked member $i=0$.
+We refer to any member of the set $\sps$ as a \emph{\slps}.
+Note that because $a$ is a probability distribution, we must have $\sum_{i=1}^m a(i) = 1$.
+In other words, this probability is conditional on the sequence being in $\sps$.
+
+
+For example, suppose that we have the following \nlps:
+\begin{equation}
+\nps = 
+\bordermatrix{
+& \scriptscriptstyle{1} & \scriptscriptstyle{2}& \scriptscriptstyle{3}& \scriptscriptstyle{4} & \scriptscriptstyle{5} & \scriptscriptstyle{6} \cr
+\sq{A} & 0.9 & 0.05   & 0.99 & 0 & 0 & 0.6\cr
+\sq{C} & 0   & 0.8 & 0 & 0 & 0.1 & 0.1\cr
+\sq{G} & 0.1 & 0.15 & 0 & 0.3 & 0.9 & 0\cr
+\sq{T} & 0 & 0 & 0.01 & 0.7 & 0 & 0.3\cr
+\sq{-} & 0 & 0 & 0 & 0 & 0 & 0\cr
+}\label{eq:nlps}
+\end{equation}
+such that there are $2\times 3 \times 2^3 \times 3 = 144$ possible sequences.
+The most likely sequence has the highest joint nucleotide probability: \sq{ACATGA} with probability 0.2694 ($0.9\times 0.8\times 0.99 \times 0.7 \times 0.9 \times 0.6$).
+If there is a positive probability of deletion for at least one position, then the sequence has a variable length.
+Large genomes or sequencing targets will result in vanishingly small probabilities for all sequences, and thus calculations on the log scale may be necessary to reduce the chance of numerical underflow.
+
+
+Table \ref{tab:biopossible} demonstrates the calculation of sequence-level uncertainties using the values in \eqref{eq:nlps}.
+The probability column is the product of the matrix entries for each nucleotide.
+If the four sequences shown are the only biologically plausible sequences, then the normalized probabilities can be expressed as $a(i)$.
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\textbf{sequence} & \textbf{probability} & $a(i)$\\
+\hline
+$\sps_1$ = \sq{ACATGA}  &  0.299 & $a(1) = 0.467$ \\
+$\sps_2$ = \sq{ACATGT}  &  0.150 & $a(2) = 0.233$  \\
+$\sps_3$ = \sq{ACAGGA}  &  0.128 & $a(3) = 0.200$ \\
+$\sps_4$ = \sq{ACAGGT}  &  0.064 & $a(4) = 0.100$  \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Biologically plausible sequences with probabilities defined by \eqref{eq:nlps}}
+\label{tab:biopossible}
+\end{table}
+
+
 
 \subsection{Constructing the probability sequence}
 
@@ -210,11 +270,145 @@ We initialize aligned sequence and quality strings with '-' in all positions bef
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
 Deleted bases (`D` operations) are not assigned Phred scores, so we assume them to have 0 error probability.
 
-It is non-trivial to account for insertions and paired-end reads.
-We have detailed the issues in the supplementary material.
-To summarise, insertions are not considered and each of a paired-end read is treated as half of an observation.
 
-Sometimes only consensus FASTQ files are available, which also usually contain Phred scores but only for the consensus sequence. We provide an algorithm for generating a probabilistic sequence in the supplementary material. We also include a discussion of testing for robustness against sequence uncertainty when no read quality is available (\ie with consensus FASTA files).
+\subsection{Deletions and Insertions}
+
+
+By construction, the \nlps would need to be defined with its longest possible length, \ie a multiple alignment for all reads.
+Deletions are naturally modelled with our representation but insertions would have to be modelled using deletion probabilities. 
+\begin{equation}
+\label{eq:indel}
+\nps = 
+\bordermatrix{
+&\scriptscriptstyle{1} & \scriptscriptstyle{2}& \scriptscriptstyle{3}& \scriptscriptstyle{4} & \scriptscriptstyle{5} & \scriptscriptstyle{6} \cr
+\sq{A} & 0 & 0   & 1 & 0    & 1 & 0\cr
+\sq{C} & 1 & 0    & 0 & 0    & 0 & 0\cr
+\sq{G} & 0 & 0.99 & 0 & 0    & 0 & 0\cr
+\sq{T} & 0 & 0    & 0 & 0.01 & 0 & 1\cr
+\sq{-} & 0 & 0.01 & 0 & 0.99 & 0 & 0\cr
+}
+\end{equation}
+
+The low deletion probability for position 2 is straightforward to interpret: in about 1\% of the reads that contained this position, nucleotide \sq{G} at position 2 is deleted.
+The high deletion probability for position 4 means there is a 1\% chance of a \sq{T} insertion at this position (\autoref{tab:spsexample}).
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{sequence} & \textbf{probability} \\
+\hline
+$\sps_1$ = \sq{CGAAT}  & $a(1) = 0.9799$ \\
+$\sps_2$ = \sq{CAAT}   & $a(2) = 0.01$  \\
+$\sps_3$ = \sq{CGATAT} & $a(3) = 0.01$ \\
+$\sps_4$ = \sq{CATAT}  & $a(4) = 0.0001$  \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Sequence-level probabilistic sequence defined by \eqref{eq:indel}}
+\label{tab:spsexample}
+\end{table}
+
+
+This probability sequence is non-trivial to construct.
+Consider a short read with two bases inserted at position $j$ (say, an \sq{A} at position $j+1$ and a \sq{T} at position $j+2$) and a short read with one insertion at position $j$ (say, a \sq{C}).
+It is entirely ambiguous whether the single insertion (\sq{C}) aligns with the first insertion (\sq{A}) or the second insertion (\sq{T}) of the first short read. 
+This is problematic for building up the matrix from reads aligned to the reference sequence.
+It is conceptually and computationally simpler to start from a populated matrix and sampling insertions.
+For our purposes, we only consider the pairwise alignment of these sequences with a reference sequence and thus do not consider insertions.
+
+
+
+\subsection{Paired-End Reads}
+
+Some NGS platforms (\eg Illumina) use paired-end reads where the same nucleic acid template is read in both directions.
+In these situations, we simply adjust all values by a factor of one half.
+For bases where the paired-end reads overlap, this has the effect of averaging the base probability $1-\epsilon$.
+For example, if $1-\epsilon$ is 90\% for $\sq{A}$ in one read and 95\% $\sq{A}$ in its mate, then 0.925 is added to the $\sq{A}$ row in $\nps'$ (with the remaining 0.075 uniformly distributed across the other nucleotides).
+If the two reads were 60\% $\sq{A}$ and 55\% $\sq{C}$ at the same position, then we would increment the corresponding column vector ($\sq{A}, \sq{T}, \sq{C}, \sq{G}$) by $(0.6/2, 0.1/2, 0.1/2, 0.1/2)$ for the first read and $(0.15/2, 0.15/2, 0.55/2, 0.15/2)$ for the second, resulting in an addition of $(0.375, 0.125, 0.325, 0.125)$ for this pair.
+Bases outside of the overlapping region contribute a maximum of 0.5 to $\nps'$, because the base call on the other read is missing data.
+This approach has the advantage of making the parsing of SAM files trivially parallelizable since we do not need to know how reads are paired.
+In addition, the coverage calculated from $\nps'$ is scaled to the number of templates rather than the number of reads.
+
+
+\subsection{Consensus Sequence FASTQ and FASTA Files}
+\label{fastq_construction}
+
+Full length or partial genome sequences are now frequently the product of next-generation sequencing, by taking the consensus of the aligned or assembled read data.
+However, the original read data are often not published alongside the consensus sequence.
+Some consensus sequences are released in a format where the bases are annotated with quality scores, \eg FASTQ.
+There are several programs that provide methods to convert a SAM file into a consensus FASTQ file \citep{liAdjustQualityScores2004, keithSimulatedAnnealingAlgorithm2002, liMappingShortDNA2008a}.
+These programs use slightly different methods for generating consensus quality scores, but filter quality scores for the majority base.
+For example, suppose there are three reads with the following base calls at position $j$: \sq{A} with $Q=30$, \sq{A} with $Q=31$, and \sq{C} with $Q=15$.
+Calculation of the consensus quality score will thereby exclude the $Q=15$ value and report a quality score calculated from $Q=30$ and $Q=31$, with the details of the calculation differing by software.
+
+
+This omission makes it challenging for us to generate an $\nps$ matrix from a consensus FASTQ file.
+Given the consensus base and its associated quality score at position $j$, we must assume that the other bases are all equally likely with probability $\epsilon_j/3$ (similar to \cite{kuoEAGLEExplicitAlternative2018} and Chapter 5 of \cite{kozlov}).
+For example, let's assume the output sequence after fragment sequencing and alignment is \sq{ACATG} and its associated quality scores are respectively $Q=(60,30,50,10,40)$.
+The probabilistic sequence is:
+\begin{equation}
+\nps = 
+\bordermatrix{
+&\scriptscriptstyle{1} & \scriptscriptstyle{2}& \scriptscriptstyle{3}& \scriptscriptstyle{4} & \scriptscriptstyle{5} \cr
+\sq{A} & 1-10^{-6} & 10^{-3}/3  & 1-10^{-5} & 10^{-1}/3 & 10^{-4}/3  \cr
+\sq{C} & 10^{-6}/3 & 1-10^{-3}  & 10^{-5}/3 & 10^{-1}/3 & 10^{-4}/3  \cr
+\sq{G} & 10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 10^{-1}/3 & 1-10^{-4} \cr
+\sq{T} & 10^{-6}/3 & 10^{-3}/3  & 10^{-5}/3 & 1-10^{-1} & 10^{-4}/3 \cr
+\sq{-} & 0 & 0 & 0 & 0 & 0 \cr
+}
+\end{equation}
+Usually, the genetic sequence \sq{ACATG} would be considered as certain and quality scores discarded.
+In contrast, the probability of the sequence \sq{ACATG} is only 0.899 within the probabilistic sequence framework.
+
+
+Incorporating deletions in the absence of raw data is also challenging.
+If one is willing to assume a global deletion rate, then it is possible to extend the parameterization of $\nps$.
+For example, if the probability of a single nucleotide deletion is $d$, then the probability of the called base is $(1-d_j)(1-\epsilon_j)$ and the other three nucleotides have probability $(1-d)\epsilon_j/3$.
+Hence, if we assume the base call is \sq{A}, the column of the \nlps for that position is
+\begin{equation}
+\nps(,j) = 
+\bordermatrix{
+&\scriptscriptstyle{j}  \cr
+\sq{A} & (1 - d)(1-\epsilon_j) \cr
+\sq{C} & (1 - d)\epsilon_j/3 \cr
+\sq{G} & (1 - d)\epsilon_j/3 \cr
+\sq{T} & (1 - d)\epsilon_j/3 \cr
+\sq{-} & d \cr
+}
+\label{eq:deletion}
+\end{equation}
+
+Since the FASTQ file only has a single sequence, we do have the same issues with alignment of differing lengths of insertions.
+In fact, insertions are only insertions relative to the reference sequence; they can simply be treated as observed nucleotides with an associated quality score.
+It would be possible to give insertions special treatment, however, by defining a global insertion rate.
+This insertion rate can be expressed as a deletion rate relative to the observed sequence, and thus one minus the insertion rate can be treated as the deletion rate in the probabilistic sequence.
+As with the deletion rate, this requires an assumption about a global rate which may be arbitrary.
+
+
+A primary use of the probability sequence created from these FASTQ files would be to construct a probability sequence as a reference genome for a given category.
+This would entail collecting all available FASTQ files for a given lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file.
+From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar. 
+
+\subsubsection{Consensus sequence FASTA files}
+
+
+If we do not have access to any base quality information, \eg the consensus sequence is published as a FASTA file, then our ability to populate $\nps$ is severely limited.
+Any uncertainty that we impose upon the data will be a principled assumption.
+The error probability at the $j$ position of the consensus sequence can be simulated as a beta distribution, \ie \vspace{-4mm}
+
+$$
+\epsilon_j \sim\text{Beta}(\alpha, \beta)
+$$
+
+The called base at position $j$ has probability $1-\epsilon_j$, and the remaining bases are assigned $\epsilon_j/3$.
+To incorporate deletions, another probability $d$ can be generated as the \emph{gap probability}.
+With these defined, the nucleotide-level probabilistic sequence at the $j$th column (assuming the base call at position $j$ was $\sq{A}$) can be written as above.
+This probabilistic sequence is completely fabricated, \ie not based on any empirical data.
+However, the sensitivity of an analysis can be evaluated by choosing different values of $\alpha$, $\beta$, and $d$ (\eg based on previous studies) and propagating these uncertainties into downstream analyses.
+The results from such an analysis would not indicate anything about the sequence itself but could be used to determine how robust the methods are to increased sequence uncertainty.
+
+
 
 \subsection{Propagation of uncertainty via resampling}
 
@@ -261,8 +455,11 @@ The SRA accession numbers for the sequences we used are provided in the Appendix
 Since pangoLEARN is a pre-trained model, assigning lineage designations to a large number of resampled genome sequences is not computationally burdensome.
 Sampling 5,000 different sequences from a probabilistic sequence can be done in a reasonable amount of time, even on a mid-range consumer laptop.
 
-\begin{figure} %TODO: Fix this!!!
-\includegraphics[width=\linewidth]{figs/sampled_bars.pdf}
+\begin{figure}
+\includegraphics[width=0.957\linewidth]{figs/sampled_bars1.pdf}
+
+\includegraphics[width=\linewidth]{figs/sampled_bars2.pdf}
+
 
 \caption{\label{fig:covidcalls}Visualization of called lineages from Pangolin.
 Red bars indicate the lineage of the most probable sequence and grey bars represent other sequences called from the same SAM file.
