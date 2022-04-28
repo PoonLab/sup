@@ -1,48 +1,50 @@
-% Needs all files from https://www.overleaf.com/project/61d7564eb01d5f83445cc9b0
-\documentclass[9pt,twocolumn,twoside,lineno]{pnas-new}
-\templatetype{pnasresearcharticle} 
+\documentclass[a4,center,fleqn]{NAR}
+
+\usepackage{anyfontsize}
+\usepackage{lmodern}
+
+% Enter dates of publication
+\copyrightyear{YYYY}
+\pubdate{DD MM YYYY}
+\pubyear{YYYY}
+\jvolume{xx}
+\jissue{xx}
+
+%\articlesubtype{This is the article type (optional)}
+
+\title{Variance in Variants: Propagating Genome Sequence Uncertainty into Phylogenetic Lineage Assignment}
+
+\author{%
+Devan Becker\,$^{2,*}$,
+David Champredon\,$^{2}$
+Connor Chato\,$^{1}$
+Gopi Gugan\,$^{1}$
+and Art Poon\,$^{1}$%
+\footnote{To whom correspondence should be addressed. Email: dbecker7@uwo.ca}}
+
+\address{%
+$^{1}$Public Health Agency of Canada - National Microbiology Laboratory - Public Health Risk Sciences Division
+and
+$^{2}$Department of Pathology and Laboratory Medicine, Schulich School of Medicine and Dentistry, Western University}
+% Affiliation must include:
+% Department name, institution name, full road and district address,
+% state, Zip or postal code, country
+
+\history{%
+Received YYYY-MM-DD;
+Revised YYYY-MM-DD;
+Accepted YYYY-MM-DD}
+
 \input{latex-pckg.tex}
 \input{latex-macro.tex}
 
+\begin{document}
+
+\maketitle
+
+
 % ===================
 
-\title{Variance in Variants: Propagating Genome Sequence Uncertainty into Phylogenetic Lineage Assignment}
-\date{}
-
-% Suggestion for including affiliations:
-\author[1,2,*,a]{David Champredon}
-\author[1,2,*,b]{Devan Becker}
-\author[1,c]{Connor Chato}
-\author[1,d]{Gopi Gugan}
-\author[1,e]{Art Poon}
-\affil[1]{Department of Pathology and Laboratory Medicine, Schulich School of Medicine and Dentistry, Western University. London, Ontario, Canada.}
-\affil[2]{Public Health Agency of Canada - National Microbiology Laboratory - Public Health Risk Sciences Division. Guelph, Ontario, Canada.}
-\affil[*]{contributed equally}
-\affil[a]{dchampre@uwo.ca}
-\affil[b]{dbecker7@uwo.ca}
-\affil[c]{cchato@uwo.ca}
-\affil[d]{ggugan@uwo.ca}
-\affil[e]{apoon42@uwo.ca}
-
-\leadauthor{Becker}
-
-
-\significancestatement{
-The ``lineages'' used to categorize sequences of the SARS-CoV-2 viral genome are being used in public health decisions and clinical decisions, as well as being used as a way to categorize data prior to model building in academic research.
-The estimation of the rate of mutations in the SARS-CoV-2 genome is used to estimate the date of the first human cases of COVID-19.
-Both of these applications hinge upon having the correct genome sequence.
-In this work, we demonstrate that potential errors in the sequencing process are not only present, but have a noticeable effect on the aforementioned applications. 
-}
-
-
-% Please include corresponding author, author contribution and author declaration information
-\authorcontributions{Please provide details of author contributions here.}
-\authordeclaration{None of the authors have competing interests.}
-\equalauthors{\textsuperscript{1}A.O.(Author One) contributed equally to this work with A.T. (Author Two) (remove if not applicable).}
-\correspondingauthor{\textsuperscript{2}To whom correspondence should be addressed. E-mail: author.two\@email.com}
-
-% At least three keywords are required at submission. Please provide three to five keywords, separated by the pipe symbol.
-\keywords{Next-Generation Sequencing $|$ Phred scores $|$ SARS-CoV-2} 
 
 \begin{abstract}
 Genetic sequencing is subject to many different types of errors, but most analyses treat the resultant sequences as if they are known without error.
@@ -60,19 +62,9 @@ We show that SARS-CoV-2 lineage designations via Pangolin are much less certain 
 \end{abstract}
 
 
-\dates{This manuscript was compiled on \today}
-\doi{\url{www.pnas.org/cgi/doi/10.1073/pnas.XXXXXXXXXX}}
-
-\begin{document}
-\maketitle
-\thispagestyle{firststyle}
-\ifthenelse{\boolean{shortarticle}}{\ifthenelse{\boolean{singlecolumn}}{\abscontentformatted}{\abscontent}}{}
 
 
-
-
-
-\dropcap{G}enerating a genetic sequence from a biological sample is a complex process.
+Generating a genetic sequence from a biological sample is a complex process.
 Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
 If working with RNA, then we must use a reverse transcriptase reaction (which has a high base misincorporation rate) to convert the RNA into DNA. 
 
@@ -584,9 +576,6 @@ In particular, the PANGO label for the current Variants of Concern (VOCs), espec
 The output from Pangolin and many other bioinformatics tools are usually interpreted as \emph{deterministic} results.
 This study is an argument that inherent uncertainty in sequencing warrants propagation into downstream analyses.
 
-\acknow{Please include your acknowledgments here, set in a single paragraph. Please do not include any acknowledgments in the Supporting Information, or anywhere else in the manuscript.}
-
-\showacknow{}
 
 \bibliography{supbib}
 
