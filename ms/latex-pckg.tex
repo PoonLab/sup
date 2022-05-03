@@ -3,32 +3,34 @@
 			bottom = 25mm,
 			left   = 30mm,
 			right  = 30mm]{geometry}
+
 			
-\usepackage[parfill]{parskip}		% Avoids the skip at start of new paragraph
+%\usepackage[parfill]{parskip}		% Avoids the skip at start of new paragraph
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage[usenames,dvipsnames]{xcolor} % https://en.wikibooks.org/wiki/LaTeX/Colors
-\usepackage{xspace}
+%\usepackage{xspace}
+%\usepackage{natbib}
 
-\usepackage{float} % Place figures exactly "here" (option "H")
+%\usepackage{float} % Place figures exactly "here" (option "H")
 
-\usepackage[useregional]{datetime2}	% \DTMnow
+%\usepackage[useregional]{datetime2}	% \DTMnow
 \usepackage{lastpage} 				% \pageref{LastPage}
 
 \usepackage[]{hyperref}
-\hypersetup{
-    colorlinks,
-    linkcolor={black},
-    citecolor={blue!80!black},
-    urlcolor={Aquamarine}
-}
+%\hypersetup{
+%    colorlinks,
+%    linkcolor={black},
+%    citecolor={blue!80!black},
+%    urlcolor={Aquamarine}
+%}
 
-\usepackage[font={small,it}]{caption} 
-\captionsetup[table]{skip=10pt}
+%\usepackage[font={small,it}]{caption} 
+%\captionsetup[table]{skip=10pt}
 
 \usepackage{lineno}
-\linenumbers
+%\linenumbers
 
 % Bibliography:
 % apalike: display author names
@@ -36,16 +38,19 @@
 \bibliographystyle{apalike}
 
 
+%\usepackage{authblk}
+%\renewcommand\Affilfont{\itshape\small}
+
 % ===== HEADERS / FOOTERS =====
-\usepackage{fancyhdr}
-\setlength{\headheight}{15.2pt}
-\fancyhead[L]{Modelling Sequence Uncertainty}
-\fancyhead[C]{}
-\fancyhead[R]{Champredon and Poon}
-\renewcommand{\headrulewidth}{0.8pt}
-\fancyfoot[L]{\footnotesize\DTMnow}
-\fancyfoot[C]{\thepage \, / \pageref{LastPage}}
-\fancyfoot[R]{ \textcolor{red}{DRAFT}}
-\renewcommand{\footrulewidth}{0.4pt}
-\pagestyle{fancy}
+%\usepackage{fancyhdr}
+%\setlength{\headheight}{15.2pt}
+%\fancyhead[L]{Modelling Sequence Uncertainty}
+%\fancyhead[C]{}
+%\fancyhead[R]{Champredon, Becker, Chato, Gugan, and Poon}
+%\renewcommand{\headrulewidth}{0.8pt}
+%\fancyfoot[L]{\footnotesize\DTMnow}
+%\fancyfoot[C]{\thepage \, / \pageref{LastPage}}
+%%\fancyfoot[R]{ \textcolor{red}{DRAFT}}
+%\renewcommand{\footrulewidth}{0.4pt}
+%\pagestyle{fancy}
 % ==============================

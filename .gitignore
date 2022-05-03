@@ -74,6 +74,7 @@ drafts/Skeleton.aux
 drafts/*out
 *latexmk
 *fls
+ms/sup-supp.pdf
 
 
 
@@ -94,6 +95,7 @@ src/raxml.out
 src/Rplots.pdf
 src/plot*.pdf
 data/zanini/plot*.pdf
+ms/figs/*pdf
 
 # Trees generated:
 src/trees/*.nwk

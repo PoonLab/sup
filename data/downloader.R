@@ -2,7 +2,6 @@
 
 # Load current info (checks to see which files are already done)
 newacc <- read.csv("SraRunInfo_updated.csv")
-newexp <- read.csv("sra_result.csv")
 newsam <- paste0(newacc$Run, ".sam")
 
 # If Status column doesn't exist, then assume none have been downloaded yet
