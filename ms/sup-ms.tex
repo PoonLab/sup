@@ -18,6 +18,9 @@
 \usepackage[symbol]{footmisc}
 \usepackage{natbib}
 
+\usepackage{url}
+\urlstyle{same}
+
 
 \begin{document}
 
@@ -69,19 +72,19 @@ Nucleic acids must be extracted from the sample while avoiding contamination by 
 If working with RNA, then we must use a reverse transcriptase reaction (which has a high base misincorporation rate) to convert the RNA into DNA. 
 Polymerase chain reaction (PCR) amplification is often employed to enrich the sample for the target of interest.
 For next-generation sequencing (NGS) protocols, we have to generate a sequencing library for instance by random shearing of nucleic acids into fragments that are ligated onto special ``adaptors''.
-NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \cite{fullerChallengesSequencingSynthesis2009, goodwinComingAgeTen2016, salkEnhancingAccuracyNextgeneration2018}. 
+NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009, goodwinComingAgeTen2016, salkEnhancingAccuracyNextgeneration2018}. 
 In addition, the short reads produced by NGS platforms need to be aligned --- either by alignment against a reference genome, \emph{de novo} assembly, or a combination of the two --- to reconstruct a consensus sequence using one or more bioinformatic programs.
-Errors can be introduced in any one of these steps \cite{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}.
+Errors can be introduced in any one of these steps \citep{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}.
 
 
 In some cases, naturally occurring variation, \ie genetic polymorphisms, or variation induced by experimental error is directly quantified and encoded into the output.
-For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \cite{NomenclatureIncompletelySpecified1986}.
-\cite{ewingBaseCallingAutomatedSequencer1998} and \cite{richterichEstimationErrorsRaw1998} both argued that estimates of the base call quality, quantified as Phred quality scores, can be an accurate estimate of the number of errors that the machines at the time would make, but improvements to these error probabilities have been proposed \cite{liAdjustQualityScores2004, liSNPDetectionMassively2009}. 
+For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \citep{NomenclatureIncompletelySpecified1986}.
+\cite{ewingBaseCallingAutomatedSequencer1998} and \cite{richterichEstimationErrorsRaw1998} both argued that estimates of the base call quality, quantified as Phred quality scores, can be an accurate estimate of the number of errors that the machines at the time would make, but improvements to these error probabilities have been proposed \citep{liAdjustQualityScores2004, liSNPDetectionMassively2009}. 
 Nevertheless, Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
-Generally, these scores are either used to censor the base calls (\ie label them ``N'' rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold or remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance; \eg \cite{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014,oraweAccountingUncertaintyDNA2015}.
+Generally, these scores are either used to censor the base calls (\ie label them ``N'' rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold or remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance \citep[\eg ][]{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014,oraweAccountingUncertaintyDNA2015}.
 Some authors/tools use more sophisticated models, such as \cite{wuEstimatingErrorModels2017} who use statistical models that incorporate read depth to determine a probability of a sequencing error, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
 Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihoods of partial or full sequences.
-For example, \cite{depristoFrameworkVariationDiscovery2011} and \cite{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of genetic diversity within a population; this approach has subsequently been used to develop new estimators of genetic diversity \cite{fumagalliQuantifyingPopulationGenetic2013a}. 
+For example, \cite{depristoFrameworkVariationDiscovery2011} and \cite{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of genetic diversity within a population; this approach has subsequently been used to develop new estimators of genetic diversity \citep{fumagalliQuantifyingPopulationGenetic2013a}. 
 \cite{kuoEAGLEExplicitAlternative2018} recently used a similar approach to develop a statistical test of whether a given genome sequence is consistent with a specified alternative sequence.
 In general, the reported error probabilities from NGS technologies are primarily used for filtering low quality sequences and improving alignment algorithms (which both result in a consensus sequence that is assumed to be error-free) or for hypothesis tests concerning small collections (usually pairs) of sequences.
 
@@ -107,7 +110,7 @@ This framework involves converting the uncertainty scores into a matrix of proba
 Unlike likelihood-based approaches, we do not make assumptions about the underlying patterns or distributions in the data.
 In so doing, we can gain more accurate estimation of the errors at the expense of computation time.
 Our technique is amenable to quality score adjustments prior to applying our methods.
-We demonstrate the impact of propagating sequence uncertainty by applying our methods to the problem of classifying SARS-CoV-2 genomes into predefined clusters known as ``lineages'' \cite{rambautDynamicNomenclatureProposal2020}, several of which correspond to variants carrying mutations that are known to confer an advantage to virus transmission or infectivity.
+We demonstrate the impact of propagating sequence uncertainty by applying our methods to the problem of classifying SARS-CoV-2 genomes into predefined clusters known as ``lineages'' \citep{rambautDynamicNomenclatureProposal2020}, several of which correspond to variants carrying mutations that are known to confer an advantage to virus transmission or infectivity.
 We also analyse a collection of SARS-CoV-2 sequences to demonstrate that the estimated rate of new mutations is much more variable than studies relying on deterministic sequences would conclude.
 
 
@@ -236,7 +239,7 @@ $\sps_4$ = \sq{ACAGGT}  &  0.064 & $a(4) = 0.100$  \\
 \subsubsection{Short read files}
 
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with the quality (or ``Phred'') score attributed to each base call produced by sequencing instrument.
-The quality score $Q$ is directly related to this estimated error probability: $\epsilon = 10^{-Q/10}$ \cite{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
+The quality score $Q$ is directly related to this estimated error probability: $\epsilon = 10^{-Q/10}$ \citep{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
 It is important to note that this quality score only measures the probability of error from the machine; $1 - \epsilon$ is an estimate of the probability of no sequencing errors and does not account for any other source of error.
 
 More formally, the probability that the base call is correct is expressed as: 
@@ -251,15 +254,15 @@ In the absence of information about the other bases, we assume that these other 
 Raw short read data are typically recorded in a FASTQ format that stores both the sequences (base calls) and base-specific quality scores.
 Since the reads often correspond to different positions of the target nucleic acid, \eg randomly sheared genomic DNA, it is necessary to align the reads to identify base calls on different reads that represent the same genome position.
 This alignment step can be accomplished by mapping reads to a reference genome, by the \emph{de novo} assembly of reads, or a hybrid approach that incorporates both methods.
-The aligned outputs are frequently recorded in the tabular Sequence Alignment/Map (SAM) format \cite{liSequenceAlignmentMap2009}.
+The aligned outputs are frequently recorded in the tabular Sequence Alignment/Map (SAM) format \citep{liSequenceAlignmentMap2009}.
 Each row represents a short read, including the raw nucleotide sequence and quality strings; the optimal placement of the read with respect to the reference sequence (as an integer offset); and the compact idiosyncratic gapped alignment report (CIGAR) string, an application-specific serialization of the edit operations required to align the read to the reference.
 The SAM format contains much more information (\url{https://samtools.github.io/hts-specs/SAMv1.pdf}), but for our purposes we only need the placement, sequence, quality, and CIGAR string.
 
 
 We employed the following procedure to construct the nucleotide-level probabilistic sequence from the contents of a SAM file.
-We initialize aligned sequence and quality strings with '-' in all positions before the first read and after the last read, and '!', which corresponds to a quality score of 0 ($Q=0$), to all other positions.
+We initialize aligned sequence and quality strings with `--' in all positions before the first read and after the last read, and `!', which corresponds to a quality score of 0 ($Q=0$), to all other positions.
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
-Deleted bases (`D` operations) are not assigned Phred scores, so we assume them to have 0 error probability.
+Deleted bases (`D' operations) are not assigned Phred scores, so we assume them to have 0 error probability.
 
 
 \subsection{Deletions and Insertions}
@@ -466,7 +469,7 @@ Figure \ref{fig:covidcalls} shows that the consensus sequence is almost always a
 The proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 32.86\% (accession number ERR4440425).
 There were 52 cases where the proportion agreeing with the consensus sequence was either exactly 0 or less than 1\%, and these cases occurred when the most common lineage sampled was labelled or "None" (sequences are labelled "None" when pangolin's classification does not reach a confidence threshold).
 It is noteworthy that the only times where 100\% of resampled sequences agreed are when the lineage call was ``None'' (13 cases) or for the lineage labelled B.1.1.7 (16 cases).
-This lineage represents 6\% of our data and is a significantly more infectious lineage that is of special concern to health authorities \cite{Wisem4857, europeancentrefordiseasepreventionandcontrolSARSCoV2VariantsConcern2021}. 
+This lineage represents 6\% of our data and is a significantly more infectious lineage that is of special concern to health authorities \citep{Wisem4857, europeancentrefordiseasepreventionandcontrolSARSCoV2VariantsConcern2021}. 
 
 
 \begin{figure}
@@ -485,9 +488,9 @@ The sets of resampled sequences where the proportion was less than 1\% or exactl
 The molecular clock rate (the number of mutations per site per unit of time) of a phylogenetic tree is found by considering both the number of mutations for each observed sequence relative to the root of the tree and the sample dates of those sequences.
 Assuming heterochronous sampling dates, the rate of mutations can be estimated by regressing the number of mutations against the sampling date.
 In the simplest case the clock rate is the slope estimate from a linear regression, thus assuming a fixed clock rate.
-Polynomial and non-linear clock rates can be estimated \cite{sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018}, as well as Bayesian non-parametric estimates \cite{drummondBayesianEvolutionaryAnalysis2015}. 
+Polynomial and non-linear clock rates can be estimated \citep{sagulenkoTreeTimeMaximumlikelihoodPhylodynamic2018}, as well as Bayesian non-parametric estimates \citep{drummondBayesianEvolutionaryAnalysis2015}. 
 
-The clock rate for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year \cite{ducheneTemporalSignalPhylodynamic2020, choudharySevereAcuteRespiratory2021, songGenomicEpidemiologySARSCoV22021, niePhylogeneticPhylodynamicAnalyses2020, geidelbergGenomicEpidemiologyDensely2021}.
+The clock rate for SARS-CoV-2 is commonly estimated as a fixed rate near 0.001 mutations per site per year \citep{ducheneTemporalSignalPhylodynamic2020, choudharySevereAcuteRespiratory2021, songGenomicEpidemiologySARSCoV22021, niePhylogeneticPhylodynamicAnalyses2020, geidelbergGenomicEpidemiologyDensely2021}.
 Using the same resampling methods as above, we estimate a clock rate for trees estimated from each of 50 resamples and for the tree estimated based on the consensus sequences.
 
 To obtain the data, we sampled genomes uniformly from each month of recorded data in GenBank, using filters to ensure that the genomes were complete and had an associated SAM file.
@@ -520,7 +523,7 @@ Figure \ref{fig:RTT_slope} demonstrates that the estimated evolutionary rates ha
 
 \begin{figure}[btp]
 \centering
-\includegraphics[width=0.8\linewidth]{figs/RTT_Slope.pdf}
+\includegraphics[width=0.85\linewidth]{figs/RTT_Slope.pdf}
 \caption{\label{fig:RTT_slope}Clock rates (slope) and 95\% Confidence Intervals for the collections of re-sampled sequences.
 The red line and red shaded region are the clock rate and 95\% CI for the consensus sequences.
 The purple points and error bars are the clock rates and error intervals (either Bayesian Credible Interval or Highest Posterior Probability) from published studies, as labelled.
@@ -553,7 +556,7 @@ Even the method based on ordering the sequences by likelihood inevitably require
 However, we have demonstrated that the uncertainty in the sequences themselves can lead to major changes to the interpretations of the results.
 The so-called ``consensus sequence'' is simply the most likely sequence, and the reported uncertainty is not merely an academic curiosity.
 Ideally individual analyses would be constructed to take nucleotide-level uncertainty into account.
-For instance, phylogenies have been estimated based on uncertain sequence information in \cite{rossOncoNEMInferringTumor2016, jahnTreeInferenceSinglecell2016, zafarSiFitInferringTumor2017} but the uncertainty is not derived from base quality scores.
+For instance, phylogenies have been estimated based on uncertain sequence information in \cite{rossOncoNEMInferringTumor2016}, \cite{jahnTreeInferenceSinglecell2016} and \cite{zafarSiFitInferringTumor2017}, but the uncertainty is not derived from base quality scores.
 An extension of these methods to incorporate the base quality scores is a worthwhile research direction.
 
 Computational burden can also be reduced by sorting the sequences in decreasing uncertainty.
