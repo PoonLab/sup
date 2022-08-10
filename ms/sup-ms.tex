@@ -71,14 +71,14 @@ Generating a genetic sequence from a biological sample is a complex process.
 Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
 If working with RNA, then we must use a reverse transcriptase reaction (which has a high base misincorporation rate) to convert the RNA into DNA. 
 Polymerase chain reaction (PCR) amplification is often employed to enrich the sample for the target of interest.
-For next-generation sequencing (NGS) protocols, we have to generate a sequencing library for instance by random shearing of nucleic acids into fragments that are ligated onto special ``adaptors''.
+For next-generation sequencing (NGS) protocols, we have to generate a sequencing library, for instance by random shearing of nucleic acids into fragments that are ligated onto special ``adaptors''.
 NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009, goodwinComingAgeTen2016, salkEnhancingAccuracyNextgeneration2018}. 
 In addition, the short reads produced by NGS platforms need to be aligned --- either by alignment against a reference genome, \emph{de novo} assembly, or a combination of the two --- to reconstruct a consensus sequence using one or more bioinformatic programs.
 Errors can be introduced in any one of these steps \citep{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}.
 
 
 In some cases, naturally occurring variation, \ie genetic polymorphisms, or variation induced by experimental error is directly quantified and encoded into the output.
-For example, mixed peaks in sequence chromatograms produced from dye terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \citep{NomenclatureIncompletelySpecified1986}.
+For example, mixed peaks in sequence chromatograms produced from dye-terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \citep{NomenclatureIncompletelySpecified1986}.
 \cite{ewingBaseCallingAutomatedSequencer1998} and \cite{richterichEstimationErrorsRaw1998} both argued that estimates of the base call quality, quantified as Phred quality scores, can be an accurate estimate of the number of errors that the machines at the time would make, but improvements to these error probabilities have been proposed \citep{liAdjustQualityScores2004, liSNPDetectionMassively2009}. 
 Nevertheless, Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
 Generally, these scores are either used to censor the base calls (\ie label them ``N'' rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold or remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance \citep[\eg ][]{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014,oraweAccountingUncertaintyDNA2015}.
@@ -173,7 +173,7 @@ A full discussion of this is in the supplementary materials.
 
 
 
-\subsection{Sequence-level uncertainty}
+\subsubsection{Sequence-level uncertainty}
 
 A significant problem of storing probabilities at the level of individual nucleotides is that generating a sequence from this matrix requires drawing $\ell$ independent outcomes.
 For example, the reference SARS-CoV-2 genome is 29,903 nucleotides, and a substantial number of naturally-occurring sequence insertions have been described.
@@ -327,6 +327,8 @@ In addition, the coverage calculated from $\nps'$ is scaled to the number of tem
 
 \subsection{Consensus Sequence FASTQ and FASTA Files}
 \label{fastq_construction}
+
+\subsubsection{Consensus sequence FASTQ files}
 
 Full length or partial genome sequences are now frequently the product of next-generation sequencing, by taking the consensus of the aligned or assembled read data.
 However, the original read data are often not published alongside the consensus sequence.
