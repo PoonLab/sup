@@ -236,8 +236,6 @@ $\sps_4$ = \sq{ACAGGT}  &  0.064 & $a(4) = 0.100$  \\
 \subsection{Constructing the probability sequence}
 
 
-\subsubsection{Short read files}
-
 In most next-generation sequencing applications, the estimated probability of sequencing error is quantified with the quality (or ``Phred'') score attributed to each base call produced by sequencing instrument.
 The quality score $Q$ is directly related to this estimated error probability: $\epsilon = 10^{-Q/10}$ \citep{ewingBaseCallingAutomatedSequencer1998}, where $Q$ typically ranges between 1 and 60 (with 60 being the lowest probability of error), depending on the sequencing platform and version of base-calling software.
 It is important to note that this quality score only measures the probability of error from the machine; $1 - \epsilon$ is an estimate of the probability of no sequencing errors and does not account for any other source of error.
