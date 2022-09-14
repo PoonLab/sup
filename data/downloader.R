@@ -1,22 +1,25 @@
 # Download files based on files marked in the NCBI SRA export run info dialog
+library(here)
 
 # Load current info (checks to see which files are already done)
-newacc <- read.csv("SraRunInfo_updated.csv")
-newsam <- paste0(newacc$Run, ".sam")
+acc_file <- here("data", "SraRunInfo_updated.csv")
+if(!file.exists(acc_file)) {
+    newacc <- read.csv(here("data", "SraRunInfo.csv"))
+} else {
+    newacc  <- read.csv(acc_file)
+}
 
 # If Status column doesn't exist, then assume none have been downloaded yet
 if(!"Status" %in% names(newacc)) newacc$Status <- "Not Run"
 
-# Find all files that have already been downloaded (just to be sure)
-alldl <- c(list.files(pattern = "*\\.sam"), list.files("paired", pattern = "*\\.sam"), 
-    list.files("unpaired", pattern = "*\\.sam"), list.files("badsam", pattern = "*\\.sam"))
-
+if(!dir.exists(here("data", "sam"))) dir.create(here("data", "sam"))
+if(!dir.exists(here("data", "badsam"))) dir.create(here("data", "badsam"))
 
 # Because export PATH doesn't seem to work well from system call
-samdump <- "~/Downloads/sratoolkit.2.10.8-ubuntu64/bin/sam-dump"
+samdump <- "sam-dump"
 
 # Loop through rows in the csv, do a bunch of error checking
-for (i in (1:length(newsam))){
+for (i in (1:nrow(newacc))){
     cat("\n")
     t0 <- Sys.time()
     print(t0)
@@ -28,10 +31,8 @@ for (i in (1:length(newsam))){
     }
     
     thisnom <- newacc$Run[i]
-    # Folders are named paired and unpaired
-    thispir <- ifelse(newacc$LibraryLayout[i] == "PAIRED", "paired", "unpaired")
-    thisfil <- paste0(thispir, "/", thisnom, ".sam")
-    thisfas <- paste0(thispir, "/", thisnom, ".fasta")
+    thisfil <- here("data", "sam", paste0(thisnom, ".sam"))
+    thisbad <- here("data", "badsam", paste0(thisnom, ".sam"))
     
     # Avoid downloading again
     if(!file.exists(thisfil)){
@@ -43,10 +44,11 @@ for (i in (1:length(newsam))){
             " minutes."))
     } 
     
+    # Check again - if still no file, download must have failed.
     if (!file.exists(thisfil)) {
         print("Download Failed")
         newacc$Status[i] <- "Download Failed"
-        write.csv(newacc, file = "SraRunInfo_updated.csv")
+        write.csv(newacc, acc_file)
         next
     }
     
@@ -55,7 +57,8 @@ for (i in (1:length(newsam))){
     if (!(length(firstfew) == 1000)) {
         newacc$Status[i] <- "Incomplete File"
         print("Incomplete File")
-        write.csv(newacc, file = "SraRunInfo_updated.csv")
+        file.rename(thisfil, thisbad)
+        write.csv(newacc, acc_file)
         next
     }
     
@@ -64,34 +67,40 @@ for (i in (1:length(newsam))){
     if(is.na(testline)){
         newacc$Status[i] <- "NA Line"
         print("NA Line")
-        write.csv(newacc, file = "SraRunInfo_updated.csv")
+        file.rename(thisfil, thisbad)
+        write.csv(newacc, file = acc_file)
         next
     }
+
     # If it's a valid file, check the next lines
     if(substr(testline, 1, 1) == "@"){
-        nextfew <- readLines(thisfil, 5000)
-        testline <- nextfew[5000]
+        nextfew <- readLines(thisfil, 2000)
+        testline <- nextfew[2000]
     }
     
+    # Check whether cigar string exists
     testcigar <- strsplit(testline, split = "\t")[[1]][6]
     if(length(testcigar) < 1 | is.na(testcigar)) {
         newacc$Status[i] <- "No Cigar"
         print("No Cigar")
-        write.csv(newacc, file = "SraRunInfo_updated.csv")
+        file.rename(thisfil, thisbad)
+        write.csv(newacc, file = acc_file)
         next
     }
+
+    # Check whether the cigar string is more than just "*"
     if (nchar(testcigar) < 3) {
         newacc$Status[i] <- "No Cigar"
         print(testcigar)
         print("No Cigar")
-        write.csv(newacc, file = "SraRunInfo_updated.csv")
+        file.rename(thisfil, thisbad)
+        write.csv(newacc, file = acc_file)
         next
     }
     
-    # If all the error checks have passed, download and update csv
-    system(paste0("samtools fasta ", thisfil, " > ", thisfas))
+    # If all the error checks have passed, update csv
     newacc$Status[i] <- "Complete"
-    write.csv(newacc, file = "SraRunInfo_updated.csv")
+    write.csv(newacc, file = acc_file)
 }
 
 
