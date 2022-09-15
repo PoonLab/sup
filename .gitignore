@@ -135,3 +135,4 @@ RTT/*csv
 RTT/samDONE/*
 RTT/samBAD/*
 /.directory
+/src/parse-sam-c/sam2aln
