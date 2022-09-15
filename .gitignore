@@ -136,3 +136,4 @@ RTT/samDONE/*
 RTT/samBAD/*
 /.directory
 /src/parse-sam-c/sam2aln
+/data/SraRunInfo_updated.csv
