@@ -1,5 +1,6 @@
 # csv and files (there are a lot of them and they're ~28Mb each)
 data/ord_covid
+data/output
 *.fasta
 *.RData
 *.RDS
