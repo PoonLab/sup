@@ -44,17 +44,17 @@ fi
 # I have no idea why my for loop failed,
 # but it only needed to do four loops.
 if [ $dirich = true ]; then # if dirichlet sampling
-    Rscript covid/sample-S.R -d -N $N --overwrite
-    Rscript covid/sample-S.R -d -N $N
-    Rscript covid/sample-S.R -d -N $N
-    Rscript covid/sample-S.R -d -N $N
-    Rscript covid/sample-S.R -d -N $N
+    Rscript src/sample-S.R -d -N $N --overwrite
+    Rscript src/sample-S.R -d -N $N
+    Rscript src/sample-S.R -d -N $N
+    Rscript src/sample-S.R -d -N $N
+    Rscript src/sample-S.R -d -N $N
 else 
-    Rscript covid/sample-S.R -N $N --overwrite
-    Rscript covid/sample-S.R -N $N
-    Rscript covid/sample-S.R -N $N
-    Rscript covid/sample-S.R -N $N
-    Rscript covid/sample-S.R -N $N
+    Rscript src/sample-S.R -N $N --overwrite
+    Rscript src/sample-S.R -N $N
+    Rscript src/sample-S.R -N $N
+    Rscript src/sample-S.R -N $N
+    Rscript src/sample-S.R -N $N
 fi
 
 
@@ -90,8 +90,8 @@ done
 
 # Visualize!
 if [ $dirich = true ]; then
-    Rscript -e "rmarkdown::render('figures/pangolin_results_report.Rmd', params = list(dirich=TRUE), output_file='pangolin_results_report_d.pdf')"
+    Rscript -e "rmarkdown::render('results/pangolin_results_report.Rmd', params = list(dirich=TRUE), output_file='pangolin_results_report_d.pdf')"
 else 
-    Rscript -e "rmarkdown::render('figures/pangolin_results_report.Rmd', params = list(dirich=FALSE))"
+    Rscript -e "rmarkdown::render('results/pangolin_results_report.Rmd', params = list(dirich=FALSE))"
 fi
 

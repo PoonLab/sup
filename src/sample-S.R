@@ -26,7 +26,7 @@ dirich <- "-d" %in% args
 print(args)
 
 # Read list of files ending with .RDS
-rds_names <- list.files("data/unc_covid/", pattern = "*RDS")
+rds_names <- list.files(here("data", "unc_covid"), pattern = "*RDS")
 rds_names <- rds_names[!grepl(rds_names, pattern = "_insertions")]
 
 # Record accession names
@@ -39,7 +39,7 @@ header_list <- S_list
 
 # Read in uncertainty matrices
 for (i in seq_along(rds_names)) {
-    S_list[[i]] <- readRDS(paste0("data/unc_covid/", rds_names[i]))
+    S_list[[i]] <- readRDS(here("data", "unc_covid", rds_names[i]))
     names(S_list)[i] <- asc_names[i]
 }
 
@@ -88,7 +88,7 @@ for (i in 1:nloops) {
         }
     })
 
-    filename <- paste0("data/sampled_covid/", asc_names[i],
+    filename <- here("data", "sampled_covid", asc_names[i],
             "_sampled", ifelse(dirich, "_d", ""), ".fasta")
 
     # Convert sample letters to single string
@@ -123,4 +123,4 @@ for (i in 1:nloops) {
 }
 
 #print(asc_names)
-writeLines(asc_names, con = "data/sampled_covid/ascnames.txt")
+writeLines(asc_names, con = here("data", "sampled_covid", "ascnames.txt"))
