@@ -1,19 +1,27 @@
-# Data folder
+# Data Directory
 
-## Sub-folders
 
-- unc_covid:
-	- The RDS files that result from running parse-sam-c on the SAM files
-		- Also results in "*_insertions.RDS" when there are insertions present.
-	- NOT tracked by git, since these files are large, they change, and there are a lot of them
-- sampled_covid:
-	- The result of running `bash covid/src_sample-S.R`, generally with `-N 1000`
-		- `-d` in the call above results in dirichlet sampling, which also appends a `_d` to the filenames.
-	- Results in the csv files in pangolineages.
-- pangolineages:
-	- output of pangolin, labelled with the accession number and a d for dirichlet sampling
-- pangordlineages:
-	- output of pangolin, but for ordered likelihood analysis
-- zanini:
-	- example data from Zanini et. al. 2015
-	- R script (TODO: explain this code)
+
+`downloader.R` downloads and validates all sequences used in this study, as described by the `SraRunInfo.csv` file. Depends on the `sam-dump` binary from `sratoolkit` and uses the the R package called `here` so that it can be run from any directory in the repo.
+
+As a by-product, it creates the file `SraRunInfo_updated.csv`, which has a column that reports the result of the 
+
+Any file with errors - incomplete files, missing CIGAR strings, etc. - are sorted into the `badsam` directory. All successful downloads are dumped into the `sam` directory. The script makes these directories if they do not exist.
+
+As a by-product, it creates the file `SraRunInfo_updated.csv`, which has a column that reports any failures during the downloading process.
+
+To run this on other SRA runs, simply changing the SraRunInfo file is sufficient. If you already have SAM files, then you should skip this step.
+
+---
+
+`run_all.sh` runs `parse-sam-c` on all sam files in the `sam` directory. This script must be run from the root directory.
+
+This results in a folder `output` which contains the output of this function.
+
+I started it at approximately 2:30pm on September 15th, we'll see how long it takes before the first file is completed. 
+
+
+
+
+
+

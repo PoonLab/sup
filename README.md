@@ -22,35 +22,25 @@ Sequencing is a multi-step process which is prone to errors. If the output for t
     - Contain no information about sequence uncertainty.
     - However, uncertainty can be generated around FASTA to investigate how sensitive the methods are to the assumption of certainty in the conseq.
 
-## Directories
+## Running
 
-- `drafts`: Skelton.Rmd is the first draft for the final paper.
-- `figures`: Contains Rmd files that are run as part of the `covid/src_*` code. The resultant figures are used in Skeleton.Rmd
-- `covid`: source code for cluster allocation analysis of SARS-CoV-2 sam files. (Note: I recognize that "covid" is the disease and "SARS-CoV-2" is the virus, but covid is easier to type.)
-    - `open_seSAMe_dir.R` looks for `.sam` files in a directory and runs `parse-sam.r` (modified version of the one found in `sung`), then saves the results to `data/parsed_sam`.
-        - Note: `parse-sam.r` takes about 5 hours on Rei for a 200MB SAM file.
-        - **Deprecated**, use `parse-sam-c` in src instead.
-    - `sample_S.R` draws samples of sequences from the uncertainty matrices (S) in `parsed-covid`. To be fed into [pangolin](https://github.com/cov-lineages/pangolin).
-    - `ordered-lik.R` investigates calculating the *n* most likely sequences to see at which likelihood value the results of the analysis changes.
-    - `pangolin_results.r` analyses output from pangolin, especially with respect to variance.
-- `src`: source code for uncertainty propagation phylogeny analysis, based on simulated sequences with beta-distributed uncertainty at each site.
-    - `run-multi.sh` is where the magic happens.
-	- Generates a phylogeny, generates uncertainty on top of this phylogeny, estimates the trees, then calculates the distance between each tree and the tree without uncertainty.
-    - `prm.csv` includes the parameters for the simulation and analysis.
-- `data`: Data related to sequencing uncertainty.
-    - `seqs`: fasta sequence data for HIV data.
-    - `zanini`: HIV patient data for Zanini et. al (2015). Population Genomics of Intrapatient HIV-1 Evolution. doi: https://doi.org/10.7554/eLife.11282.
-    	- `multinomial-zanini.R` is the workhorse
-    - `unc_covid`: sequence uncertainty matrices (S) for SARS-CoV-2 data (raw sam files are too for GitHub, but filenames correspond to [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra) accession numbers).
-    - `sampled_covid`: fasta files generated from `unc_covid`
-    - `pangolineages`: Results of pangolin on the files in `sampled_covid`
-    - `ord_covid`: contains the results of the likelihood-ordered sequences
-    - `pangordlineages`: Results of pangolin on the files in `ord_covid`
-- `reads-seq-err`: Estimation of the sequencing error of DNA fragment by Illumina instruments using simulations from from the software *InSilicoSeq*.
-- `doc`: Early documentation of the methods.
-- `gsun`: a few files for uncertainty generation testing
-	- Early draft files
-- `misc`: a few files for calculating testing RF distance
-- `ms`: start of the paper
+Dependencies:
 
+- sratoolkit
+- pangolin
+- R packages: `install.packages(c("here", "dplyr", "ggplot2", "ape", "gtools", "tidyr", "rmarkdown", "patchwork", "scales", "stringr", "xtable"))`
+
+```sh
+# Make required binaries (custom C program by Gopi Gugan)
+cd src/parse-sam-c
+make
+cd ../..
+
+# Download and parse SAM files into uncertainty matrices
+Rscript src/downloader.R # Downloads the SAM files
+bash src/run_all.sh # runs parse-sam-c on all SAM files
+
+# Sample from the uncertainty matrix, produce reports
+bash scripts/sample-S.sh
+```
 
