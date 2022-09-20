@@ -391,7 +391,7 @@ This would entail collecting all available FASTQ files for a given lineage desig
 From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar. 
 
 \subsubsection{Consensus sequence FASTA files}
-
+\label{sec:consensusfasta}
 
 If we do not have access to any base quality information, \eg the consensus sequence is published as a FASTA file, then our ability to populate $\nps$ is severely limited.
 Any uncertainty that we impose upon the data will be a principled assumption.
@@ -408,6 +408,15 @@ This probabilistic sequence is completely fabricated, \ie not based on any empir
 However, the sensitivity of an analysis can be evaluated by choosing different values of $\alpha$, $\beta$, and $d$ (\eg based on previous studies) and propagating these uncertainties into downstream analyses.
 The results from such an analysis would not indicate anything about the sequence itself but could be used to determine how robust the methods are to increased sequence uncertainty.
 
+Figure \ref{fig:probseq} summarizes the various ways a probabilistic sequence can be obtained depending on the type of data available. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\linewidth]{figs/fig-probseq.pdf}
+\caption{Summary of probabilistic sequences construction. Nucleotide-level probabilistic sequences can be generated from a single FASTQ or SAM file using the sequencing quality information (left). In the case of multiple FASTQ or SAM the user can average the sequencing quality information beforehand (center). When multiple FASTA files are available, the probabilities can be directly informed from the frequencies of nucleotides at each position (center). In the case of a single FASTA file or consensus FASTQ file, the user can assume a probability model (section \ref{sec:consensusfasta}) for the distribution of sequencing errors (right). 
+Sequence-level probabilistic sequences may be obtained from the nucleotide-level ones, for example by selecting the $n$ most probable sequences (bottom).}
+\label{fig:probseq}
+\end{figure}
 
 
 \subsection{Propagation of uncertainty via resampling}
