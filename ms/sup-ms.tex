@@ -323,7 +323,7 @@ Some NGS platforms (\eg Illumina) use paired-end reads where the same nucleic ac
 In these situations, we simply adjust all values by a factor of one half.
 For bases where the paired-end reads overlap, this has the effect of averaging the base probability $1-\epsilon$.
 For example, if $1-\epsilon$ is 90\% for $\sq{A}$ in one read and 95\% $\sq{A}$ in its mate, then 0.925 is added to the $\sq{A}$ row in $\nps'$ (with the remaining 0.075 uniformly distributed across the other nucleotides).
-If the two reads were 60\% $\sq{A}$ and 55\% $\sq{C}$ at the same position, then we would increment the corresponding column vector ($\sq{A}, \sq{T}, \sq{C}, \sq{G}$) by $(0.6/2, 0.1/2, 0.1/2, 0.1/2)$ for the first read and $(0.15/2, 0.15/2, 0.55/2, 0.15/2)$ for the second, resulting in an addition of $(0.375, 0.125, 0.325, 0.125)$ for this pair.
+If the two reads were 70\% $\sq{A}$ and 55\% $\sq{C}$ at the same position, then we would increment the corresponding column vector ($\sq{A}, \sq{T}, \sq{C}, \sq{G}$) by $(0.7/2, 0.1/2, 0.1/2, 0.1/2)$ for the first read and $(0.15/2, 0.15/2, 0.55/2, 0.15/2)$ for the second, resulting in an addition of $(0.425, 0.125, 0.325, 0.125)$ for this pair.
 Bases outside of the overlapping region contribute a maximum of 0.5 to $\nps'$, because the base call on the other read is missing data.
 This approach has the advantage of making the parsing of SAM files trivially parallelizable since we do not need to know how reads are paired.
 In addition, the coverage calculated from $\nps'$ is scaled to the number of templates rather than the number of reads.
