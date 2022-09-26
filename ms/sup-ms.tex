@@ -574,6 +574,12 @@ Ideally individual analyses would be constructed to take nucleotide-level uncert
 For instance, phylogenies have been estimated based on uncertain sequence information in \cite{rossOncoNEMInferringTumor2016}, \cite{jahnTreeInferenceSinglecell2016} and \cite{zafarSiFitInferringTumor2017}, but the uncertainty is not derived from base quality scores.
 An extension of these methods to incorporate the base quality scores is a worthwhile research direction.
 
+As noted by a reviewer, \citet{demaioLinkingGreatApes2013} presents a method to construct phylogenetic trees such that each tip is associated with a collection of species.
+It uses a multiple sequence alignment for each of a collection of species and incorporates the polymorphisms for each species.
+Our method could re-purpose this paradigm to apply to re-samples from the probabilistic sequence in place of multiple sequence alignments, with the separate genomes acting as species.
+Alternatively, the method could be altered to directly incorporate sequence uncertainty, possibly using values from our construction of the probabilstic sequence as allele proportions.
+This combination of methods would improve the estimation of the variance and allow for an improved estimate of error rate (analagous to the within-species evolution rate).
+
 Computational burden can also be reduced by sorting the sequences in decreasing uncertainty.
 It is possible to devise an algorithm that puts the sequences in (approximate) order of their uncertainty without calculating the uncertainty for every sequence (specifically, by starting with the consensus and at each step changing the base call that had the lowest quality).
 Any model that uses sequence data could be re-fit with each sequence in order of uncertainty to investigate the robustness of that model to sequence uncertainty.
