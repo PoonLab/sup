@@ -1,9 +1,3 @@
-#! bin/sh
-
-source ~/.bashrc
-
-# Suggested usage:
-# bash covid/src_sample-pangolin-vis.sh -d -N 1000
 
 
 # Arguments
@@ -17,7 +11,6 @@ source ~/.bashrc
 # I'm bad at arg parsing
 N=5
 dirich=false
-overwrite=false
 num_args=$#
 if [ $num_args -gt 0 ]; then
     for (( i=1; i <= $#; i++)); do
@@ -31,9 +24,6 @@ if [ $num_args -gt 0 ]; then
             dirich=true
         fi
 
-        if [ $arg = --overwrite ]; then
-            overwrite=true
-        fi
     done
 fi
 
@@ -89,9 +79,9 @@ do
 done
 
 # Visualize!
-if [ $dirich = true ]; then
-    Rscript -e "rmarkdown::render('results/pangolin_results_report.Rmd', params = list(dirich=TRUE), output_file='pangolin_results_report_d.pdf')"
-else 
-    Rscript -e "rmarkdown::render('results/pangolin_results_report.Rmd', params = list(dirich=FALSE))"
-fi
+#if [ $dirich = true ]; then
+#    Rscript -e "rmarkdown::render('results/pangolin_results_report.Rmd', params = list(dirich=TRUE), output_file='pangolin_results_report_d.pdf')"
+#else 
+#    Rscript -e "rmarkdown::render('results/pangolin_results_report.Rmd', params = list(dirich=FALSE))"
+#fi
 

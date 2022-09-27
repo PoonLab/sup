@@ -3,7 +3,7 @@ library(ape)
 library(gtools) # rdirichlet
 library(here)
 #set.seed(2112) # \m/
-source(here("covid", "aux_funk.R"))
+source(here("src", "aux_funk.R"))
 library(dplyr)
 
 args <- commandArgs(TRUE)
@@ -26,7 +26,7 @@ dirich <- "-d" %in% args
 print(args)
 
 # Read list of files ending with .RDS
-rds_names <- list.files(here("data", "unc_covid"), pattern = "*RDS")
+rds_names <- list.files(here("data", "output"), pattern = "*csv")
 rds_names <- rds_names[!grepl(rds_names, pattern = "_insertions")]
 
 # Record accession names
@@ -39,7 +39,7 @@ header_list <- S_list
 
 # Read in uncertainty matrices
 for (i in seq_along(rds_names)) {
-    S_list[[i]] <- readRDS(here("data", "unc_covid", rds_names[i]))
+    S_list[[i]] <- read.csv(here("data", "output", rds_names[i]))
     names(S_list)[i] <- asc_names[i]
 }
 
@@ -88,7 +88,7 @@ for (i in 1:nloops) {
         }
     })
 
-    filename <- here("data", "sampled_covid", asc_names[i],
+    filename <- paste0("data/", "sampled_covid/", asc_names[i],
             "_sampled", ifelse(dirich, "_d", ""), ".fasta")
 
     # Convert sample letters to single string
@@ -100,7 +100,7 @@ for (i in 1:nloops) {
         # Create well-formatted fasta file
         name <- paste0("> ", asc_names[i], ".", 0:(length(sampleseq) - 1))
         fasta <- paste(name, sampleseq, sep = "\n", collapse = "\n")
-
+        file_line_count <- length(sampleseq)
     } else {
         # When appending, conseq is not needed.
         file_line_count <- system(paste0("wc -l ", filename), intern = TRUE)
@@ -117,9 +117,10 @@ for (i in 1:nloops) {
     collapsed[i] <- elapsed
     estlapsed <- round((nloops - i) * mean(collapsed[collapsed > 0]), 3)
     estlapseds[i] <- estlapsed
-    print(paste0("loop ", i, " of ", nloops, ", ", round(elapsed, 3),
-        " mins | Approx. ", estlapsed, " mins (", round(estlapsed / 60, 2),
-        " hours) remaining"))
+    print(paste0("loop ", i, " of ", nloops, ", ",
+        file_line_count, " lines per file, ", 
+        round(elapsed, 3), " mins | Approx. ", estlapsed, 
+        " mins (", round(estlapsed / 60, 2), " hours) remaining"))
 }
 
 #print(asc_names)
