@@ -22,6 +22,7 @@ RTT/sequences.zip
 # Binaries and side-effects
 RTT/FastTree
 RTT/__pycache__/
+nohup.out
 
 # History files
 .Rhistory
