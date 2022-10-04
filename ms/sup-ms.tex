@@ -594,6 +594,8 @@ Any model that uses sequence data could be re-fit with each sequence in order of
 Our analysis focused on lineage classification according to the Pangolin model as well as estimation of the clock rate.
 The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incorporating the uncertainty or including some measure of robustness.
 For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analyses.
+We also included a section on assumptions about errors that are not quantified (consensus-level FASTQ and FASTA files), but we have not implemented an example of this.
+Evaluating particular methods was not part of our scope, but such a study would be a valuable research direction.
 
 Within SARS-CoV-2, there are many potential use-cases for our methods.
 As noted by a reviewer, one potential use-case is to use simulated reads (with known lineage) with varying levels of uncertainty in order to estimate the potential variance around a given lineage assignment.
