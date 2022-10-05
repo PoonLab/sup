@@ -25,7 +25,7 @@
 \begin{document}
 
 \begin{flushleft}
-\textbf{\textsf{\Large A Probabilistic Framework to Propagate Genome Sequence Uncertainty, with Applications}}
+\textbf{\textsf{\Large SUP: A Probabilistic Framework to Propagate Genome Sequence Uncertainty, with Applications}}
 
 \vspace{1em}
 
@@ -56,7 +56,7 @@ Next generation sequencing methods rely on significantly larger numbers of reads
 Still, the coverage of such machines is imperfect and leaves uncertainty in many of the base calls.
 In this work, we demonstrate that the uncertainty in sequencing techniques will affect downstream analysis and propose a straightforward method to propagate the uncertainty.
 
-Our method uses a probabilistic matrix representation of individual sequences which incorporates base quality scores as a measure of uncertainty that naturally lead to resampling and replication as a framework for uncertainty propagation.
+Our method (which we have dubbed Sequence Uncertainty Propagation, or SUP) uses a probabilistic matrix representation of individual sequences which incorporates base quality scores as a measure of uncertainty that naturally lead to resampling and replication as a framework for uncertainty propagation.
 With the matrix representation, resampling possible base calls according to quality scores provides a bootstrap- or prior distribution-like first step towards genetic analysis.
 Analyses based on these re-sampled sequences will include a more complete evaluation of the error involved in such analyses.
 
@@ -167,6 +167,8 @@ Sequence chromatograms and base quality scores are affected by the same loss of 
 
 We note that this representation is similar to the ``CATG'' file type as described in \cite{kozlov}, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
 This file type is able to be used by RAxML-NG to estimate an overall error rate which is then used to estimate phylogenetic trees.
+A reviewer has pointed out that the \texttt{bio++} library contains parsers for a probabilistic version of the FASTA format, called PASTA.
+We have not found documentation for this format, but are hopeful that our methods promote greater use of probabilistic formats like this.
 Our probability sequence is also similar in concept to Position Weight Matrices \cite[PWMs, ][]{stormoUsePerceptronAlgorithm1982} which are built according to the frequency of each base at each position of a multiple alignment. 
 Our construction differs in that we are creating one matrix per sequence where the entries are weighted according to error probability within that sequence, rather than one matrix for a collection of sequences. 
 However, methods that accept PWMs will be applicable to our probability sequences (and \emph{vice-versa}).
@@ -397,7 +399,7 @@ From here, lineage designation for a newly acquired sequence (and its probabilit
 \label{sec:consensusfasta}
 
 If we do not have access to any base quality information, \eg the consensus sequence is published as a FASTA file, then our ability to populate $\nps$ is severely limited.
-Any uncertainty that we impose upon the data will be a principled assumption.
+Any uncertainty that we impose upon the data will be a principled assumption for the purpose of evaluating the robustness of the results to potential or assumed sequence uncertainty.
 The error probability at the $j$ position of the consensus sequence can be simulated as a beta distribution, \ie \vspace{-4mm}
 
 $$
@@ -421,6 +423,11 @@ Sequence-level probabilistic sequences may be obtained from the nucleotide-level
 \label{fig:probseq}
 \end{figure}
 
+For both the FASTQ and FATSA format, the uniform distribution was chosen for illustrative purposes.
+We hope that future analyses take uncertainty into account, and each analysis will have unique needs.
+In the absence of available SAM files, alternate assumptions about the unknown uncertainties can be made.
+As noted by a reviewer, for viruses such as SARS-CoV-2 it is possible to calculate the per-position frequencies of each letter.
+In other contexts, there may be other potential assumptions that coincide with known features of the organism.
 
 \subsection{Propagation of uncertainty via resampling}
 
@@ -457,7 +464,7 @@ The data for this application were downloaded from NCBI's SRA web interface (\ur
 Search results were filtered to only include records that had SAM files so that our alignments were consistent with the originating work.
 To select which runs to download, an arbitrary selection of 5-10 records from each of 20 non-sequential results pages were chosen.
 Once collecting the run accession numbers from the search results, an R script was run to download the relevant files and check that all information was complete.
-23 out of 275 files were incomplete due to technical errors during the download process and a further 4 were rejected due to lack of CIGAR strings. 
+23 out of 275 files were incomplete due to technical errors during the download process and a further 4 were rejected due to lack of CIGAR strings (the NCBI database automatically converts files uploaded as unaligned FASTQ into the SAM file format without performing alignment). 
 The SRA accession numbers for the sequences we used are provided in the Appendix. 
 
 
@@ -589,7 +596,13 @@ Any model that uses sequence data could be re-fit with each sequence in order of
 
 Our analysis focused on lineage classification according to the Pangolin model as well as estimation of the clock rate.
 The importance of incorporating sequence uncertainty is not confined to these applications; any analysis involving sequenced genomes would benefit from some method of incorporating the uncertainty or including some measure of robustness.
-For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analysis.
+For example, the estimated frequency of alleles in the population could be used as the probability sequence, then propagated into further analyses.
+We also included a section on assumptions about errors that are not quantified (consensus-level FASTQ and FASTA files), but we have not implemented an example of this.
+Evaluating particular methods was not part of our scope, but such a study would be a valuable research direction.
+
+Within SARS-CoV-2, there are many potential use-cases for our methods.
+As noted by a reviewer, one potential use-case is to use simulated reads (with known lineage) with varying levels of uncertainty in order to estimate the potential variance around a given lineage assignment.
+It is likely that, due to different amounts of mutations used to define lineages and differences in average read depth at different locations, different lineages may be subject to different levels of variability.
 
 Our method does not preclude tertiary analyses to test for systematic errors.
 For instance, \cite{demaioIssuesSARSCoV2Sequencing2020} suggest that some errors arise due to issues in the sequencing protocol in particular laboratories.
