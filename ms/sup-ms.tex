@@ -25,7 +25,7 @@
 \begin{document}
 
 \begin{flushleft}
-\textbf{\textsf{\Large A Probabilistic Framework to Propagate Genome Sequence Uncertainty, with Applications}}
+\textbf{\textsf{\Large SUP: A Probabilistic Framework to Propagate Genome Sequence Uncertainty, with Applications}}
 
 \vspace{1em}
 
@@ -56,7 +56,7 @@ Next generation sequencing methods rely on significantly larger numbers of reads
 Still, the coverage of such machines is imperfect and leaves uncertainty in many of the base calls.
 In this work, we demonstrate that the uncertainty in sequencing techniques will affect downstream analysis and propose a straightforward method to propagate the uncertainty.
 
-Our method uses a probabilistic matrix representation of individual sequences which incorporates base quality scores as a measure of uncertainty that naturally lead to resampling and replication as a framework for uncertainty propagation.
+Our method (which we have dubbed Sequence Uncertainty Propagation, or SUP) uses a probabilistic matrix representation of individual sequences which incorporates base quality scores as a measure of uncertainty that naturally lead to resampling and replication as a framework for uncertainty propagation.
 With the matrix representation, resampling possible base calls according to quality scores provides a bootstrap- or prior distribution-like first step towards genetic analysis.
 Analyses based on these re-sampled sequences will include a more complete evaluation of the error involved in such analyses.
 
@@ -168,7 +168,7 @@ Sequence chromatograms and base quality scores are affected by the same loss of 
 We note that this representation is similar to the ``CATG'' file type as described in \cite{kozlov}, which indicates the likelihoods of each nucleotide in an aligned mapping for multiple taxa. 
 This file type is able to be used by RAxML-NG to estimate an overall error rate which is then used to estimate phylogenetic trees.
 A reviewer has pointed out that the \texttt{bio++} library contains parsers for a probabilistic version of the FASTA format, called PASTA.
-The authors have not found documentation for this format, but are hopeful that our methods inspire greater use of this format.
+We have not found documentation for this format, but are hopeful that our methods promote greater use of probabilistic formats like this.
 Our probability sequence is also similar in concept to Position Weight Matrices \cite[PWMs, ][]{stormoUsePerceptronAlgorithm1982} which are built according to the frequency of each base at each position of a multiple alignment. 
 Our construction differs in that we are creating one matrix per sequence where the entries are weighted according to error probability within that sequence, rather than one matrix for a collection of sequences. 
 However, methods that accept PWMs will be applicable to our probability sequences (and \emph{vice-versa}).
