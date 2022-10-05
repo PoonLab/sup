@@ -269,7 +269,76 @@ We employed the following procedure to construct the nucleotide-level probabilis
 We initialize aligned sequence and quality strings with `--' in all positions before the first read and after the last read, and `!', which corresponds to a quality score of 0 ($Q=0$), to all other positions.
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
 Deleted bases (`D' operations) are not assigned Phred scores, so we assume them to have 0 error probability.
+The overall process for constructing the probabilistic sequence is demonstrated in Figure \ref{fig:paired_diagram}.
 
+
+
+\begin{figure}[h!]
+\noindent\begin{tikzpicture}\scriptsize
+\matrix (SAM) [minimum width = 3.5em, minimum height = 2.5em, row sep = -1mm, nodes = {draw, anchor=west}, column 1/.style={draw=white}, row 1/.style={draw=white}, anchor=east]
+  {
+    \node {}; & \node {1}; & \node{2}; & \node{3}; &\node {4};\\
+    \node {Read 1 (forward)}; & 
+        \node (A1) [fill=red!25] {$A^{0.25}$}; & 
+        \node     [fill=red!75] {$A^{0.75}$}; & 
+        \node  [fill=red!15] {$T^{0.15}$}; & 
+        \node [fill=white] {-}; \\
+    \node {Read 1 (reverse)}; & 
+        \node (T1) [fill=red!75] {$T^{0.75}$}; & 
+        \node [fill=red] {$A^{1.00}$}; & 
+        \node  [fill=red!25] {$T^{0.25}$}; &
+        \node [fill=white] {-}; \\
+    \node {Read 2 (forward)}; & 
+        \node (T2) [fill=red!50] {$T^{0.5}$}; & 
+        \node [fill=red!75] {$A^{0.75}$}; & 
+        \node  [fill=red!65] {$G^{0.65}$}; &
+        \node [fill=red!65] {$G^{0.65}$}; \\
+    \node {Read 2 (reverse)}; & 
+        \node (T3) [fill=red!80] {$T^{0.8}$}; & 
+        \node [fill=red!75] {$A^{0.75}$}; & 
+        \node  [fill=red!85] {$G^{0.85}$}; &
+        \node [fill=red!50] {$G^{0.50}$}; \\
+    \node {Read 3 (no mate)}; & 
+        \node  [fill=white] {-}; & 
+        \node [fill=red!55] {$A^{0.55}$}; & 
+        \node  [fill=red!85] {$G^{0.85}$}; &
+        \node (T4) [fill=red!35] {$T^{0.85}$}; \\
+  };
+\matrix (SUP) [matrix of nodes, right of = SAM, xshift = 8cm, minimum width = 3em, minimum height = 2.5em, row 1/.style={draw=white}, row sep = 0mm, nodes = {draw, anchor=west}, column 1/.style={draw=white}, anchor=east]
+  {
+    \node {}; & \node {1}; & \node{2}; & \node{3}; &\node {4};\\
+    \node {A}; & 
+        \node (S1) [fill=green!12] {0.125}; & 
+        \node  [fill=green] {2.175}; & 
+        \node  [fill=green!0] {0}; & 
+        \node  [fill=green!0] {0}; \\
+    \node {C}; & 
+        \node [fill=green!0] {0}; & 
+        \node  [fill=green!0] {0}; & 
+        \node  [fill=green!0] {0}; & 
+        \node  [fill=green!0] {0}; \\
+    \node {G}; & 
+        \node [fill=green!0] {0}; & 
+        \node  [fill=green!0] {0}; & 
+        \node  [fill=green!88] {1.6}; & 
+        \node  [fill=green!40] {0.575}; \\
+    \node {T}; & 
+        \node (S2) [fill=green!89] {1.025}; & 
+        \node  [fill=green!0] {0}; & 
+        \node  [fill=green!22] {0.2}; & 
+        \node  (S3) [fill=green!60] {0.85}; \\
+  };
+\draw[->] (A1.north) to[bend left=35] node[anchor=south, xshift=4mm] {$0.25\div 2$} (S1.north);
+\draw[->] (T1.center) to[bend right=50] node[anchor=north] {$0.75\div 2$} (S2.south);
+\draw[->] (T2.center) to[bend right=60] node[anchor=north] {$+0.5\div 2$} (S2.south);
+\draw[->] (T3.center) to[bend right=90] node[anchor=north, xshift=7mm] {$+0.8\div 2 = 1.025$} (S2.south);
+\draw[->] (T4.center) to[bend right=55] node[anchor=north, xshift = 8mm] {0.85 (unpaired)} (S3.south);
+
+\node (Title1) [above of = SAM, yshift=0.95cm, xshift = -1cm] {\textbf{Aligned reads (with quality scores)}};
+\node[right of = Title1, xshift = 6.25cm] {\textbf{Probabilistic sequence}};
+\end{tikzpicture}
+\caption{\label{fig:paired_diagram}An illustration of constructing a probabilistic sequence from a SAM file. Each row in the matrix on the left is a graphical representation of a short read, and the superscript represents the quality score (from 0 to 1). Half of the quality score from paired end reads is added to the relevant cell in the matrix on the right. In both matrices, the column numbering represents a position on the reference genome. In the probabilistic sequence, the consensus sequence would be TAGT, but TAGG is also a very likely sequence given the quality scores.}
+\end{figure}
 
 \subsection{Deletions and Insertions}
 
@@ -329,6 +398,7 @@ If the two reads were 70\% $\sq{A}$ and 55\% $\sq{C}$ at the same position, then
 Bases outside of the overlapping region contribute a maximum of 0.5 to $\nps'$, because the base call on the other read is missing data.
 This approach has the advantage of making the parsing of SAM files trivially parallelizable since we do not need to know how reads are paired.
 In addition, the coverage calculated from $\nps'$ is scaled to the number of templates rather than the number of reads.
+
 
 
 \subsection{Consensus Sequence FASTQ and FASTA Files}
@@ -428,6 +498,7 @@ We hope that future analyses take uncertainty into account, and each analysis wi
 In the absence of available SAM files, alternate assumptions about the unknown uncertainties can be made.
 As noted by a reviewer, for viruses such as SARS-CoV-2 it is possible to calculate the per-position frequencies of each letter.
 In other contexts, there may be other potential assumptions that coincide with known features of the organism.
+
 
 \subsection{Propagation of uncertainty via resampling}
 
