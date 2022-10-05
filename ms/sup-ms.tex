@@ -336,7 +336,10 @@ In addition, the coverage calculated from $\nps'$ is scaled to the number of tem
 
 Full length or partial genome sequences are now frequently the product of next-generation sequencing, by taking the consensus of the aligned or assembled read data.
 However, the original read data are often not published alongside the consensus sequence.
-Some consensus sequences are released in a format where the bases are annotated with quality scores, \eg FASTQ.
+For example, on September 30, 2022, there were nearly 390,000 SARS-CoV-2 consensus genome sequences available in the Canadian VirusSeq Data Portal.
+None of the raw NGS data sets associated with these consensus sequences are distributed in this database, however.
+Less than 6,700 (about 1.7\%) raw SARS-CoV-2 FASTQ files for samples collected in Canada have been published on the NCBI Sequence Read Archive.
+On the other hand, some consensus sequences are released in a format where the bases are annotated with quality scores, \eg FASTQ.
 There are several programs that provide methods to convert a SAM file into a consensus FASTQ file \citep{liAdjustQualityScores2004, keithSimulatedAnnealingAlgorithm2002, liMappingShortDNA2008a}.
 These programs use slightly different methods for generating consensus quality scores, but filter quality scores for the majority base.
 For example, suppose there are three reads with the following base calls at position $j$: \sq{A} with $Q=30$, \sq{A} with $Q=31$, and \sq{C} with $Q=15$.
