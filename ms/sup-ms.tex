@@ -76,24 +76,31 @@ We show that SARS-CoV-2 lineage designations via Pangolin are much less certain 
 
 Generating a genetic sequence from a biological sample is a complex process.
 Nucleic acids must be extracted from the sample while avoiding contamination by foreign material.
-If working with RNA, then we must use a reverse transcriptase reaction (which has a high base misincorporation rate) to convert the RNA into DNA. 
+If working with RNA, then we must use a reverse transcriptase reaction, which has a high base misincorporation rate, to convert the RNA into DNA. 
 Polymerase chain reaction (PCR) amplification is often employed to enrich the sample for the target of interest.
-For next-generation sequencing (NGS) protocols, we have to generate a sequencing library, for instance by random shearing of nucleic acids into fragments that are ligated onto special ``adaptors''.
-NGS procedures such as sequencing by synthesis suffer from greater error rate relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009, goodwinComingAgeTen2016, salkEnhancingAccuracyNextgeneration2018}. 
+For next-generation sequencing (NGS) protocols, we have to generate a sequencing library, for instance by random shearing of nucleic acids into fragments to which adapter sequences are ligated.
+NGS procedures such as sequencing-by-synthesis tend to suffer from greater error rates relative to conventional Sanger dye-terminator sequencing, although these rates have continued to improve with new technologies \citep{fullerChallengesSequencingSynthesis2009, goodwinComingAgeTen2016, salkEnhancingAccuracyNextgeneration2018}. 
 In addition, the short reads produced by NGS platforms need to be aligned --- either by alignment against a reference genome, \emph{de novo} assembly, or a combination of the two --- to reconstruct a consensus sequence using one or more bioinformatic programs.
 Errors can be introduced in any one of these steps \citep{beerenwinkelUltradeepSequencingAnalysis2011, oraweAccountingUncertaintyDNA2015}.
 
 
 In some cases, naturally occurring variation, \ie genetic polymorphisms, or variation induced by experimental error is directly quantified and encoded into the output.
-For example, mixed peaks in sequence chromatograms produced from dye-terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \citep{NomenclatureIncompletelySpecified1986}.
-\cite{ewingBaseCallingAutomatedSequencer1998} and \cite{richterichEstimationErrorsRaw1998} both argued that estimates of the base call quality, quantified as Phred quality scores, can be an accurate estimate of the number of errors that the machines at the time would make, but improvements to these error probabilities have been proposed \citep{liAdjustQualityScores2004, liSNPDetectionMassively2009}. 
-Nevertheless, Phred scores remain the standard means of reporting the estimated error probabilities for current sequencing platforms.
-Generally, these scores are either used to censor the base calls (\ie label them ``N'' rather than A, T, C or G) if the estimated probability of error exceeds a predefined threshold or remove the sequence from further analysis if the total number of censored bases exceeds a maximum tolerance \citep[\eg ][]{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014,oraweAccountingUncertaintyDNA2015}.
-Some authors/tools use more sophisticated models, such as \cite{wuEstimatingErrorModels2017} who use statistical models that incorporate read depth to determine a probability of a sequencing error, but still use the resultant reads to form a consensus sequence with no measure of uncertainty.
-Furthermore, some studies have extended the concept of per-base error probabilities to calculate the joint likelihoods of partial or full sequences.
-For example, \cite{depristoFrameworkVariationDiscovery2011} and \cite{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of genetic diversity within a population; this approach has subsequently been used to develop new estimators of genetic diversity \citep{fumagalliQuantifyingPopulationGenetic2013a}. 
-\cite{kuoEAGLEExplicitAlternative2018} recently used a similar approach to develop a statistical test of whether a given genome sequence is consistent with a specified alternative sequence.
-In general, the reported error probabilities from NGS technologies are primarily used for filtering low quality sequences and improving alignment algorithms (which both result in a consensus sequence that is assumed to be error-free) or for hypothesis tests concerning small collections (usually pairs) of sequences.
+For example, overlapping peaks in the sequence chromatograms produced from dye-terminator sequencing by capillary electrophoresis are assigned standard IUPAC codes (\eg Y for C or T) when the base calling program cannot determine which base is dominant \citep{NomenclatureIncompletelySpecified1986}.
+Phred quality scores, which are derived from an empirical model of sequencing error, can provide a more detailed position-specific measure of the probability that a base call is incorrect \citep{ewingBaseCallingAutomatedSequencer1998, richterichEstimationErrorsRaw1998}, and further improvements to this method have been proposed \citep{liAdjustQualityScores2004, liSNPDetectionMassively2009}. 
+Quality scores have remained the standard means of reporting estimated error probabilities for NGS platforms.
+Generally, these scores are either used to censor the base calls (\ie to replace the nucleotide with `N') if the estimated probability of error exceeds a predefined threshold, or to discard the sequence from further analysis altogether if the total number of censored bases exceeds a maximum tolerance \citep[\eg ][]{doroninaPhylogeneticPositionEmended2005, robaskyRoleReplicatesError2014, oraweAccountingUncertaintyDNA2015}.
+
+
+Other studies have used more sophisticated methods.
+For instance, \cite{wuEstimatingErrorModels2017} used statistical models that incorporate read depth to estimate the probability of sequencing errors.
+However, they used the results to generate consensus sequences with no measure of uncertainty.
+Some studies have extended the concept of per-base error probabilities to calculate the joint likelihoods of partial or full sequences.
+For example, \cite{depristoFrameworkVariationDiscovery2011} and \cite{gompertHierarchicalBayesianModel2011} incorporate adjusted Phred scores into a likelihood framework to generate more accurate estimates of genetic diversity within a population.
+This approach has subsequently been used to develop new estimators of genetic diversity \citep{fumagalliQuantifyingPopulationGenetic2013a}. 
+Moreover, \cite{kuoEAGLEExplicitAlternative2018} recently used a similar approach to develop a statistical test of the null hypothesis that an observed sequence containing one or more errors is actually identical to a reference sequence.
+Sequences for which we cannot reject the null hypothesis can be merged into the reference.
+In summary, the reported error probabilities from NGS technologies are primarily used for filtering low quality base calls or sequences, or improving alignment algorithms.
+Both applications result in a consensus sequence that is interpreted as being free of error.
 
 
 The uncertainty present in the sequences are most often ignored entirely.
