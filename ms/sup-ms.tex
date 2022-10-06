@@ -131,7 +131,7 @@ In both frameworks, the sequence of nucleotides from a biological sample is not 
 
 \subsubsection{Nucleotide-level uncertainty}
 
-To represent the uncertainty at each position along the genome we introduce the following matrix, which we will refer to as a probabilistic sequence and denote $\nps$:
+To represent the uncertainty at each position along the genome we introduce the following matrix, which we will refer to as a probabilistic sequence and denote as $\nps$:
 \begin{equation}
 \nps = \bordermatrix{   & 1 & 2 & \ldots & \ell \cr
                 \sq{A} & \nps_{A, 1} & \nps_{A, 2} & \ldots & \nps_{A, \ell} \cr
@@ -680,6 +680,7 @@ Evaluating particular methods was not part of our scope, but such a study would 
 Within SARS-CoV-2, there are many potential use-cases for our methods.
 As noted by a reviewer, one potential use-case is to use simulated reads (with known lineage) with varying levels of uncertainty in order to estimate the potential variance around a given lineage assignment.
 It is likely that, due to different amounts of mutations used to define lineages and differences in average read depth at different locations, different lineages may be subject to different levels of variability.
+We stress that re-sampling is a general method, and development of methods that incorporate uncertainty --- \eg incorporating uncertainty directly in the inference procedure, perhaps directly in the formulation of the likelihood --- should be a priority for future research in particular applications of uncertainty propagation.
 
 Our method does not preclude tertiary analyses to test for systematic errors.
 For instance, \cite{demaioIssuesSARSCoV2Sequencing2020} suggest that some errors arise due to issues in the sequencing protocol in particular laboratories.
