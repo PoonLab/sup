@@ -14,9 +14,11 @@
 \input{latex-pckg.tex}
 \input{latex-macro.tex}
 
-\usepackage{xspace}
+\usepackage{xspace} 
 \usepackage[symbol]{footmisc} 
-\usepackage[style=numeric, sorting=none]{biblatex}
+\usepackage[style=numeric, sorting=none, minbibnames=10, maxbibnames=10]{biblatex}
+%\usepackage{citation-style-language}
+%\cslsetup{style = nucleic-acids-research}
 \addbibresource{supbib.bib}
 
 \usepackage{url}
@@ -66,7 +68,7 @@ With the matrix representation, resampling possible base calls according to qual
 Analyses based on these re-sampled sequences will include a more complete evaluation of the error involved in such analyses.
 
 We demonstrate our resampling method on SARS-CoV-2 data.
-The resampling procedures adds a linear computational cost to the analyses, but the large impact on the variance in downstream estimates makes it clear that ignoring this uncertainty may lead to overly confident conclusions.
+The resampling procedures add a linear computational cost to the analyses, but the large impact on the variance in downstream estimates makes it clear that ignoring this uncertainty may lead to overly confident conclusions.
 We show that SARS-CoV-2 lineage designations via Pangolin are much less certain than the bootstrap support reported by Pangolin would imply and the clock rate estimates for SARS-CoV-2 are much more variable than reported.
 \end{abstract}
 
@@ -275,6 +277,7 @@ We initialize aligned sequence and quality strings with `--' in all positions be
 Next, we tokenize the CIGAR string into length-operation tuples, which determine how bases and quality scores from the raw strings are appended to the aligned versions.
 Deleted bases (`D' operations) are not assigned Phred scores, so we assume them to have 0 error probability.
 The overall process for constructing the probabilistic sequence is demonstrated in Figure \ref{fig:paired_diagram}, including our procedure for including paired-end reads which is explained in a subsequent section.
+Note that Figure \ref{fig:paired_diagram} shows an intermediate step prior to column normalization; our algorithm reads the file in one row at a time, which saves on computer memory but means we cannot know the column sums until the process is complete.
 
 
 
@@ -287,12 +290,12 @@ The overall process for constructing the probabilistic sequence is demonstrated 
         \node (A1) [fill=red!25] {$A^{0.25}$}; & 
         \node     [fill=red!75] {$A^{0.75}$}; & 
         \node  [fill=red!15] {$T^{0.15}$}; & 
-        \node [fill=white] {-}; \\
+        \node [fill=white!90!black] {}; \\
     \node {Read 1 (reverse)}; & 
         \node (T1) [fill=red!75] {$T^{0.75}$}; & 
         \node [fill=red] {$A^{1.00}$}; & 
         \node  [fill=red!25] {$T^{0.25}$}; &
-        \node [fill=white] {-}; \\
+        \node [fill=white!90!black] {}; \\
     \node {Read 2 (forward)}; & 
         \node (T2) [fill=red!50] {$T^{0.5}$}; & 
         \node [fill=red!75] {$A^{0.75}$}; & 
@@ -304,7 +307,7 @@ The overall process for constructing the probabilistic sequence is demonstrated 
         \node  [fill=red!85] {$G^{0.85}$}; &
         \node [fill=red!50] {$G^{0.50}$}; \\
     \node {Read 3 (no mate)}; & 
-        \node  [fill=white] {-}; & 
+        \node  [fill=white!90!black] {}; & 
         \node [fill=red!55] {$A^{0.55}$}; & 
         \node  [fill=red!85] {$G^{0.85}$}; &
         \node (T4) [fill=red!35] {$T^{0.85}$}; \\
@@ -342,7 +345,7 @@ The overall process for constructing the probabilistic sequence is demonstrated 
 \node (Title1) [above of = SAM, yshift=0.95cm, xshift = -1cm] {\textbf{Aligned reads (with quality scores)}};
 \node[right of = Title1, xshift = 6.25cm] {\textbf{Probabilistic sequence}};
 \end{tikzpicture}
-\caption{\label{fig:paired_diagram}An illustration of constructing a probabilistic sequence from a SAM file. Each row in the matrix on the left is a graphical representation of a short read, and the superscript represents the quality score (from 0 to 1). Half of the quality score from paired end reads is added to the relevant cell in the matrix on the right. In both matrices, the column numbering represents a position on the reference genome. In the probabilistic sequence, the consensus sequence would be TAGT, but TAGG is also a very likely sequence given the quality scores.}
+\caption{\label{fig:paired_diagram}An illustration of constructing a probabilistic sequence from a SAM file. Each row in the matrix on the left is a graphical representation of a short read, and the superscript represents the quality score (from 0 to 1). Half of the quality score from paired end reads is added to the relevant cell in the matrix on the right. In both matrices, the column numbering represents a position on the reference genome. Note that this is an intermediate step prior to ensuring that the columns sum to 1. In the probabilistic sequence, we can see that the consensus sequence would be TAGT, but TAGG is also a very likely sequence given the quality scores.}
 \end{figure}
 
 \subsection{Deletions and Insertions}
@@ -468,7 +471,7 @@ As with the deletion rate, this requires an assumption about a global rate which
 
 A primary use of the probability sequence created from these FASTQ files would be to construct a probability sequence as a reference genome for a given category.
 This would entail collecting all available FASTQ files for a given lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file.
-From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar. 
+From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar.
 
 \subsubsection{Consensus sequence FASTA files}
 \label{sec:consensusfasta}
@@ -492,7 +495,7 @@ Figure \ref{fig:probseq} summarizes the various ways a probabilistic sequence ca
 
 \begin{figure}
 \centering
-\includegraphics[width=0.9\linewidth]{figs/fig-probseq.pdf}
+\includegraphics[width=0.9\linewidth]{figs/fig-probseq.eps}
 \caption{Summary of probabilistic sequences construction. Nucleotide-level probabilistic sequences can be generated from a single FASTQ or SAM file using the sequencing quality information (left). In the case of multiple FASTQ or SAM the user can average the sequencing quality information beforehand (center). When multiple FASTA files are available, the probabilities can be directly informed from the frequencies of nucleotides at each position (center). In the case of a single FASTA file or consensus FASTQ file, the user can assume a probability model (section \ref{sec:consensusfasta}) for the distribution of sequencing errors (right). 
 Sequence-level probabilistic sequences may be obtained from the nucleotide-level ones, for example by selecting the $n$ most probable sequences (bottom).}
 \label{fig:probseq}
@@ -543,7 +546,7 @@ In our first application we do only make comparisons within re-samples of a sequ
 To select which runs to download, an arbitrary selection of 5-10 records from each of 20 non-sequential results pages were chosen.
 Once collecting the run accession numbers from the search results, an R script was run to download the relevant files and check that all information was complete.
 23 out of 275 files were incomplete due to technical errors during the download process and a further 4 were rejected due to lack of CIGAR strings (the NCBI database automatically converts files uploaded as unaligned FASTQ into the SAM file format without performing alignment), leaving 248 sequences analysed in this work. 
-The SRA accession numbers for the sequences we used are provided in the Appendix. 
+The SRA accession numbers for the sequences we used are provided in Supplementary Table 1. 
 
 
 
@@ -572,10 +575,10 @@ There were 95 sequences total, but we only plotted the ones where the second mos
 Figure \ref{fig:covidcalls} shows the results of the 49 sequences where there were more than 250 sampled sequences in the second highest lineage call.
 The consensus sequence is almost always assigned to the same lineage as the majority of the resamples, but the proportion of resamples with the same lineage as the consensus sequence is very rarely 100\% and can be as low as 32.86\% (accession number ERR4440425).
 There were 52 cases where the proportion agreeing with the consensus sequence was either exactly 0 or less than 1\%, and these cases occurred when the most common lineage sampled was labelled B.1.1.7 or "None" (sequences are labelled "None" when pangolin's classification does not reach a confidence threshold).
-B.1.1.7 represents 6\% of our data and is a significantly more infectious lineage that is of special concern to health authorities \cite{Wisem4857, europeancentrefordiseasepreventionandcontrolSARSCoV2VariantsConcern2021}.
+B.1.1.7 represents 6\% of our data and is a significantly more infectious lineage that is of special concern to health authorities.
 
 Figure \ref{fig:covidcalls2} shows both the proportion of lineages assigned to the same lineage as the consensus sequence as well as the number of different lineage assignments for each sequence we analysed.
-The clear majority of resampled sequences are assigned to the smae lineage as the consensus sequence, but there are many cases where the proportion is less than 80\% or even 60\%.
+The clear majority of resampled sequences are assigned to the same lineage as the consensus sequence, but there are many cases where the proportion is less than 80\% or even 60\%.
 From the inset, most of the SAM files result in a small number of different lineage assignments, but there are cases where there are more than 100 different alternative lineages that were possible.
 
 
@@ -602,7 +605,7 @@ Using the same resampling methods as above, we estimate a clock rate for trees e
 
 To obtain the data, we sampled genomes uniformly from each month of recorded data in GenBank, using filters to ensure that the genomes were complete and had an associated SAM file.
 We further had to filter out SAM files that were incomplete or did not contain the CIGAR strings necessary for alignment, leaving us with 244 sequences.
-The associated SRA accession numbers are provided in the Appendix.
+The associated SRA accession numbers are provided in Supplementary Table 2.
 
 Our re-sampling method will, by definition, introduce other possible mutations beyond what the consensus sequence suggests.
 Because of this, the apparent number of mutations between a re-sampled genome and the estimated root is a function of the coverage, with more positions read or more uncertainty in the sequence leading to artificially inflated terminal branch lengths.
@@ -666,10 +669,10 @@ Ideally individual analyses would be constructed to take nucleotide-level uncert
 For instance, phylogenies have been estimated based on uncertain sequence information in \cite{rossOncoNEMInferringTumor2016}, \cite{jahnTreeInferenceSinglecell2016} and \cite{zafarSiFitInferringTumor2017}, but the uncertainty is not derived from base quality scores.
 An extension of these methods to incorporate the base quality scores is a worthwhile research direction.
 
-As noted by a reviewer, \cite{demaioLinkingGreatApes2013} presents a method to construct phylogenetic trees such that each tip is associated with a collection of species.
+As noted by a reviewer, \cite{demaioLinkingGreatApes2013} presents a method to construct phylogenetic trees such that each tip is associated with a collection of individuals within a species.
 It uses a multiple sequence alignment for each of a collection of species and incorporates the polymorphisms for each species.
 Our method could re-purpose this paradigm to apply to re-samples from the probabilistic sequence in place of multiple sequence alignments, with the separate genomes acting as species.
-Alternatively, the method could be altered to directly incorporate sequence uncertainty, possibly using values from our construction of the probabilstic sequence as allele proportions.
+Alternatively, the method could be altered to directly incorporate sequence uncertainty, possibly using values from our construction of the probabilistic sequence as allele proportions.
 This combination of methods would improve the estimation of the variance and allow for an improved estimate of error rate (analagous to the within-species evolution rate).
 
 Computational burden can also be reduced by sorting the sequences in decreasing uncertainty.
@@ -688,7 +691,7 @@ It is likely that, due to different amounts of mutations used to define lineages
 We stress that re-sampling is a general method, and development of methods that incorporate uncertainty --- \eg incorporating uncertainty directly in the inference procedure, perhaps directly in the formulation of the likelihood --- should be a priority for future research in particular applications of uncertainty propagation.
 
 Our method does not preclude tertiary analyses to test for systematic errors.
-For instance, \cite{demaioIssuesSARSCoV2Sequencing2020} suggest that some errors arise due to issues in the sequencing protocol in particular laboratories.
+For instance, in a post on virological.org (https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473), Nicola De Maio et al. suggest that some errors arise due to issues in the sequencing protocol in particular laboratories.
 Our method allows for adjustments of the base call quality score, such as in \cite{brockmanQualityScoresSNP2008}, correcting for laboratory-specific errors, as well as more sophisticated definitions of genome likelihoods \cite[\eg ][]{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}.
 
 We have evaluated an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
