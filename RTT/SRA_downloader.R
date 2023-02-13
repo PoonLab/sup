@@ -113,7 +113,7 @@ for (i in seq_len(nrow(dls))) {
     dls$status[i] <- "Complete"
     write.csv(dls, file = "SRA_downloads.csv", row.names = FALSE)
 
-    command <- paste0("../src/parse-sam-c/sam2aln ", thisfil, " 3")
+    command <- paste0("../src/parse-sam-c/sam2aln -f", thisfil, "-t 3")
     print(command)
     system(command)
     #file.remove(thisfil)

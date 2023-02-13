@@ -2,6 +2,7 @@
 #include <time.h>
 #include <regex.h>
 #include <pthread.h>
+#include <unistd.h>
 
 static const bool paired = true;
 int maxLength;
@@ -9,6 +10,14 @@ pthread_mutex_t lock;
 double **m;
 insertion_info *insertions_list;
 insertion_info *prev_insertion;
+
+void print_usage(char *pname) {
+    printf("Usage: %s [OPTIONS]\n", pname);
+    printf("Options:\n");
+    printf("  -h            Display the help message\n");
+    printf("  -f FILE       Input SAM filename\n");
+    printf("  -t NUM        Number of threads\n");
+}
 
 int len_terminal_gap(char *seq) {
     bool prefix = true;
@@ -539,10 +548,36 @@ void *processLines(void *args)
 // Merge two matched reads into a single aligned read
 int main(int argc, char **argv)
 {
-    if (argc != 3)
-    {
-        printf("Error: No input file provided or Number of threads haven't been specified\n");
-        exit(-1);
+    int c;
+    char *input_file = NULL;
+    char *nthreads = NULL;
+
+    while ((c = getopt(argc, argv, "hf:t:")) != -1) {
+        switch (c) {
+            case 'h':
+                print_usage(argv[0]);
+                return 0;
+            case 'f':
+                input_file = optarg;
+                break;
+            case 't':
+                nthreads = optarg;
+                break;
+            case '?':
+                fprintf(stderr, "Invalid option: %c\n", optopt);
+                break;
+        }
+    }
+
+    if (input_file == NULL) {
+        fprintf(stderr, "Error: input file is required\n");
+        print_usage(argv[0]);
+        return 1;
+    }
+
+    if (nthreads == NULL) {
+        printf("Note: 2 threads will be used by default\n");
+        nthreads = "2";
     }
 
     if (pthread_mutex_init(&lock, NULL) != 0)
@@ -554,10 +589,10 @@ int main(int argc, char **argv)
     clock_t t;
     t = clock();
 
-    FILE *fp = fopen(argv[1], "r");
+    FILE *fp = fopen(input_file, "r");
     if (fp == NULL)
     {
-        perror(argv[1]);
+        perror(input_file);
         exit(-1);
     }
 
@@ -614,13 +649,13 @@ int main(int argc, char **argv)
         }
     }
     else {
-        numLines = get_number_rows(argv[1]);
+        numLines = get_number_rows(input_file);
     }
     fclose(fp);
     free(line);
     
-    int num_read_lines = numLines / atoi(argv[2]);
-    int num_threads = atoi(argv[2]);
+    int num_read_lines = numLines / atoi(nthreads);
+    int num_threads = atoi(nthreads);
     int start_line = 0, end_line = num_read_lines;
 
     if (numLines % num_threads > 0) {
@@ -636,7 +671,7 @@ int main(int argc, char **argv)
         threadArg *arg = malloc(sizeof(threadArg));
         arg->start_line = start_line;
         arg->end_line = end_line;
-        arg->filename = argv[1];
+        arg->filename = input_file;
         arg->hash = hash;
         pthread_create(&tid[k], NULL, processLines, (void *)arg);
 
@@ -653,11 +688,11 @@ int main(int argc, char **argv)
     pthread_mutex_destroy(&lock);
 
     printf("Writing Matrix to CSV\n");
-    write_matrix(m, maxLength, argv[1]);
+    write_matrix(m, maxLength, input_file);
 
     if (insertions_list!=NULL) {
         printf("Writing Insertions to CSV\n");
-        write_insertions(insertions_list, argv[1]);
+        write_insertions(insertions_list, input_file);
     }
 
     for (int i = 0; i < maxLength; i++) {

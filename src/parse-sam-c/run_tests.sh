@@ -4,5 +4,5 @@ make
 files=`ls ./data`
 
 for entry in $files; do
-  ./sam2aln data/$entry 3
+  ./sam2aln -f data/$entry -t 3
 done
