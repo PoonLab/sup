@@ -470,8 +470,9 @@ As with the deletion rate, this requires an assumption about a global rate which
 
 
 A primary use of the probability sequence created from these FASTQ files would be to construct a probability sequence as a reference genome for a given category.
-This would entail collecting all available FASTQ files for a given lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file.
-From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via a hypothesis test for whether the probability sequences are sufficiently similar.
+This would entail collecting all available FASTQ files within a lineage designation and using them in the construction of a probability sequence as if they were short reads in a SAM file, thus creating a lineage-summarising probabilistic sequence.
+From here, lineage designation for a newly acquired sequence (and its probability sequence) could be performed via comparison of the new sequence with the library of lineage-summarising probabilistic sequences. 
+Such a comparison must properly consider the error structures of the new lineage, which is constructed from short reads and this is fundamentally different from the probabilistic sequences for each lineage, and should be based on the probability of similar consensus sequences rather than similar error structures.
 
 \subsubsection{Consensus sequence FASTA files}
 \label{sec:consensusfasta}
@@ -523,6 +524,7 @@ We arbitrarily chose to censor any position that had fewer than 10 reads.
 A C program has been written to convert SAM files into our matrix representation.
 The program assumes that the reads are aligned to a reference, then uses that reference to initiate the matrix.
 Because of our methods for handling paired reads, the program is able to stream the file line-by-line in a parallel computing environment.
+However, this C program currently does not output insertions or deletions, and thus they are not part of this algorithm.
 
 The resampling algorithm defined above has been implemented in the R programming language.
 A shell script is used to repeatedly call the necessary R functions and apply the resampling algorithm to all outputs of the C program until the desired number of samples is obtained.
@@ -555,6 +557,7 @@ The SRA accession numbers for the sequences we used are provided in Supplementar
 
 Since pangoLEARN is a pre-trained model, assigning lineage designations to a large number of resampled genome sequences is not computationally burdensome.
 Sampling 5,000 different sequences from a probabilistic sequence can be done in a reasonable amount of time, even on a mid-range consumer laptop.
+Our implementation of the construction of the probabilistic sequence does not output insertions and deletions, so the results in this section are only based on mutations.
 
 
 \begin{figure}[btp]
