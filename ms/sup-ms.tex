@@ -22,6 +22,7 @@
 \addbibresource{supbib.bib}
 
 \usepackage{url}
+\renewbibmacro*{url}{\printfield{urlraw}}
 \urlstyle{same}
 
 \usepackage{tikz}
@@ -492,11 +493,11 @@ This probabilistic sequence is completely fabricated, \ie not based on any empir
 However, the sensitivity of an analysis can be evaluated by choosing different values of $\alpha$, $\beta$, and $d$ (\eg based on previous studies) and propagating these uncertainties into downstream analyses.
 The results from such an analysis would not indicate anything about the sequence itself but could be used to determine how robust the methods are to increased sequence uncertainty.
 
-Figure \ref{fig:probseq} summarizes the various ways a probabilistic sequence can be obtained depending on the type of data available. 
+Figure \ref{fig:probseq} summarizes the various ways a probabilistic sequence can be obtained depending on the type of data available.
 
 \begin{figure}
 \centering
-\includegraphics[width=0.9\linewidth]{figs/fig-probseq.eps}
+\includegraphics[width=0.9\linewidth]{figs/fig-probseq.pdf}
 \caption{Summary of probabilistic sequences construction. Nucleotide-level probabilistic sequences can be generated from a single FASTQ or SAM file using the sequencing quality information (left). In the case of multiple FASTQ or SAM the user can average the sequencing quality information beforehand (center). When multiple FASTA files are available, the probabilities can be directly informed from the frequencies of nucleotides at each position (center). In the case of a single FASTA file or consensus FASTQ file, the user can assume a probability model (section \ref{sec:consensusfasta}) for the distribution of sequencing errors (right). 
 Sequence-level probabilistic sequences may be obtained from the nucleotide-level ones, for example by selecting the $n$ most probable sequences (bottom).}
 \label{fig:probseq}
@@ -651,7 +652,7 @@ In this study, we have demonstrated that these errors in base calling can lead t
 Both of these situations could lead to incorrect conclusions, such as missing a variant of interest or making overconfident conclusions about the date of the first case of COVID-19.
 The potential for errors in base calls should always be taken into account when making decisions based on genetic sequencing data.
 
-Our analysis of Pangolin lineage classification demonstrates that the uncertainty in the base calls has a non-trivial effect on the potential lineage calls.
+Our analysis of Pangolin lineage classification demonstrates that the uncertainty in the base calls has a non-trivial2 effect on the potential lineage calls.
 The reported lineage classifications are based on a sophisticated classification algorithm which has high confidence in the predicted category, but this assumes that the input sequence is known without error.
 We are not aware of any classification system that incorporates per-base error, so we suggest that interpretations of the output of any classification system be interpreted with reference to the uncertainty in their sequence.
 
@@ -694,7 +695,7 @@ It is likely that, due to different amounts of mutations used to define lineages
 We stress that re-sampling is a general method, and development of methods that incorporate uncertainty --- \eg incorporating uncertainty directly in the inference procedure, perhaps directly in the formulation of the likelihood --- should be a priority for future research in particular applications of uncertainty propagation.
 
 Our method does not preclude tertiary analyses to test for systematic errors.
-For instance, in a post on virological.org (https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473), Nicola De Maio et al. suggest that some errors arise due to issues in the sequencing protocol in particular laboratories.
+For instance, in a post on virological.org (\url{https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473}), Nicola De Maio et al. suggest that some errors arise due to issues in the sequencing protocol in particular laboratories.
 Our method allows for adjustments of the base call quality score, such as in \cite{brockmanQualityScoresSNP2008}, correcting for laboratory-specific errors, as well as more sophisticated definitions of genome likelihoods \cite[\eg ][]{liAdjustQualityScores2004, depristoFrameworkVariationDiscovery2011, liSNPDetectionMassively2009}.
 
 We have evaluated an algorithm to include insertion events in a re-sampling scheme, but many of the resultant sequences were not mappable to known sequences.
@@ -708,6 +709,14 @@ The phylogeny created by this team has been a vital resource for researchers and
 In particular, the PANGO label for the current Variants of Concern (VOCs), especially B.1.1.7, are the labels being used worldwide by news organizations.
 The output from Pangolin and many other bioinformatics tools are usually interpreted as \emph{deterministic} results.
 This study is an argument that inherent uncertainty in sequencing warrants propagation into downstream analyses.
+
+\section*{Data Availability}
+
+All data for this work have been previously published. Unique SRA identifiers are provided in the supplementary materials.
+
+\section*{Funding}
+
+This research was funded by NSERC as well as the Presidential Data Fellowship from the University of Western Ontario.
 
 \printbibliography
 
